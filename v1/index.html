@@ -70,14 +70,25 @@
     <a class="skip-link" href="#home" data-i18n="skipLink">Skip to content</a>
 
     <header class="header">
+      <!-- These three run as inline SVG rather than icon-font glyphs. If the
+           icon CDN is slow or blocked — which happens on flaky mobile
+           connections — a glyph renders as nothing, and an invisible
+           hamburger means no way to open the menu at all. -->
       <a href="#home" class="logo" aria-label="Home">
-        <i class="fa-solid fa-infinity fa-2xl" style="color: #63e6be"></i>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#63e6be" stroke-width="2" aria-hidden="true">
+          <path d="M6.5 15.5c-2 0-3.5-1.6-3.5-3.5S4.5 8.5 6.5 8.5c3.5 0 5.5 7 9 7 2 0 3.5-1.6 3.5-3.5s-1.5-3.5-3.5-3.5c-3.5 0-5.5 7-9 7z" />
+        </svg>
       </a>
 
       <label for="menu-btn" class="menu-icon" aria-label="Toggle menu">
-        <i class="fa-solid fa-bars"></i>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
       </label>
       <input type="checkbox" class="menu-btn" id="menu-btn" />
+      <!-- Tapping anywhere outside the open drawer closes it. As a <label> for
+           the same checkbox it needs no JavaScript. -->
+      <label for="menu-btn" class="menu-scrim" aria-hidden="true"></label>
 
       <nav class="navbar" aria-label="Main navigation">
         <a href="#projects" data-i18n="navProjects">Projects</a>
@@ -87,7 +98,13 @@
       </nav>
 
       <button id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-        <i class="fa-solid fa-moon fa-2xl"></i>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="5" />
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+        </svg>
       </button>
 
       <select id="language-switcher" aria-label="Change language">
@@ -102,14 +119,17 @@
       <div class="home-content">
         <h3 id="greeting" data-i18n="greeting">Hello!</h3>
         <h1 id="name" data-i18n="name">My name is Arda Canbakış</h1>
-        <h3>
-          I am a
-          <span class="home-span">
+        <h3 class="role-line">
+          <span data-i18n="iAmA">I am a</span>
+          <!-- The three cycling words stack on top of each other, so the
+               wrapper sizes itself from the longest of them via ::before
+               rather than a hand-tuned margin that only held at one width. -->
+          <span class="role-cycle" aria-hidden="true">
             <span class="front-span">Frontend</span>
             <span class="back-span">Backend</span>
             <span class="full-span">Fullstack</span>
-            <span class="last-span" data-i18n="roleSuffix">Web Developer</span>
           </span>
+          <span class="last-span" data-i18n="roleSuffix">Web Developer</span>
         </h3>
         <p id="description" data-i18n="description">
           with a passion for learning new languages, extreme sports, DIY projects, and the great

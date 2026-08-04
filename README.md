@@ -166,6 +166,47 @@ To configure v2, edit `v2/app.js` and `v2/styles.css`:
 
 ---
 
+## Responsive behaviour
+
+Both versions use the same breakpoint ladder:
+
+| Width | Target | Layout |
+| --- | --- | --- |
+| ≥1281px | Desktop | Three project columns; v2 shows its side rail |
+| 1024–1280 | Small laptop, tablet landscape | Three columns, tighter padding |
+| 768–1023 | Tablet portrait | Two columns; v2 switches to the hamburger |
+| 600–767 | Large phone landscape, small tablet | Single column, nav behind the hamburger |
+| 430–599 | Large phones | Single column, full-width buttons |
+| 360–429 | Standard phones | Reduced type scale, condensed footer |
+| ≤359 | Small phones | Smallest scale; v2 drops the wordmark for the controls |
+
+Plus a rule for phones held sideways (`orientation: landscape` under 520px tall), which drops
+the full-height hero so a 380px-tall screen isn't spent entirely on the title.
+
+Verified in a headless browser at eleven widths from 320px to 1440px: no horizontal overflow and
+no unreachable navigation at any of them.
+
+### Bugs this uncovered
+
+- **v2 tablets had no navigation at all.** The side rail was hidden below 1100px but the
+  hamburger only appeared below 760px, so every width in between — every tablet — had neither.
+  Both now switch at the same point.
+- **`minmax(33rem, 1fr)` overflowed small phones.** An auto-fit track still demands its minimum
+  when the container is narrower, so cards pushed past the viewport at 320px. Now
+  `minmax(min(33rem, 100%), 1fr)`.
+- **v1's cycling job title printed on top of "Web Developer".** The space for it was reserved by
+  a fixed `margin-left` tuned for the desktop font size. It is now an inline-grid whose track
+  measures itself against all three words, with the reveal done by `clip-path` so each word keeps
+  its full width.
+- **v1's logo, hamburger and theme toggle were icon-font glyphs.** If the icon CDN is slow or
+  blocked — which happens on mobile connections — the hamburger renders as nothing and there is
+  no way to open the menu. All three are now inline SVG.
+- **`100vh` sections** counted the space the phone's URL bar occupies. Now `100svh`.
+- Touch targets are sized in px rather than rem, since the root font-size shrinks on small
+  screens and rem-based controls would get smaller exactly where fingers need them biggest.
+- v1's mobile drawer inherited `justify-content: space-between` from the desktop bar, spreading
+  four links down the full height, and had no way to dismiss it by tapping outside. Both fixed.
+
 ## Known limitations
 
 Fonts and icons still load from Google Fonts and cdnjs. Self-hosting them would remove two

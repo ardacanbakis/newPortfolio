@@ -49,8 +49,13 @@ body {
 
 section {
   /* NOTE: the old rule also set `max-height: 100vh`, which clipped any section
-     taller than the viewport. Only a minimum is enforced now. */
+     taller than the viewport. Only a minimum is enforced now.
+
+     `svh` rather than `vh`: on phones 100vh counts the space the URL bar sits
+     in, so a 100vh section is taller than what you can actually see and the
+     layout shifts as the bar hides. */
   min-height: 100vh;
+  min-height: 100svh;
   padding: 10rem 10% 8rem;
 }
 
@@ -92,11 +97,16 @@ section {
 }
 
 .menu-btn,
-.menu-icon {
+.menu-icon,
+.menu-scrim {
   display: none;
 }
 
 .logo {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
   font-size: 2.5rem;
   color: var(--text-color);
   cursor: pointer;
@@ -138,20 +148,52 @@ section {
   width: 100%;
 }
 
+/* Touch targets are sized in px, not rem: the root font-size shrinks on small
+   screens, so a rem-based button would get smaller exactly where fingers need
+   it biggest. 44px is the minimum comfortable target. */
 #theme-toggle {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
   color: var(--theme-color);
-  background-color: var(--bg-color);
+  background-color: transparent;
   cursor: pointer;
+  border-radius: 50%;
 }
+
+#theme-toggle svg {
+  width: 2.4rem;
+  height: 2.4rem;
+  min-width: 20px;
+  min-height: 20px;
+}
+
+#theme-toggle .icon-sun { display: none; }
+#theme-toggle.is-dark .icon-moon { display: none; }
+#theme-toggle.is-dark .icon-sun { display: block; }
 
 #language-switcher {
   color: var(--text-color);
   background-color: var(--bg-color);
   font-size: 1.5rem;
-  padding: 0.4rem;
+  min-height: 44px;
+  padding: 0.4rem 0.8rem;
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   cursor: pointer;
+}
+
+.logo svg {
+  width: 3.2rem;
+  height: 3.2rem;
+  min-width: 28px;
+  min-height: 28px;
+}
+
+.menu-icon svg {
+  width: 2.8rem;
+  height: 2.8rem;
 }
 
 /* ── Home ───────────────────────────────────────────────────────────────── */
@@ -212,49 +254,64 @@ section {
   transition: all 0.4s ease-in-out;
 }
 
-.home-span {
-  color: var(--main-color);
-  position: relative;
-  justify-content: space-around;
+/* The three job titles cycle in the same slot, one on top of the other.
+
+   The slot must be as wide as the widest of them. The original code reserved
+   that space with a fixed `margin-left` on the text after it, tuned for the
+   desktop font size — so on a phone the words printed on top of "Web
+   Developer". Guessing the longest word and measuring it with a hidden
+   ::before only moved the problem: which word is widest depends on the font
+   that actually loads.
+
+   An inline-grid with all three words stacked in one cell settles it. The
+   track sizes itself to whichever word is genuinely widest, whatever the
+   font. The reveal is a clip-path wipe rather than an animated width, so each
+   word keeps its full size and still contributes to that measurement. */
+.role-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.8rem;
+}
+
+.role-cycle {
+  display: inline-grid;
+  justify-items: start;
 }
 
 .front-span,
 .back-span,
 .full-span {
-  position: absolute;
-  color: transparent;
-  width: 0%;
-  height: 100%;
-  background-color: var(--main-color);
-  background-clip: text;
-  -webkit-background-clip: text;
-  top: 0;
-  left: 0;
+  grid-area: 1 / 1;
   white-space: nowrap;
-  overflow: hidden;
+  color: var(--main-color);
+  clip-path: inset(0 100% 0 0);
 }
 
 .last-span {
-  margin-left: 11.5rem;
   color: var(--text-color);
 }
 
 @keyframes anime-front {
-  0% { width: 0%; }
-  15% { width: 100%; }
-  33% { width: 0%; }
+  0%   { clip-path: inset(0 100% 0 0); }
+  15%  { clip-path: inset(0 0 0 0); }
+  33%  { clip-path: inset(0 100% 0 0); }
+  100% { clip-path: inset(0 100% 0 0); }
 }
 
 @keyframes anime-back {
-  33% { width: 0%; }
-  50% { width: 100%; }
-  66% { width: 0%; }
+  0%   { clip-path: inset(0 100% 0 0); }
+  33%  { clip-path: inset(0 100% 0 0); }
+  50%  { clip-path: inset(0 0 0 0); }
+  66%  { clip-path: inset(0 100% 0 0); }
+  100% { clip-path: inset(0 100% 0 0); }
 }
 
 @keyframes anime-full {
-  66% { width: 0%; }
-  80% { width: 100%; }
-  100% { width: 0%; }
+  0%   { clip-path: inset(0 100% 0 0); }
+  66%  { clip-path: inset(0 100% 0 0); }
+  80%  { clip-path: inset(0 0 0 0); }
+  100% { clip-path: inset(0 100% 0 0); }
 }
 
 .front-span { animation: anime-front 6s linear infinite; }
@@ -272,7 +329,7 @@ section {
 
 .projects-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(32rem, 100%), 1fr));
   gap: 3rem;
   width: 100%;
   max-width: 130rem;
@@ -469,7 +526,7 @@ section {
 
 .services-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(28rem, 100%), 1fr));
   gap: 3rem;
   width: 100%;
   max-width: 130rem;
@@ -540,7 +597,7 @@ section {
 
 .input-div {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
   gap: 0 2rem;
 }
 
@@ -710,6 +767,8 @@ section {
   place-items: center;
   width: 4.2rem;
   height: 4.2rem;
+  min-width: 40px;
+  min-height: 40px;
   border-radius: 50%;
   font-size: 1.9rem;
   color: var(--muted-color);
@@ -841,52 +900,185 @@ section {
   transform: none;
 }
 
-/* ── Responsive ─────────────────────────────────────────────────────────── */
-@media screen and (max-width: 1200px) {
-  html { font-size: 55%; }
-  .about-img img { max-height: 45vh; height: auto; }
+/* ══ Responsive ══════════════════════════════════════════════════════════
+   Breakpoints, largest first:
+
+     ≥1281px   desktop            — the layout above
+     1024–1280 small laptop / tablet landscape
+      768–1023 tablet portrait
+      600–767  large phone landscape, small tablet
+      430–599  large phones
+      360–429  standard phones
+      ≤359     small phones
+     plus a short-viewport rule for phones held sideways.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* ── Small laptops and tablets in landscape ─────────────────────────────── */
+@media screen and (max-width: 1280px) {
+  html { font-size: 58%; }
+
+  section { padding: 10rem 7% 8rem; }
+
+  .about-img img { max-height: 50vh; height: auto; }
   #aboutDescription { font-size: 1.8rem; }
 }
 
-@media screen and (max-width: 980px) {
+/* ── Tablets, portrait ──────────────────────────────────────────────────── */
+@media screen and (max-width: 1023px) {
+  html { font-size: 56%; }
+
+  .navbar { width: 44vw; }
+
+  /* Two roomy columns read better than three cramped ones on a tablet. */
+  .projects-container { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .services-container { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
   .contact-wrapper { grid-template-columns: 1fr; }
-  .about-img img { max-height: 40vh; height: auto; }
+  .contact-direct { max-width: 48rem; margin-inline: auto; }
+
+  .about { gap: 4rem; }
+  .about-img img { max-height: 42vh; height: auto; }
+  .about-content { width: 100%; max-width: 60rem; }
+
+  .home { gap: 4rem; }
+  .home-img img { width: min(46vw, 34rem); max-width: 100%; }
 }
 
-@media screen and (max-width: 760px) {
-  section { padding: 10rem 6% 6rem; }
+/* ── Large phones landscape / small tablets ─────────────────────────────── */
+@media screen and (max-width: 767px) {
+  section { padding: 10rem 6% 7rem; }
 
+  /* Below this the nav collapses behind the hamburger. */
   .navbar {
     display: flex;
     flex-direction: column;
-    position: absolute;
+    /* The desktop rule spreads the links across the bar with
+       `space-between`; left alone here it spreads them down the whole
+       drawer instead. */
+    justify-content: flex-start;
+    position: fixed;
     top: 0;
     left: 0;
-    width: 70vw;
-    padding: 8rem 5rem 5rem;
+    width: min(78vw, 32rem);
+    height: 100vh;
+    height: 100svh;
+    padding: 10rem 4rem 4rem;
     background-color: var(--second-bg-color);
-    gap: 2rem;
-    transform: translate(-100%);
-    border-radius: 0 0 20rem 0;
-    transition: 0.5s;
+    gap: 1rem;
+    transform: translateX(-100%);
+    border-radius: 0 2rem 2rem 0;
+    box-shadow: 0.4rem 0 2rem rgba(0, 0, 0, 0.2);
+    transition: transform 0.4s ease;
+    overflow-y: auto;
+    /* The scrim comes first in the DOM, so without this the drawer would be
+       painted underneath it. */
+    z-index: 10;
   }
 
-  .menu-btn:checked ~ .navbar { transform: translate(0); }
+  .navbar a {
+    margin: 0;
+    padding: 1.2rem 0;
+    font-size: 2.2rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-btn:checked ~ .navbar { transform: translateX(0); }
+
+  .menu-btn:checked ~ .menu-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+    background-color: rgba(0, 0, 0, 0.45);
+  }
 
   .menu-icon {
-    display: block;
-    font-size: 2.8rem;
+    display: grid;
+    place-items: center;
+    min-width: 44px;
+    min-height: 44px;
     color: var(--text-color);
     cursor: pointer;
     z-index: 11;
   }
 
-  .home-content h1 { font-size: 4.2rem; }
-  .last-span { margin-left: 0; }
-  .heading { font-size: 3.6rem; }
-  .contact-form { padding: 2rem; }
-  .whatsapp-float { width: 5.4rem; height: 5.4rem; font-size: 2.8rem; right: 1.8rem; bottom: 1.8rem; }
-  #back-to-top { right: 1.8rem; bottom: 8.5rem; }
+  .header { padding: 1.2rem 5%; }
+
+  /* One column: two columns of body copy at this width leaves ~20 characters
+     per line, which is unreadable. */
+  .projects-container { grid-template-columns: 1fr; }
+  .services-container { grid-template-columns: 1fr; }
+
+  .home { padding: 11rem 6% 6rem; }
+  .home-content h1 { font-size: 4.4rem; }
+  .home-img img { width: min(64vw, 30rem); }
+
+  .heading { font-size: 3.8rem; }
+  .contact-form { padding: 2.4rem 2rem; }
+
+  .social-links a { font-size: 4rem; margin: 2rem 2rem 2rem 0; }
+}
+
+/* ── Large phones ───────────────────────────────────────────────────────── */
+@media screen and (max-width: 599px) {
+  html { font-size: 55%; }
+
+  section { padding: 9rem 6% 6rem; }
+
+  .home-content h1 { font-size: 4rem; }
+  .home-img img { width: min(70vw, 28rem); }
+
+  .project-links { gap: 1.2rem 1.8rem; }
+  .project-links a { min-height: 32px; align-items: center; }
+
+  .whatsapp-float { width: 5.4rem; height: 5.4rem; right: 1.6rem; bottom: 1.6rem; }
+  .whatsapp-float svg { width: 2.8rem; height: 2.8rem; }
+  #back-to-top { right: 1.6rem; bottom: 8.6rem; }
+}
+
+/* ── Standard phones ────────────────────────────────────────────────────── */
+@media screen and (max-width: 429px) {
+  html { font-size: 53%; }
+
+  section { padding: 9rem 5% 6rem; }
+
+  .home-content h1 { font-size: 3.6rem; }
+  .home-content h3 { font-size: 2.2rem; }
+  .heading { font-size: 3.4rem; }
+
+  .projects-box h3 { font-size: 2.2rem; }
+  .footer-socials { gap: 0.4rem; }
+  .footer-socials a { width: 3.8rem; height: 3.8rem; }
+}
+
+/* ── Small phones ───────────────────────────────────────────────────────── */
+@media screen and (max-width: 359px) {
+  html { font-size: 50%; }
+
+  section { padding: 8rem 4% 5rem; }
+
+  .header { padding: 1rem 4%; }
+  #language-switcher { font-size: 1.4rem; padding: 0.3rem 0.5rem; }
+
+  .home-content h1 { font-size: 3.2rem; }
+  .home-img img { width: 74vw; }
+
+  .projects-box h3,
+  .card h3 { padding-right: 0; }
+
+  .tech-tags li { font-size: 1.1rem; }
+}
+
+/* ── Phones held sideways ───────────────────────────────────────────────
+   A 100svh minimum wastes the whole screen when it is only ~380px tall. */
+@media screen and (max-height: 520px) and (orientation: landscape) {
+  section { min-height: 0; padding-top: 9rem; padding-bottom: 5rem; }
+
+  .home { min-height: 0; padding-top: 10rem; }
+  .home-img img { width: min(34vw, 22rem); }
+  .about-img img { max-height: 70vh; }
 }
 
 /* ── Reduced motion ─────────────────────────────────────────────────────── */

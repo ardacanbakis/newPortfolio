@@ -59,6 +59,7 @@ const translations = {
 
     greeting: "Hello!",
     name: "My name is Arda Canbakış",
+    iAmA: "I am a",
     roleSuffix: "Web Developer",
     description:
       "with a passion for learning new languages, extreme sports, DIY projects, and the great outdoors.",
@@ -150,6 +151,7 @@ const translations = {
 
     greeting: "Merhaba!",
     name: "Benim adım Arda Canbakış",
+    iAmA: "Ben bir",
     roleSuffix: "Web Geliştirici",
     description:
       "yeni diller öğrenmeye, ekstrem sporlara, DIY projelerine ve doğada vakit geçirmeye tutkuluyum.",
@@ -241,6 +243,7 @@ const translations = {
 
     greeting: "¡Hola!",
     name: "Mi nombre es Arda Canbakış",
+    iAmA: "Soy un",
     roleSuffix: "Desarrollador Web",
     description:
       "con una pasión por aprender nuevos idiomas, deportes extremos, proyectos de bricolaje y la naturaleza.",
@@ -343,10 +346,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const setTheme = (isDark) => {
     body.classList.toggle("dark-theme", isDark);
 
-    const icon = themeToggle.querySelector("i");
-    icon.classList.toggle("fa-sun", isDark);
-    icon.classList.toggle("fa-moon", !isDark);
-
+    // The button holds both a sun and a moon as inline SVG; CSS shows one.
+    themeToggle.classList.toggle("is-dark", isDark);
     themeToggle.setAttribute("aria-pressed", String(isDark));
     document
       .querySelector('meta[name="theme-color"]')

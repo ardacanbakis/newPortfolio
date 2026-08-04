@@ -244,6 +244,7 @@ section > * {
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-height: 44px;
   font-family: var(--serif);
   font-size: 1.8rem;
 }
@@ -263,6 +264,9 @@ section > * {
   font-family: var(--sans);
   font-size: 1.3rem;
   cursor: pointer;
+  /* px, not rem: the root font-size shrinks on small screens, so a rem-sized
+     control would get smaller exactly where fingers need it biggest. */
+  min-height: 44px;
 }
 
 #language-switcher option { background-color: #14181a; color: #f6f6f4; }
@@ -271,9 +275,10 @@ section > * {
   display: none;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   gap: 0.5rem;
-  width: 3.4rem;
-  height: 3.4rem;
+  min-width: 44px;
+  min-height: 44px;
   background: none;
   border: none;
   cursor: pointer;
@@ -329,12 +334,15 @@ section > * {
 /* The dot has to sit at a fixed x, so the label is taken out of flow. Left in
    flow it still occupies width while invisible, and because each label is a
    different length every dot lands at a different offset. */
+/* The dot is 9px across; padding the row gives it a hit area worth aiming at
+   without moving the dot itself. */
 .rail a {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  height: 0.9rem;
+  min-height: 24px;
+  padding-left: 2rem;
 }
 
 .rail .dot {
@@ -546,7 +554,10 @@ section > * {
 
 .halves {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+  /* min() matters here: an auto-fit track with a fixed minimum still demands
+     that minimum when the container is narrower, pushing the grid past the
+     viewport on small phones. Capping the demand at 100% prevents that. */
+  grid-template-columns: repeat(auto-fit, minmax(min(30rem, 100%), 1fr));
   gap: 2rem;
   text-align: left;
 }
@@ -605,7 +616,7 @@ section > * {
 
 .project-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(33rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(33rem, 100%), 1fr));
   gap: 2rem;
 }
 
@@ -675,7 +686,12 @@ section > * {
 
 .card-links { display: flex; flex-wrap: wrap; gap: 1.8rem; }
 
+/* These act as the card's buttons, so they get a real hit area rather than
+   the bare height of their text. */
 .card-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
   font-size: 1.4rem;
   font-weight: 500;
   color: var(--accent);
@@ -717,7 +733,7 @@ section > * {
 
 .service-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(28rem, 100%), 1fr));
   gap: 2rem;
 }
 
@@ -764,7 +780,7 @@ section > * {
 
 .two-up {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
   gap: 0 2rem;
 }
 
@@ -968,30 +984,148 @@ section > * {
 
 .reveal.visible { opacity: 1; transform: none; }
 
-/* ── Responsive ─────────────────────────────────────────────────────────── */
+/* ══ Responsive ══════════════════════════════════════════════════════════
+   Breakpoints, largest first:
 
-@media (max-width: 1100px) {
-  .about > .about-inner { grid-template-columns: 1fr; gap: 4rem; }
-  .contact-grid { grid-template-columns: 1fr; }
-  .rail { display: none; }
+     ≥1281px   desktop            — the layout above, with the side rail
+     1024–1280 small laptop / tablet landscape
+      768–1023 tablet portrait
+      600–767  large phone landscape, small tablet
+      430–599  large phones
+      360–429  standard phones
+      ≤359     small phones
+     plus a short-viewport rule for phones held sideways.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* ── Small laptops and tablets in landscape ─────────────────────────────── */
+@media (max-width: 1280px) {
+  html { font-size: 60%; }
+
+  section { padding: 11rem 6vw; }
+
+  .rail { right: 1.6rem; }
 }
 
-@media (max-width: 760px) {
+/* ── Below the rail's width: the hamburger takes over ───────────────────
+   The rail needs margin either side of the content to sit in, so it goes
+   away here. It previously went away at 1100px while the hamburger only
+   appeared at 760px — which left every tablet between those two widths with
+   no way to navigate the page at all. Both now switch at the same point. */
+@media (max-width: 1100px) {
+  .rail { display: none; }
+  #menu-toggle { display: flex; }
+
+  .about > .about-inner { grid-template-columns: 1fr; gap: 4rem; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .contact-direct { max-width: 52rem; margin-inline: auto; }
+}
+
+/* ── Tablets, portrait ──────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
   html { font-size: 58%; }
 
+  section { padding: 10rem 6vw; }
+
+  /* Two roomy columns beat three cramped ones at this width. */
+  .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .about-media { max-width: 52rem; margin-inline: auto; }
+
+  .divider svg { height: 7rem; }
+  .divider.seam svg { height: 15rem; }
+}
+
+/* ── Large phones landscape / small tablets ─────────────────────────────── */
+@media (max-width: 767px) {
   section { padding: 9rem 7vw; }
 
-  #menu-toggle { display: flex; }
+  /* One column: two columns of body copy here leaves about twenty characters
+     per line, which nobody can read comfortably. */
+  .project-grid { grid-template-columns: 1fr; }
+  .service-grid { grid-template-columns: 1fr; }
+  .halves { grid-template-columns: 1fr; }
 
   .hero-symbol { opacity: 0.1; }
   .half { padding: 3rem 2.4rem; }
+  .card-body { padding: 2.4rem 2.2rem; }
 
   .divider svg { height: 6rem; }
   .divider.seam svg { height: 12rem; }
   .seam-mark { width: 5rem; height: 5rem; }
 
-  .whatsapp-float { width: 5.2rem; height: 5.2rem; right: 1.8rem; bottom: 1.8rem; }
-  .whatsapp-float svg { width: 2.6rem; height: 2.6rem; }
+  .whatsapp-float { width: 5.4rem; height: 5.4rem; right: 1.8rem; bottom: 1.8rem; }
+  .whatsapp-float svg { width: 2.8rem; height: 2.8rem; }
+}
+
+/* ── Large phones ───────────────────────────────────────────────────────── */
+@media (max-width: 599px) {
+  html { font-size: 56%; }
+
+  section { padding: 8rem 6vw; }
+
+  .section-lede { margin-bottom: 4rem; }
+
+  .hero { padding-top: 12rem; padding-bottom: 8rem; }
+  .hero-cta { flex-direction: column; align-items: stretch; }
+  .hero-cta .btn { width: 100%; }
+
+  .overlay-menu a { font-size: 2.8rem; }
+
+  .contact-form,
+  .contact-direct { padding: 2.6rem 2rem; }
+}
+
+/* ── Standard phones ────────────────────────────────────────────────────── */
+@media (max-width: 429px) {
+  html { font-size: 54%; }
+
+  section { padding: 8rem 5.5vw; }
+
+  .topbar { padding: 1.4rem 5.5vw; }
+  .mark span { font-size: 1.6rem; }
+
+  .hero-role { gap: 0.8rem; }
+  .card h3 { font-size: 2.2rem; }
+
+  .footer-socials { gap: 0.3rem; }
+  .footer-socials a { width: 3.8rem; height: 3.8rem; }
+  .footer-socials a svg { width: 1.8rem; height: 1.8rem; }
+}
+
+/* ── Small phones ───────────────────────────────────────────────────────── */
+@media (max-width: 359px) {
+  html { font-size: 51%; }
+
+  section { padding: 7rem 5vw; }
+
+  /* The wordmark is the first thing to give up room to the controls. */
+  .mark span { display: none; }
+
+  .card h3 { padding-right: 0; }
+  .card-index { display: none; }
+
+  .qr { width: 15rem; }
+  .skills li,
+  .tags li { font-size: 1.1rem; }
+}
+
+/* ── Phones held sideways ───────────────────────────────────────────────
+   A full-height hero wastes the entire screen when it is only ~380px tall. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .hero {
+    min-height: 0;
+    padding-top: 11rem;
+    padding-bottom: 6rem;
+  }
+
+  .hero-symbol { display: none; }
+  .scroll-hint { display: none; }
+
+  section { padding-top: 7rem; padding-bottom: 7rem; }
+
+  .overlay-menu { gap: 1.2rem; }
+  .overlay-menu a { font-size: 2.2rem; }
 }
 
 /* ── Reduced motion ─────────────────────────────────────────────────────── */
