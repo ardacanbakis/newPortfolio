@@ -1,0 +1,49 @@
+name: Deploy portfolio previews to GitHub Pages
+
+# Publishes the repository as-is: the version chooser at the root, with v1 and
+# v2 as subfolders. Everything is plain HTML, CSS and JavaScript, so there is
+# nothing to build — the files are uploaded exactly as they are committed.
+
+on:
+  push:
+    branches:
+      - claude/portfolio-redesign-versions-wpzrky
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish rather than cancelling it midway, so the live
+# site is never left half-updated.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Check out the branch
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        # `enablement: true` turns Pages on for the repository if it is not
+        # already enabled, so this works without visiting the settings page.
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
