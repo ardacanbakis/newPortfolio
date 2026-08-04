@@ -1,1 +1,124 @@
 # newPortfolio
+
+Two design directions for [ardacanbakis.com](https://www.ardacanbakis.com/), sharing the same
+content. Open `index.html` at the root to preview them side by side.
+
+| | |
+| --- | --- |
+| **`v1/`** | The current site's styling, kept intact and brought up to date. |
+| **`v2/`** | A yin-yang themed redesign. |
+
+Both are plain HTML, CSS and JavaScript — no build step, so either folder can be uploaded to
+CyberPanel as-is.
+
+---
+
+## Before this goes live
+
+### 1. Connect the contact form
+
+The form posts to [Web3Forms](https://web3forms.com) (free, no account limits, no server needed).
+
+1. Enter your email at <https://web3forms.com> — they email you an access key.
+2. In `v1/index.html`, find this line and paste the key in:
+
+   ```html
+   <input type="hidden" name="access_key" value="YOUR-WEB3FORMS-ACCESS-KEY" />
+   ```
+
+Until a real key is in place the form tells visitors to email directly instead of silently
+failing.
+
+### 2. Choose the WhatsApp opening message
+
+Set `WHATSAPP_STYLE` near the top of `v1/portfolio.js`. Four are written and translated into
+English, Turkish and Spanish, so the message follows the visitor's chosen language:
+
+| Style | English text |
+| --- | --- |
+| `project` | "Hi Arda! I saw your portfolio and I'd like to talk about a project." |
+| `quote` *(current)* | "Hi Arda! I'd like to get a quote for a website / web app." |
+| `casual` | "Hello Arda 👋 Coming from ardacanbakis.com — I have a question." |
+| `hiring` | "Hi Arda! I'd like to talk to you about a role / collaboration." |
+
+Use `"blank"` to open an empty chat instead. The number itself is `WHATSAPP_NUMBER` on the line
+above.
+
+### 3. Swap in real project screenshots
+
+The five newest projects use generated placeholder art in `v1/assets/projects/`. Replacing them
+needs no code changes — drop in a file with the same basename:
+
+```
+gridsmith.svg  musicvisualizer.svg  budgetsim.svg  stlsmith.svg
+digitalmuseum.svg  hushbar.svg  wedding.svg
+```
+
+If you use `.png` or `.jpg` instead, update the `src` in `v1/index.html` to match. Anything close
+to 8:5 crops cleanly; other ratios are centre-cropped to fit.
+
+### 4. Confirm three URLs
+
+These were inferred from the repositories rather than confirmed, so check them:
+
+- `https://ardacanbakis.github.io/gridSmith/`
+- `https://ardacanbakis.github.io/musicVisualizer/`
+- `https://ardacanbakis.github.io/digitalMuseum/`
+
+Confirmed already: stlSmith and hushBar (from their READMEs), and
+`wedding.ardacanbakis.com/story/`. budgetSim links to its repository — swap in the Vercel URL if
+you'd rather point at the deployment.
+
+---
+
+## What changed in v1
+
+**Projects** — replaced the old three with nine, each with a description, technology tags and
+links:
+
+1. gridSmith · 2. musicVisualizer · 3. budgetSim · 4. stlSmith · 5. digitalMuseum ·
+6. hushBar *(separate macOS and Windows repo links)* · 7. Tansu & Arda Wedding *(links to
+`/story/`)* · 8. VetApp · 9. Theo's Gym
+
+**Contact** — a real form (name, email, subject, message) with inline validation, a honeypot
+field, and status messages in all three languages, alongside direct email, WhatsApp and Linktree
+links.
+
+**WhatsApp** — a floating button, bottom right, with a pulse animation and hover tooltip. Also
+appears in the contact panel and the footer.
+
+**Footer** — ported from gridSmith's welcome screen: a centred row of circular social icons above
+"Created with ♥ by Arda Canbakış". Uses inline SVG like gridSmith does, so it still renders if the
+icon CDN is unavailable. Adds Stack Overflow, Medium, Linktree and WhatsApp to gridSmith's
+original six.
+
+### Fixes
+
+- **Theme toggle was broken.** Two listeners toggled two different class names (`dark` and
+  `dark-theme`) but only `dark-theme` had styles, so the first click did nothing visible. Now one
+  listener, one class.
+- **`section { max-height: 100vh }`** clipped any section taller than the viewport. Removed.
+- **`scroll-behavior: smooth` on `*`** applied to every element instead of the scroll container.
+  Moved to `html`.
+- Spanish translations were missing several keys.
+- Copyright year is generated, not hardcoded.
+
+### Additions
+
+- Theme and language choices persist in `localStorage`; first-time visitors get their system
+  theme and browser language.
+- Meta description, Open Graph and Twitter cards, canonical URL, and Person structured data.
+- Scroll-reveal animations, active-section nav highlighting, a back-to-top button, and a header
+  shadow on scroll.
+- Accessibility: skip link, ARIA labels, visible focus states, and full
+  `prefers-reduced-motion` support.
+- Services expanded from three to four, adding **3D & Parametric Tools** to reflect gridSmith and
+  stlSmith.
+
+---
+
+## Known limitations
+
+Fonts and icons still load from Google Fonts and cdnjs. Self-hosting them would remove two
+third-party requests and make the site faster and more private — worth doing, but it changes the
+asset pipeline, so it is left as a follow-up.
