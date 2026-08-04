@@ -117,8 +117,49 @@ original six.
 
 ---
 
+## What v2 is
+
+Same content, same nine projects, same footer — a different idea about how to present them.
+
+**The page is the symbol.** It opens deep and dark, ends bright and light, and turns over at a
+flowing S-curve seam roughly two-thirds of the way down, with a jade-ringed yin-yang medallion
+sitting in the curve.
+
+**Yin and yang mean something here.** The Craft section splits into a literal light card and dark
+card: *Frontend & Design* against *Backend & Systems*. The concept carries the message that you
+work across the whole stack.
+
+Also: serif headings (Playfair Display) over a sans body (Inter), a jade-leaning blue accent that
+brightens on dark and deepens on light, a fixed side-rail of dot navigation that re-colours as the
+page turns, and a full-screen overlay menu on mobile.
+
+### How the inversion actually works
+
+The obvious approach — interpolating the background from black to white and the text from white to
+black on scroll — does not survive contact with a reader. Both colours pass through mid-grey at the
+same moment. Measured, the midpoint came out as `rgb(163,164,163)` text on `rgb(94,95,95)`: a
+contrast ratio near 1:1, i.e. invisible.
+
+So the tone changes in **full-contrast bands** instead. Each section declares its own palette, the
+bands drift steadily lighter down the page, and the actual dark-to-light flip happens inside a
+divider — at the seam, where a curve is already drawing the eye. It reads as one continuous
+inversion, and measured across the whole page the text/background contrast never drops below
+**15.3:1** (WCAG AA wants 4.5:1).
+
+To configure v2, edit `v2/app.js` and `v2/styles.css`:
+
+- **WhatsApp message** — `WHATSAPP_STYLE`, same four options as v1.
+- **Contact form** — same Web3Forms `access_key` placeholder in `v2/index.html`.
+- **Colours** — the `--band-1` … `--band-6` and `--yin-*` / `--yang-*` variables at the top of
+  `v2/styles.css`. Changing the accent is two values.
+
+---
+
 ## Known limitations
 
 Fonts and icons still load from Google Fonts and cdnjs. Self-hosting them would remove two
 third-party requests and make the site faster and more private — worth doing, but it changes the
 asset pipeline, so it is left as a follow-up.
+
+The two folders duplicate their assets and translation strings so that either can be uploaded on
+its own. Once you pick a version, the other can simply be deleted.

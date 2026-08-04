@@ -1,0 +1,1011 @@
+/* ==========================================================================
+   Arda Canbakış — portfolio (v2, "yin-yang")
+
+   The page is the symbol: it opens deep and dark, and ends bright and light,
+   with a flowing S-curve seam where one becomes the other.
+
+   How the inversion works
+   -----------------------
+   The obvious implementation — interpolating the background from black to
+   white and the text from white to black as you scroll — does not survive
+   contact with a reader. Both colours pass through mid-grey at the same
+   moment, and for that stretch of the page the text is grey on grey and
+   effectively invisible.
+
+   So the tone changes in full-contrast bands instead. Each section declares
+   its own palette, the bands drift steadily lighter down the page, and the
+   actual dark-to-light flip happens inside a divider — at the seam, where a
+   curve is already drawing the eye. The result reads as one continuous
+   inversion while every line of text keeps a contrast ratio well past AA.
+
+   Fixed furniture (top bar, side rail, WhatsApp button) floats across both
+   halves, so app.js marks the root with the tone currently behind it and
+   those elements re-colour to match.
+   ========================================================================== */
+
+:root {
+  /* Tone bands, top of the page to the bottom. Yin darkens into the seam,
+     yang brightens out of it. */
+  --band-1: 11, 13, 14;     /* hero      — deepest yin */
+  --band-2: 19, 22, 24;     /* duality   */
+  --band-3: 27, 31, 33;     /* projects  — last of the dark */
+  --band-4: 250, 250, 248;  /* about     — first of the light */
+  --band-5: 244, 244, 241;  /* services  */
+  --band-6: 237, 237, 233;  /* contact + footer */
+
+  --yin-fg: 246, 246, 244;
+  --yin-accent: 45, 212, 191; /* jade-leaning blue, brightened for dark */
+
+  --yang-fg: 11, 13, 14;
+  --yang-accent: 13, 148, 136; /* the same hue, deepened for light */
+
+  /* Defaults — the page opens in yin. */
+  --bg-rgb: var(--band-1);
+  --fg-rgb: var(--yin-fg);
+  --accent-rgb: var(--yin-accent);
+
+  --serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --wrap: 118rem;
+  --whatsapp: #25d366;
+}
+
+/* The usable colours are derived on `*`, not on `:root`, and that placement
+   is load-bearing. A custom property substitutes `var()` at the point it is
+   declared: writing `--bg: rgb(var(--bg-rgb))` once on `:root` resolves it
+   against the root's channels and freezes that result, so a section
+   redefining `--bg-rgb` would inherit a colour that never changed. Declared
+   here, every element recomputes these against whichever channels it has
+   actually inherited — which is what lets a single class flip a section, or
+   one card inside it, to the opposite tone. */
+*,
+*::before,
+*::after {
+  --bg: rgb(var(--bg-rgb));
+  --fg: rgb(var(--fg-rgb));
+  --accent: rgb(var(--accent-rgb));
+
+  --muted: rgba(var(--fg-rgb), 0.66);
+  --faint: rgba(var(--fg-rgb), 0.45);
+  --line: rgba(var(--fg-rgb), 0.16);
+  --surface: rgba(var(--fg-rgb), 0.05);
+  --surface-strong: rgba(var(--fg-rgb), 0.09);
+}
+
+/* Each band sets only the three base colours; everything above derives from
+   them, so a section flips wholesale by changing three numbers. */
+.yin  { --fg-rgb: var(--yin-fg);  --accent-rgb: var(--yin-accent); }
+.yang { --fg-rgb: var(--yang-fg); --accent-rgb: var(--yang-accent); }
+
+.b1 { --bg-rgb: var(--band-1); }
+.b2 { --bg-rgb: var(--band-2); }
+.b3 { --bg-rgb: var(--band-3); }
+.b4 { --bg-rgb: var(--band-4); }
+.b5 { --bg-rgb: var(--band-5); }
+.b6 { --bg-rgb: var(--band-6); }
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+  scroll-behavior: smooth;
+  scroll-padding-top: 8rem;
+  overflow-x: hidden;
+  background-color: rgb(var(--band-1));
+}
+
+body {
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 1.6rem;
+  line-height: 1.65;
+  overflow-x: hidden;
+  background-color: rgb(var(--band-6));
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+
+::selection {
+  background-color: var(--accent);
+  color: var(--bg);
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 1rem 2rem;
+  background-color: rgb(var(--yin-accent));
+  color: rgb(var(--band-1));
+  font-size: 1.5rem;
+}
+
+.skip-link:focus { left: 1rem; top: 1rem; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ── Type ───────────────────────────────────────────────────────────────── */
+
+h1, h2, h3 {
+  font-family: var(--serif);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+}
+
+.section-title {
+  font-size: clamp(3.2rem, 5vw, 5.2rem);
+  margin-bottom: 1.6rem;
+}
+
+.section-lede {
+  font-size: 1.8rem;
+  color: var(--muted);
+  max-width: 62rem;
+  margin-bottom: 6rem;
+}
+
+/* Sections paint their own band, and the inner width is capped by a wrapper
+   rather than the section itself so the colour runs edge to edge. */
+section {
+  position: relative;
+  background-color: var(--bg);
+  color: var(--fg);
+  padding: 12rem 6vw;
+}
+
+section > * {
+  max-width: var(--wrap);
+  margin-inline: auto;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 1.4rem 3.2rem;
+  border-radius: 100px;
+  font-size: 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.25s ease, background-color 0.25s ease, color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.btn-solid {
+  background-color: var(--accent);
+  color: var(--bg);
+  border: 1px solid var(--accent);
+}
+
+.btn-ghost {
+  border: 1px solid var(--line);
+  color: var(--fg);
+}
+
+.btn:hover { transform: translateY(-2px); }
+
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.center {
+  display: flex;
+  margin: 7rem auto 0;
+  width: fit-content;
+}
+
+/* ── Yin-yang mark ──────────────────────────────────────────────────────── */
+
+.yy-light { fill: var(--fg); }
+.yy-dark  { fill: var(--bg); }
+
+.yy-sm { width: 2.6rem; height: 2.6rem; flex-shrink: 0; }
+.yy-lg { width: min(46rem, 78vw); height: min(46rem, 78vw); }
+
+/* ── Top bar ────────────────────────────────────────────────────────────── */
+
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.8rem 6vw;
+  background-color: rgba(var(--bg-rgb), 0.75);
+  /* Setting the tone variables is not enough — `color` has to be applied
+     here too, or the bar keeps inheriting the body's opening white and the
+     wordmark disappears once the page turns light. */
+  color: var(--fg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.3s linear;
+}
+
+.topbar.scrolled { border-bottom-color: var(--line); }
+
+.mark {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--serif);
+  font-size: 1.8rem;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+#language-switcher {
+  background-color: transparent;
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 0.5rem 1.1rem;
+  font-family: var(--sans);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+#language-switcher option { background-color: #14181a; color: #f6f6f4; }
+
+#menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 3.4rem;
+  height: 3.4rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+#menu-toggle span {
+  display: block;
+  height: 1.5px;
+  width: 2.2rem;
+  background-color: var(--fg);
+  transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.5s ease;
+}
+
+#menu-toggle[aria-expanded="true"] span:first-child { transform: translateY(3.2px) rotate(45deg); }
+#menu-toggle[aria-expanded="true"] span:last-child  { transform: translateY(-3.2px) rotate(-45deg); }
+
+/* Fixed furniture follows whichever tone is currently behind it. */
+.topbar,
+.rail,
+.overlay-menu {
+  --fg-rgb: var(--yin-fg);
+  --accent-rgb: var(--yin-accent);
+  --bg-rgb: var(--band-1);
+}
+
+:root[data-tone="yang"] .topbar,
+:root[data-tone="yang"] .rail,
+:root[data-tone="yang"] .overlay-menu {
+  --fg-rgb: var(--yang-fg);
+  --accent-rgb: var(--yang-accent);
+  --bg-rgb: var(--band-5);
+}
+
+/* ── Side rail ──────────────────────────────────────────────────────────── */
+
+.rail {
+  position: fixed;
+  right: 2.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 35;
+  color: var(--fg);
+  transition: color 0.5s ease;
+}
+
+.rail ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+/* The dot has to sit at a fixed x, so the label is taken out of flow. Left in
+   flow it still occupies width while invisible, and because each label is a
+   different length every dot lands at a different offset. */
+.rail a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 0.9rem;
+}
+
+.rail .dot {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  border: 1px solid var(--faint);
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+.rail-label {
+  position: absolute;
+  right: 1.9rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--muted);
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.rail a:hover .rail-label,
+.rail a.active .rail-label { opacity: 1; transform: translateX(0); }
+
+.rail a.active .dot {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  transform: scale(1.3);
+}
+
+/* ── Mobile overlay menu ────────────────────────────────────────────────── */
+
+.overlay-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  background-color: rgba(var(--bg-rgb), 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: var(--fg);
+}
+
+.overlay-menu[hidden] { display: none; }
+
+.overlay-menu a { font-family: var(--serif); font-size: 3.2rem; }
+.overlay-menu a:hover { color: var(--accent); }
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.hero {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding-top: 14rem;
+  padding-bottom: 10rem;
+}
+
+.hero > * { grid-area: 1 / 1; }
+
+.hero-symbol {
+  display: grid;
+  place-items: center;
+  opacity: 0.13;
+  animation: spin 64s linear infinite;
+  max-width: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 76rem;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.eyebrow {
+  font-size: 1.4rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2rem;
+}
+
+.hero h1 {
+  font-size: clamp(4.4rem, 9vw, 9rem);
+  margin-bottom: 1.6rem;
+}
+
+.hero-role {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 3.6vw, 3.2rem);
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+  margin-bottom: 2.6rem;
+}
+
+.yin-word  { color: var(--fg); }
+.yang-word { color: var(--accent); }
+.amp       { color: var(--faint); font-style: normal; }
+
+.hero-sub {
+  font-size: 1.8rem;
+  color: var(--muted);
+  max-width: 52rem;
+  margin: 0 auto 4rem;
+}
+
+.hero-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+  justify-content: center;
+}
+
+/* Sits in the same grid cell as the rest of the hero rather than being
+   absolutely positioned — `place-items: center` on the hero would otherwise
+   fight the translate and leave it off-centre. */
+.scroll-hint {
+  align-self: end;
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  white-space: nowrap;
+  max-width: none;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 5rem;
+  background: linear-gradient(to bottom, var(--faint), transparent);
+}
+
+/* ── Dividers ───────────────────────────────────────────────────────────
+   Each divider bridges two bands: its own background is the band above, the
+   curve it draws is the band below. The seam between yin and yang gets a
+   taller curve and the mark sitting in it, because that is where the page
+   turns over. */
+
+.divider {
+  line-height: 0;
+  position: relative;
+}
+
+.divider svg {
+  width: 100%;
+  height: 9rem;
+  display: block;
+}
+
+.divider.d12 { background-color: rgb(var(--band-1)); }
+.divider.d12 path { fill: rgb(var(--band-2)); }
+
+.divider.d23 { background-color: rgb(var(--band-2)); }
+.divider.d23 path { fill: rgb(var(--band-3)); }
+
+.divider.d34 { background-color: rgb(var(--band-3)); }
+.divider.d34 path { fill: rgb(var(--band-4)); }
+
+.divider.d45 { background-color: rgb(var(--band-4)); }
+.divider.d45 path { fill: rgb(var(--band-5)); }
+
+.divider.d56 { background-color: rgb(var(--band-5)); }
+.divider.d56 path { fill: rgb(var(--band-6)); }
+
+/* The seam — where yin becomes yang. */
+.divider.seam svg { height: 20rem; }
+
+.seam-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 7rem;
+  height: 7rem;
+  z-index: 2;
+}
+
+.seam-mark .yy-light { fill: rgb(var(--band-4)); }
+.seam-mark .yy-dark  { fill: rgb(var(--band-3)); }
+
+/* The medallion straddles the curve, so its dark half falls on the dark side
+   and its light half on the light one — leaving the symbol barely readable.
+   A jade ring outlines it against both. */
+.seam-mark .yy-ring { stroke: rgb(var(--yang-accent)); }
+
+/* ── Duality ────────────────────────────────────────────────────────────── */
+
+.duality { text-align: center; }
+.duality .section-lede { margin-inline: auto; }
+
+.halves {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+  gap: 2rem;
+  text-align: left;
+}
+
+.half {
+  padding: 4rem 3.5rem;
+  border-radius: 2rem;
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+/* Inside the duality section the two cards hold the opposition literally:
+   one light, one dark, each fully self-contained so both stay readable. */
+.half-yin {
+  background-color: rgb(var(--band-4));
+  --fg-rgb: var(--yang-fg);
+  --accent-rgb: var(--yang-accent);
+  color: var(--fg);
+}
+
+.half-yang {
+  background-color: rgb(var(--band-1));
+  --fg-rgb: var(--yin-fg);
+  --accent-rgb: var(--yin-accent);
+  color: var(--fg);
+}
+
+.half-tag {
+  display: inline-block;
+  font-size: 1.2rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.4rem;
+}
+
+.half h3 { font-size: 2.8rem; margin-bottom: 1.4rem; }
+.half p { color: var(--muted); margin-bottom: 2.4rem; }
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  list-style: none;
+}
+
+.skills li {
+  font-size: 1.3rem;
+  padding: 0.5rem 1.3rem;
+  border-radius: 100px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+/* ── Projects ───────────────────────────────────────────────────────────── */
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(33rem, 1fr));
+  gap: 2rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 2rem;
+  overflow: hidden;
+  background-color: var(--surface);
+  transition: transform 0.35s ease, border-color 0.35s ease, background-color 0.35s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(var(--accent-rgb), 0.6);
+  background-color: var(--surface-strong);
+}
+
+.card-media { display: block; overflow: hidden; }
+
+.card-media img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 8 / 5;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.card:hover .card-media img { transform: scale(1.05); }
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 2.8rem 2.6rem 2.6rem;
+  position: relative;
+}
+
+.card-index {
+  position: absolute;
+  top: 2.4rem;
+  right: 2.6rem;
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  color: var(--faint);
+}
+
+.card h3 { font-size: 2.4rem; margin-bottom: 1.2rem; padding-right: 4rem; }
+.card p { font-size: 1.5rem; color: var(--muted); flex-grow: 1; }
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  list-style: none;
+  margin: 2rem 0 2.2rem;
+}
+
+.tags li {
+  font-size: 1.2rem;
+  padding: 0.4rem 1.1rem;
+  border-radius: 100px;
+  border: 1px solid var(--line);
+  color: var(--faint);
+}
+
+.card-links { display: flex; flex-wrap: wrap; gap: 1.8rem; }
+
+.card-links a {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--accent);
+  position: relative;
+}
+
+.card-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 0;
+  height: 1px;
+  background-color: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.card-links a:hover::after { width: 100%; }
+
+/* ── About ──────────────────────────────────────────────────────────────── */
+
+.about > .about-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  gap: 6rem;
+  align-items: center;
+}
+
+.about-media img {
+  width: 100%;
+  border-radius: 2rem;
+  border: 1px solid var(--line);
+}
+
+.about-text p { color: var(--muted); margin-bottom: 2rem; max-width: 56rem; }
+.about-text .btn { margin-top: 1.5rem; }
+
+/* ── Services ───────────────────────────────────────────────────────────── */
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr));
+  gap: 2rem;
+}
+
+.service {
+  padding: 3.5rem 3rem;
+  border-radius: 2rem;
+  border: 1px solid var(--line);
+  transition: transform 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.service:hover {
+  transform: translateY(-6px);
+  border-color: rgba(var(--accent-rgb), 0.6);
+  background-color: var(--surface);
+}
+
+.service-num {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 1.6rem;
+}
+
+.service h3 { font-size: 2.2rem; margin-bottom: 1.2rem; }
+.service p { font-size: 1.5rem; color: var(--muted); }
+
+/* ── Contact ────────────────────────────────────────────────────────────── */
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+}
+
+.contact-form,
+.contact-direct {
+  padding: 3.5rem 3rem;
+  border-radius: 2rem;
+  border: 1px solid var(--line);
+  background-color: var(--surface);
+}
+
+.two-up {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 0 2rem;
+}
+
+.field { display: flex; flex-direction: column; margin-bottom: 2rem; }
+
+.field label {
+  font-size: 1.3rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: 0.8rem;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 1.4rem 1.6rem;
+  font-family: var(--sans);
+  font-size: 1.5rem;
+  color: var(--fg);
+  background-color: rgba(var(--fg-rgb), 0.05);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  resize: vertical;
+  transition: border-color 0.2s linear;
+}
+
+.field input:focus,
+.field textarea:focus { border-color: var(--accent); outline: none; }
+
+.field-error {
+  display: none;
+  font-size: 1.2rem;
+  color: #dc2626;
+  margin-top: 0.6rem;
+}
+
+.field.invalid .field-error { display: block; }
+.field.invalid input,
+.field.invalid textarea { border-color: #dc2626; }
+
+/* Honeypot — bots fill it in, humans never see it. */
+.hp-field {
+  position: absolute !important;
+  left: -9999px;
+  opacity: 0;
+  height: 0;
+  width: 0;
+}
+
+.contact-form .btn-solid:disabled { opacity: 0.55; cursor: wait; }
+
+.form-status { font-size: 1.4rem; margin-top: 1.6rem; min-height: 2rem; }
+.form-status.success { color: var(--accent); }
+.form-status.error   { color: #dc2626; }
+
+.contact-direct h3 { font-size: 2rem; margin-bottom: 2.4rem; }
+
+.direct-row {
+  display: flex;
+  align-items: center;
+  gap: 1.3rem;
+  padding: 1.3rem 1.5rem;
+  margin-bottom: 1.2rem;
+  border-radius: 1rem;
+  border: 1px solid var(--line);
+  font-size: 1.4rem;
+  word-break: break-word;
+  transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+.direct-row svg {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.direct-row:hover {
+  transform: translateX(4px);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.qr {
+  margin: 2rem auto 0;
+  border-radius: 1rem;
+  background-color: #fff;
+  padding: 0.9rem;
+  width: 18rem;
+  height: auto;
+}
+
+/* ── Footer (ported from gridSmith's welcome screen) ────────────────────── */
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4rem;
+  padding: 6rem 6vw 4rem;
+  background-color: rgb(var(--band-6));
+  border-top: 1px solid var(--line);
+}
+
+.footer-socials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.footer-socials a {
+  display: grid;
+  place-items: center;
+  width: 4.2rem;
+  height: 4.2rem;
+  border-radius: 50%;
+  color: var(--faint);
+  transition: color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.footer-socials a svg { width: 2rem; height: 2rem; }
+
+.footer-socials a:hover {
+  color: var(--fg);
+  background-color: var(--surface-strong);
+  transform: translateY(-3px);
+}
+
+.footer-text { font-size: 1.3rem; color: var(--faint); text-align: center; }
+
+.footer-heart {
+  width: 1.3rem;
+  height: 1.3rem;
+  display: inline-block;
+  vertical-align: -0.15rem;
+}
+
+.footer-text .created:hover { color: var(--accent); }
+
+/* ── WhatsApp float ─────────────────────────────────────────────────────── */
+
+.whatsapp-float {
+  position: fixed;
+  right: 2.5rem;
+  bottom: 2.5rem;
+  z-index: 45;
+  display: grid;
+  place-items: center;
+  width: 5.8rem;
+  height: 5.8rem;
+  border-radius: 50%;
+  background-color: var(--whatsapp);
+  color: #fff;
+  box-shadow: 0 0.4rem 1.8rem rgba(37, 211, 102, 0.4);
+  animation: whatsapp-pulse 2.8s infinite;
+  transition: transform 0.25s ease;
+}
+
+.whatsapp-float svg { width: 3rem; height: 3rem; }
+
+.whatsapp-float:hover { transform: scale(1.08); animation-play-state: paused; }
+
+.whatsapp-tooltip {
+  position: absolute;
+  right: 7rem;
+  white-space: nowrap;
+  background-color: rgb(var(--band-1));
+  color: rgb(var(--yin-fg));
+  font-size: 1.3rem;
+  padding: 0.7rem 1.2rem;
+  border-radius: 0.8rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+:root[data-tone="yang"] .whatsapp-tooltip {
+  background-color: rgb(var(--band-1));
+  color: rgb(var(--yin-fg));
+}
+
+.whatsapp-float:hover .whatsapp-tooltip { opacity: 1; transform: translateX(0); }
+
+@keyframes whatsapp-pulse {
+  0%   { box-shadow: 0 0.4rem 1.8rem rgba(37, 211, 102, 0.4), 0 0 0 0 rgba(37, 211, 102, 0.5); }
+  70%  { box-shadow: 0 0.4rem 1.8rem rgba(37, 211, 102, 0.4), 0 0 0 1.6rem rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0.4rem 1.8rem rgba(37, 211, 102, 0.4), 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+/* ── Scroll reveal ──────────────────────────────────────────────────────── */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .about > .about-inner { grid-template-columns: 1fr; gap: 4rem; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .rail { display: none; }
+}
+
+@media (max-width: 760px) {
+  html { font-size: 58%; }
+
+  section { padding: 9rem 7vw; }
+
+  #menu-toggle { display: flex; }
+
+  .hero-symbol { opacity: 0.1; }
+  .half { padding: 3rem 2.4rem; }
+
+  .divider svg { height: 6rem; }
+  .divider.seam svg { height: 12rem; }
+  .seam-mark { width: 5rem; height: 5rem; }
+
+  .whatsapp-float { width: 5.2rem; height: 5.2rem; right: 1.8rem; bottom: 1.8rem; }
+  .whatsapp-float svg { width: 2.6rem; height: 2.6rem; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal { opacity: 1; transform: none; }
+  .hero-symbol { animation: none; }
+}
