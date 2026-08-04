@@ -1,7 +1,18 @@
 # newPortfolio
 
 Two design directions for [ardacanbakis.com](https://www.ardacanbakis.com/), sharing the same
-content. Open `index.html` at the root to preview them side by side.
+content.
+
+## Live preview
+
+| | |
+| --- | --- |
+| **Version chooser** | <https://ardacanbakis.github.io/newPortfolio/> |
+| **Version 1** — current styling, refreshed | <https://ardacanbakis.github.io/newPortfolio/v1/> |
+| **Version 2** — yin-yang | <https://ardacanbakis.github.io/newPortfolio/v2/> |
+
+Published by `.github/workflows/deploy-pages.yml`, which redeploys on every push to this branch.
+Locally, open `index.html` at the root to preview both side by side.
 
 | | |
 | --- | --- |
