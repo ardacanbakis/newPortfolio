@@ -427,8 +427,21 @@ document.addEventListener("DOMContentLoaded", () => {
     .map((link) => document.getElementById(link.dataset.rail))
     .filter(Boolean);
 
+  const whatsappFloat = document.querySelector(".whatsapp-float");
+  const projectsSection = document.getElementById("projects");
+
   const updateNav = () => {
     topbar.classList.toggle("scrolled", window.scrollY > 20);
+
+    /* The WhatsApp button waits until the projects have been read, then stays
+       for the rest of the page. Anchored to the section rather than a pixel
+       offset, so it still lands in the right place if the project list grows
+       or the type scale changes. */
+    if (whatsappFloat && projectsSection) {
+      const passedProjects =
+        projectsSection.getBoundingClientRect().bottom < window.innerHeight * 0.6;
+      whatsappFloat.classList.toggle("revealed", passedProjects);
+    }
 
     let activeIndex = 0;
     sections.forEach((section, index) => {

@@ -541,6 +541,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const header = document.querySelector(".header");
   const backToTop = document.getElementById("back-to-top");
+  const whatsappFloat = document.querySelector(".whatsapp-float");
+  const projectsSection = document.getElementById("projects");
   const navLinks = [...document.querySelectorAll(".navbar a")];
   const sections = navLinks
     .map((link) => document.querySelector(link.getAttribute("href")))
@@ -551,6 +553,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     header.classList.toggle("scrolled", y > 20);
     backToTop.classList.toggle("visible", y > 600);
+
+    /* The WhatsApp button waits until the projects have been read, then stays
+       for the rest of the page. Anchored to the section rather than a pixel
+       offset, so it still lands in the right place if the project list grows
+       or the type scale changes. */
+    if (whatsappFloat && projectsSection) {
+      const passedProjects = projectsSection.getBoundingClientRect().bottom < window.innerHeight * 0.6;
+      whatsappFloat.classList.toggle("revealed", passedProjects);
+    }
 
     let activeIndex = -1;
     sections.forEach((section, index) => {

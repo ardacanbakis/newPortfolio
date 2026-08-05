@@ -938,12 +938,25 @@ section > * {
   color: #fff;
   box-shadow: 0 0.4rem 1.8rem rgba(37, 211, 102, 0.4);
   animation: whatsapp-pulse 2.8s infinite;
-  transition: transform 0.25s ease;
+
+  /* Held back until the visitor has scrolled past the projects — see app.js.
+     Someone who has just landed has nothing to ask about yet; someone who has
+     read the work does. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(1.2rem) scale(0.9);
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+}
+
+.whatsapp-float.revealed {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
 }
 
 .whatsapp-float svg { width: 3rem; height: 3rem; }
 
-.whatsapp-float:hover { transform: scale(1.08); animation-play-state: paused; }
+.whatsapp-float.revealed:hover { transform: scale(1.08); animation-play-state: paused; }
 
 .whatsapp-tooltip {
   position: absolute;
