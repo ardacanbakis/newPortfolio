@@ -1,0 +1,676 @@
+/* ==========================================================================
+   Arda Canbakış — portfolio (v3, "terminal")
+
+   The page is a console: a window with traffic-light chrome, a stream of
+   command output, and a prompt pinned to the bottom. Commands can be typed or
+   clicked.
+
+   The content is real HTML, not strings printed by JavaScript. The shell
+   scrolls to and highlights sections that already exist in the document, so
+   the page reads as an ordinary article for search engines and for anyone
+   without JavaScript — the prompt simply stays hidden in that case.
+   ========================================================================== */
+
+:root {
+  --bg: #0b0f0d;
+  --bg-soft: #101613;
+  --panel: #131a17;
+  --fg: #d6e6dd;
+  --muted: #7f9a8c;
+  --dim: #4f6459;
+  --line: rgba(120, 200, 160, 0.16);
+
+  --green: #4ade80;
+  --cyan: #22d3ee;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --magenta: #e879f9;
+
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  --wrap: 104rem;
+  --whatsapp: #25d366;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+  scroll-behavior: smooth;
+  scroll-padding-top: 7rem;
+  overflow-x: hidden;
+  background-color: var(--bg);
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100svh;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  line-height: 1.7;
+  overflow-x: hidden;
+  /* Room for the fixed prompt so the last line is never hidden behind it. */
+  padding-bottom: 8rem;
+}
+
+/* A faint scanline wash. Purely decorative and very low contrast, so it never
+   competes with the text. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.014) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+
+::selection {
+  background-color: var(--green);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 1rem 2rem;
+  background-color: var(--green);
+  color: var(--bg);
+  font-size: 1.4rem;
+}
+
+.skip-link:focus { left: 1rem; top: 1rem; }
+
+/* ── Window chrome ──────────────────────────────────────────────────────── */
+
+.titlebar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  padding: 1rem 2rem;
+  background-color: var(--bg-soft);
+  border-bottom: 1px solid var(--line);
+}
+
+.lights { display: flex; gap: 0.7rem; }
+
+.light {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  display: block;
+}
+
+.light.red { background-color: #ff5f57; }
+.light.amber { background-color: #febc2e; }
+.light.green { background-color: #28c840; }
+
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: 1.3rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.titlebar-actions { display: flex; align-items: center; gap: 1rem; }
+
+#language-switcher {
+  background-color: transparent;
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  font-family: var(--mono);
+  font-size: 1.2rem;
+  cursor: pointer;
+  /* px, not rem — the root font-size shrinks on small screens and a rem-sized
+     control would get smaller exactly where fingers need it biggest. */
+  min-height: 40px;
+}
+
+#language-switcher option { background-color: #101613; color: #d6e6dd; }
+
+/* ── Stream ─────────────────────────────────────────────────────────────── */
+
+.terminal {
+  position: relative;
+  z-index: 2;
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding: 3rem 3vw 0;
+}
+
+.block {
+  padding: 2.4rem 0 3.2rem;
+  border-bottom: 1px dashed var(--line);
+  scroll-margin-top: 7rem;
+}
+
+.block:last-child { border-bottom: none; }
+
+/* Briefly flag the section a command jumped to, so it is obvious that
+   something happened even when it was already on screen. */
+.block.flash {
+  animation: flash 1.2s ease-out;
+}
+
+@keyframes flash {
+  0% { background-color: rgba(74, 222, 128, 0.09); }
+  100% { background-color: transparent; }
+}
+
+.cmd-echo {
+  color: var(--muted);
+  font-size: 1.4rem;
+  margin-bottom: 1.2rem;
+}
+
+.prompt-mark { color: var(--green); font-weight: 700; }
+
+.muted { color: var(--muted); }
+.small { font-size: 1.3rem; }
+
+.ascii {
+  font-family: var(--mono);
+  font-size: clamp(0.85rem, 2.1vw, 1.35rem);
+  line-height: 1.35;
+  color: var(--green);
+  margin-bottom: 2rem;
+  overflow-x: auto;
+}
+
+.boot .hint { margin: 2rem 0 1rem; color: var(--dim); font-size: 1.3rem; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+
+.chip {
+  font-family: var(--mono);
+  font-size: 1.3rem;
+  padding: 0.7rem 1.4rem;
+  min-height: 40px;
+  color: var(--green);
+  background-color: transparent;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s linear, border-color 0.2s linear, color 0.2s linear;
+}
+
+.chip::before { content: "$ "; color: var(--dim); }
+
+.chip:hover {
+  background-color: rgba(74, 222, 128, 0.1);
+  border-color: var(--green);
+}
+
+/* ── Project listing ────────────────────────────────────────────────────── */
+
+.listing { list-style: none; }
+
+.entry {
+  padding: 1.8rem 0;
+  border-bottom: 1px solid rgba(120, 200, 160, 0.07);
+}
+
+.entry:last-child { border-bottom: none; }
+
+.entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.perm { color: var(--dim); font-size: 1.25rem; }
+
+.entry-name {
+  color: var(--cyan);
+  font-weight: 700;
+  font-size: 1.75rem;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.entry-name:hover { text-decoration: underline; }
+
+.entry-stack { color: var(--magenta); font-size: 1.25rem; }
+
+.entry-desc {
+  color: var(--muted);
+  max-width: 78ch;
+  margin-bottom: 0.9rem;
+}
+
+.entry-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 2rem;
+}
+
+.entry-links a {
+  color: var(--green);
+  font-size: 1.35rem;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.entry-links a:hover { text-decoration: underline; }
+
+/* ── About ──────────────────────────────────────────────────────────────── */
+
+.about-wrap {
+  display: grid;
+  grid-template-columns: 18rem minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+}
+
+.avatar {
+  width: 100%;
+  border-radius: 0.8rem;
+  border: 1px solid var(--line);
+  filter: grayscale(1) contrast(1.05);
+}
+
+.about-wrap p { color: var(--muted); margin-bottom: 1.4rem; max-width: 74ch; }
+
+/* ── Services ───────────────────────────────────────────────────────────── */
+
+.services {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(30rem, 100%), 1fr));
+  gap: 2.4rem 3rem;
+}
+
+.services h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+.flag { color: var(--amber); }
+
+.services p { color: var(--muted); font-size: 1.4rem; }
+
+/* ── Contact ────────────────────────────────────────────────────────────── */
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+  margin-top: 2.4rem;
+}
+
+.contact-form,
+.direct {
+  background-color: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  padding: 2.4rem 2rem;
+}
+
+.field { display: flex; flex-direction: column; margin-bottom: 1.6rem; }
+
+.field label {
+  font-size: 1.3rem;
+  color: var(--dim);
+  margin-bottom: 0.5rem;
+}
+
+.field label span { color: var(--muted); }
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 1.1rem 1.2rem;
+  font-family: var(--mono);
+  font-size: 1.4rem;
+  color: var(--fg);
+  background-color: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  resize: vertical;
+  transition: border-color 0.2s linear;
+}
+
+.field input:focus,
+.field textarea:focus { border-color: var(--green); outline: none; }
+
+.field-error {
+  display: none;
+  font-size: 1.2rem;
+  color: var(--red);
+  margin-top: 0.5rem;
+}
+
+.field.invalid .field-error { display: block; }
+.field.invalid input,
+.field.invalid textarea { border-color: var(--red); }
+
+/* Honeypot — bots fill it in, humans never see it. */
+.hp-field {
+  position: absolute !important;
+  left: -9999px;
+  opacity: 0;
+  height: 0;
+  width: 0;
+}
+
+.btn {
+  font-family: var(--mono);
+  font-size: 1.45rem;
+  padding: 1.1rem 2.4rem;
+  min-height: 44px;
+  color: var(--bg);
+  background-color: var(--green);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: filter 0.2s linear, transform 0.2s ease;
+}
+
+.btn .prompt-mark { color: var(--bg); }
+
+.btn:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+.btn:disabled { opacity: 0.55; cursor: wait; }
+
+.form-status { font-size: 1.35rem; margin-top: 1.2rem; min-height: 2rem; }
+.form-status.success { color: var(--green); }
+.form-status.error { color: var(--red); }
+
+.direct h3 { font-size: 1.6rem; margin-bottom: 1.6rem; color: var(--fg); }
+
+.direct-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.8rem;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  font-size: 1.35rem;
+  color: var(--muted);
+  word-break: break-word;
+  transition: border-color 0.2s linear, color 0.2s linear, transform 0.2s ease;
+}
+
+.direct-row .key {
+  color: var(--amber);
+  flex-shrink: 0;
+  min-width: 8ch;
+}
+
+.direct-row:hover {
+  border-color: var(--green);
+  color: var(--fg);
+  transform: translateX(3px);
+}
+
+.qr {
+  margin: 1.6rem auto 0;
+  width: 16rem;
+  height: auto;
+  padding: 0.7rem;
+  border-radius: 0.5rem;
+  background-color: #fff;
+}
+
+/* ── Prompt ─────────────────────────────────────────────────────────────── */
+
+.prompt {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding: 1.2rem 3vw;
+  background-color: rgba(11, 15, 13, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
+}
+
+.prompt[hidden] { display: none; }
+
+.prompt-label {
+  font-size: 1.4rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.user { color: var(--green); }
+.path { color: var(--cyan); }
+
+.prompt-input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  color: var(--fg);
+  background: transparent;
+  border: none;
+  outline: none;
+  caret-color: var(--green);
+  min-height: 32px;
+}
+
+.prompt-input::placeholder { color: var(--dim); }
+
+/* ── Footer (ported from gridSmith's welcome screen) ────────────────────── */
+
+.footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 4rem 3vw 3rem;
+  border-top: 1px solid var(--line);
+  max-width: var(--wrap);
+  margin-inline: auto;
+}
+
+.footer-socials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.footer-socials a {
+  display: grid;
+  place-items: center;
+  width: 4.2rem;
+  height: 4.2rem;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 50%;
+  color: var(--dim);
+  transition: color 0.25s linear, background-color 0.25s linear, transform 0.25s ease;
+}
+
+.footer-socials a svg { width: 1.9rem; height: 1.9rem; }
+
+.footer-socials a:hover {
+  color: var(--green);
+  background-color: rgba(74, 222, 128, 0.1);
+  transform: translateY(-3px);
+}
+
+.footer-text { font-size: 1.25rem; color: var(--dim); text-align: center; }
+
+.footer-heart {
+  width: 1.2rem;
+  height: 1.2rem;
+  display: inline-block;
+  vertical-align: -0.15rem;
+}
+
+.footer-text .created:hover { color: var(--green); }
+
+/* ── WhatsApp float ─────────────────────────────────────────────────────── */
+
+.whatsapp-float {
+  position: fixed;
+  right: 2rem;
+  /* Clear of the prompt bar. */
+  bottom: 8.5rem;
+  z-index: 26;
+  display: grid;
+  place-items: center;
+  width: 5.4rem;
+  height: 5.4rem;
+  border-radius: 50%;
+  background-color: var(--whatsapp);
+  color: #fff;
+  box-shadow: 0 0.4rem 1.6rem rgba(37, 211, 102, 0.4);
+
+  /* Held back until the visitor has scrolled past the projects — see app.js. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(1.2rem) scale(0.9);
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+}
+
+.whatsapp-float svg { width: 2.8rem; height: 2.8rem; }
+
+.whatsapp-float.revealed {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.whatsapp-float.revealed:hover { transform: scale(1.08); }
+
+/* ── Scroll reveal ──────────────────────────────────────────────────────── */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ══ Responsive ══════════════════════════════════════════════════════════
+   Same ladder as the other versions: desktop, small laptop, tablet portrait,
+   large phone landscape, large phones, standard phones, small phones, plus a
+   short-viewport rule for phones held sideways.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1280px) {
+  html { font-size: 60%; }
+  .terminal { padding-inline: 4vw; }
+  .prompt { padding-inline: 4vw; }
+  .footer { padding-inline: 4vw; }
+}
+
+@media (max-width: 1023px) {
+  html { font-size: 58%; }
+
+  .contact-grid { grid-template-columns: 1fr; }
+  .direct { max-width: 46rem; }
+}
+
+@media (max-width: 767px) {
+  .about-wrap { grid-template-columns: 1fr; gap: 2rem; }
+  .avatar { max-width: 20rem; }
+
+  .services { grid-template-columns: 1fr; }
+
+  .entry-head { gap: 0.2rem 1rem; }
+  .perm { display: none; }
+
+  .whatsapp-float { right: 1.6rem; bottom: 8rem; }
+}
+
+@media (max-width: 599px) {
+  html { font-size: 56%; }
+
+  body { padding-bottom: 7.5rem; }
+
+  .title { display: none; }
+  .terminal { padding-top: 2rem; }
+
+  .whatsapp-float { width: 5rem; height: 5rem; }
+  .whatsapp-float svg { width: 2.5rem; height: 2.5rem; }
+}
+
+@media (max-width: 429px) {
+  html { font-size: 54%; }
+
+  .terminal { padding-inline: 5vw; }
+  .prompt { padding-inline: 5vw; gap: 0.6rem; }
+  .footer { padding-inline: 5vw; }
+
+  .entry-stack { display: none; }
+  .footer-socials a { width: 3.8rem; height: 3.8rem; }
+}
+
+@media (max-width: 359px) {
+  html { font-size: 51%; }
+
+  /* The prompt label is the first thing to give up room to the input. */
+  .prompt-label .path { display: none; }
+  .qr { width: 14rem; }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .titlebar { position: static; }
+  .block { padding: 1.6rem 0 2.2rem; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal { opacity: 1; transform: none; }
+  body::before { display: none; }
+}

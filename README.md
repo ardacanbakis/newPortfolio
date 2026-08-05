@@ -18,9 +18,14 @@ Locally, open `index.html` at the root to preview both side by side.
 | --- | --- |
 | **`v1/`** | The current site's styling, kept intact and brought up to date. |
 | **`v2/`** | A yin-yang themed redesign. |
+| **`v3/`** | A terminal you drive from the command line. |
 
-Both are plain HTML, CSS and JavaScript — no build step, so either folder can be uploaded to
-CyberPanel as-is.
+Ten designs are planned in total — see [ROADMAP.md](ROADMAP.md) for the full list and order.
+
+All plain HTML, CSS and JavaScript — no build step. v1 and v2 are self-contained and can each be
+uploaded on their own; **v3 and later also need the `shared/` folder**, which holds the
+translations, WhatsApp configuration and contact-form handling that would otherwise be copied
+into every version.
 
 ---
 
