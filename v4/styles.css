@@ -101,10 +101,14 @@ h1, h2, h3 { letter-spacing: -0.03em; font-weight: 600; }
 
 .projects { gap: 0; grid-template-columns: 1fr; }
 
+/* Two columns, not three: .project-index lives inside .project-body, so
+   .project only ever has two grid children. A third track put the body in the
+   narrow first column and crushed the description to about twenty pixels
+   wide. The index is set inline above the title instead. */
 .project {
   display: grid;
-  grid-template-columns: 12rem minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: 3rem;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 2.5rem 4rem;
   align-items: start;
   background: none;
   border: none;
@@ -117,7 +121,7 @@ h1, h2, h3 { letter-spacing: -0.03em; font-weight: 600; }
 .project:hover { transform: none; border-color: var(--line); }
 
 .project-media {
-  order: 3;
+  order: 2;
   background: none;
   border: 1px solid var(--line);
 }
@@ -125,20 +129,16 @@ h1, h2, h3 { letter-spacing: -0.03em; font-weight: 600; }
 .project-media img { aspect-ratio: 8 / 5; filter: grayscale(1); transition: filter 0.4s ease, transform 0.6s ease; }
 .project:hover .project-media img { filter: none; transform: none; }
 
-.project-body { order: 2; padding: 0; }
+.project-body { order: 1; padding: 0; }
 
 .project-index {
   position: static;
-  order: 1;
-  grid-column: 1;
-  grid-row: 1;
+  display: block;
   font-size: 1.2rem;
   letter-spacing: 0.16em;
   color: var(--accent);
+  margin-bottom: 0.9rem;
 }
-
-/* The index sits in the first column; the body spans the middle. */
-.project > .project-index { align-self: start; }
 
 .project-title { font-size: 2.4rem; padding-right: 0; margin-bottom: 1.2rem; }
 .project-desc { font-size: 1.5rem; max-width: 46ch; }
@@ -197,9 +197,8 @@ h1, h2, h3 { letter-spacing: -0.03em; font-weight: 600; }
   .section-head { grid-template-columns: 6rem minmax(0, 1fr); gap: 1.4rem; }
   .section-head::before { margin-top: 1.8rem; }
 
-  .project { grid-template-columns: 6rem minmax(0, 1fr); gap: 1.4rem 2rem; }
-  .project-media { grid-column: 1 / -1; order: 3; }
-  .project-body { grid-column: 2; }
+  .project { grid-template-columns: 1fr; gap: 2rem; }
+  .project-media { max-width: 52rem; }
 
   .services { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .service { padding-bottom: 2.4rem; }
@@ -209,9 +208,6 @@ h1, h2, h3 { letter-spacing: -0.03em; font-weight: 600; }
 @media (max-width: 599px) {
   .section-head { grid-template-columns: 1fr; }
   .section-head::before { display: none; }
-
-  .project { grid-template-columns: 1fr; gap: 1.2rem; }
-  .project-body { grid-column: 1; }
 
   .services { grid-template-columns: 1fr; }
   .service { border-left: none; padding-left: 0; }

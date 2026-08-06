@@ -109,7 +109,11 @@ h1, h2, h3 {
 .brand {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.9rem;
+  /* The wordmark hides on the narrowest phones, which would otherwise leave
+     the mark alone as an ~8px-wide tap target. */
+  min-width: 44px;
   min-height: 44px;
   font-family: var(--font-display);
   font-size: 1.7rem;
