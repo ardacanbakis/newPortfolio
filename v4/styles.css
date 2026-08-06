@@ -1,0 +1,218 @@
+/* ==========================================================================
+   v4 — Swiss minimal / typographic
+
+   Strict grid, generous whitespace, one accent, no ornament. Everything is
+   squared off (--radius: 0) and structure is drawn with hairlines rather than
+   boxes and shadows, so the type does the work.
+   ========================================================================== */
+
+:root {
+  --bg: #f4f4f2;
+  --surface: #ffffff;
+  --surface-2: #eaeae7;
+  --fg: #0e0e0e;
+  --muted: #4a4a48;
+  --faint: #8b8b87;
+  --line: rgba(0, 0, 0, 0.16);
+
+  --accent: #e2231a; /* a single Swiss red, used sparingly */
+  --accent-contrast: #ffffff;
+
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Inter", system-ui, sans-serif;
+
+  --radius: 0rem;
+  --maxw: 124rem;
+  --section-y: 12rem;
+}
+
+body { letter-spacing: -0.005em; }
+
+h1, h2, h3 { letter-spacing: -0.03em; font-weight: 600; }
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.site-header { border-bottom: 1px solid var(--line); }
+.site-header.scrolled { background-color: var(--bg); }
+
+.brand { font-weight: 600; letter-spacing: -0.02em; }
+.brand-mark { font-size: 1.2rem; }
+
+.nav a { font-size: 1.4rem; letter-spacing: 0.01em; }
+.nav a.active::after { bottom: 0.8rem; height: 1px; }
+
+/* ── Sections: hairline rules instead of cards ──────────────────────────── */
+
+.section { border-top: 1px solid var(--line); }
+.hero { border-top: none; }
+
+.section-head {
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+/* A small slug in the left column, the way a Swiss grid numbers its parts. */
+.section-head::before {
+  content: "";
+  display: block;
+  height: 1px;
+  margin-top: 2.4rem;
+  background-color: var(--accent);
+}
+
+.section-title { font-size: clamp(2.6rem, 4vw, 4rem); font-weight: 600; }
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.hero-eyebrow {
+  font-size: 1.25rem;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+}
+
+.hero-name {
+  font-size: clamp(4.2rem, 11vw, 12rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+
+.hero-tagline { max-width: 46rem; font-size: 1.8rem; }
+
+.hero-meta {
+  border-top: 1px solid var(--line);
+  padding-top: 1.6rem;
+  gap: 1rem 4rem;
+  letter-spacing: 0.14em;
+  font-size: 1.2rem;
+}
+
+/* ── Buttons: rectangles, no rounding ───────────────────────────────────── */
+
+.btn { border-radius: 0; padding: 1.4rem 2.6rem; font-weight: 500; letter-spacing: 0.02em; }
+.btn:hover { transform: none; }
+.btn-solid:hover { background-color: var(--fg); border-color: var(--fg); }
+.btn-ghost { border-color: var(--fg); }
+.btn-ghost:hover { background-color: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+/* ── Projects: a ruled index, not a deck of cards ───────────────────────── */
+
+.projects { gap: 0; grid-template-columns: 1fr; }
+
+.project {
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  padding: 3.5rem 0;
+}
+
+.project:last-child { border-bottom: 1px solid var(--line); }
+.project:hover { transform: none; border-color: var(--line); }
+
+.project-media {
+  order: 3;
+  background: none;
+  border: 1px solid var(--line);
+}
+
+.project-media img { aspect-ratio: 8 / 5; filter: grayscale(1); transition: filter 0.4s ease, transform 0.6s ease; }
+.project:hover .project-media img { filter: none; transform: none; }
+
+.project-body { order: 2; padding: 0; }
+
+.project-index {
+  position: static;
+  order: 1;
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 1.2rem;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+
+/* The index sits in the first column; the body spans the middle. */
+.project > .project-index { align-self: start; }
+
+.project-title { font-size: 2.4rem; padding-right: 0; margin-bottom: 1.2rem; }
+.project-desc { font-size: 1.5rem; max-width: 46ch; }
+
+.project-tags { gap: 0.5rem 1.4rem; margin: 1.8rem 0 1.6rem; }
+
+.project-tags li {
+  border: none;
+  padding: 0;
+  font-size: 1.2rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.project-tags li + li::before { content: "/ "; color: var(--line); }
+
+.project-links a { font-weight: 500; }
+
+/* ── Services: numbered rows ────────────────────────────────────────────── */
+
+.services { grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr)); gap: 0; }
+
+.service {
+  border: none;
+  border-left: 1px solid var(--line);
+  border-radius: 0;
+  padding: 0 2.4rem 3rem;
+}
+
+.service:first-child { border-left: none; padding-left: 0; }
+.service:hover { transform: none; background: none; }
+
+.service-index { font-size: 1.2rem; letter-spacing: 0.16em; }
+.service h3 { font-size: 1.9rem; }
+
+/* ── Contact ────────────────────────────────────────────────────────────── */
+
+.contact-form,
+.contact-direct {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 0;
+}
+
+.field input,
+.field textarea { border-radius: 0; background-color: var(--surface); }
+.direct-row { border-radius: 0; }
+.qr { border-radius: 0; }
+
+.footer-socials a { border-radius: 0; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  .section-head { grid-template-columns: 6rem minmax(0, 1fr); gap: 1.4rem; }
+  .section-head::before { margin-top: 1.8rem; }
+
+  .project { grid-template-columns: 6rem minmax(0, 1fr); gap: 1.4rem 2rem; }
+  .project-media { grid-column: 1 / -1; order: 3; }
+  .project-body { grid-column: 2; }
+
+  .services { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .service { padding-bottom: 2.4rem; }
+  .service:nth-child(odd) { border-left: none; padding-left: 0; }
+}
+
+@media (max-width: 599px) {
+  .section-head { grid-template-columns: 1fr; }
+  .section-head::before { display: none; }
+
+  .project { grid-template-columns: 1fr; gap: 1.2rem; }
+  .project-body { grid-column: 1; }
+
+  .services { grid-template-columns: 1fr; }
+  .service { border-left: none; padding-left: 0; }
+}

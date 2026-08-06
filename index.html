@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Arda Canbakış — Portfolio Versions</title>
-    <meta name="description" content="Preview the two portfolio designs side by side." />
+    <meta name="description" content="Ten portfolio designs over the same content." />
     <meta name="robots" content="noindex" />
     <link rel="shortcut icon" href="./v1/assets/icons/huskyMeh.png" />
     <style>
@@ -15,124 +15,212 @@
         --fg: #f5f5f5;
         --muted: #9aa3af;
         --line: rgba(255, 255, 255, 0.12);
+        --card: rgba(255, 255, 255, 0.03);
       }
 
       body {
         min-height: 100vh;
-        display: grid;
-        place-items: center;
-        padding: 4rem 1.5rem;
+        padding: 5rem 1.5rem 6rem;
         background: var(--bg);
         color: var(--fg);
         font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        line-height: 1.6;
       }
 
-      .wrap { width: 100%; max-width: 60rem; text-align: center; }
+      .wrap { width: 100%; max-width: 78rem; margin-inline: auto; }
 
-      h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); font-weight: 700; margin-bottom: 0.6rem; }
-      .sub { color: var(--muted); font-size: 1rem; margin-bottom: 3rem; }
+      header { text-align: center; margin-bottom: 3.5rem; }
+      h1 { font-size: clamp(1.9rem, 5vw, 2.7rem); font-weight: 700; margin-bottom: 0.5rem; }
+      .sub { color: var(--muted); font-size: 1rem; }
 
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+        gap: 1.1rem;
       }
 
       .card {
-        display: block;
-        padding: 2.5rem 1.75rem;
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem 1.4rem;
         border: 1px solid var(--line);
-        border-radius: 1rem;
-        background: rgba(255, 255, 255, 0.03);
+        border-radius: 0.9rem;
+        background: var(--card);
         color: inherit;
         text-decoration: none;
-        text-align: left;
-        transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+        min-height: 44px;
+        transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
       }
 
       .card:hover {
-        transform: translateY(-4px);
-        border-color: rgba(255, 255, 255, 0.35);
+        transform: translateY(-3px);
+        border-color: rgba(255, 255, 255, 0.34);
         background: rgba(255, 255, 255, 0.06);
       }
 
       .badge {
-        display: inline-block;
-        font-size: 0.7rem;
-        letter-spacing: 0.08em;
+        font-size: 0.66rem;
+        letter-spacing: 0.09em;
         text-transform: uppercase;
         color: var(--muted);
-        border: 1px solid var(--line);
-        border-radius: 2rem;
-        padding: 0.25rem 0.7rem;
-        margin-bottom: 1rem;
+        margin-bottom: 0.7rem;
       }
 
-      .card h2 { font-size: 1.35rem; margin-bottom: 0.6rem; }
-      .card p { color: var(--muted); font-size: 0.92rem; line-height: 1.6; }
+      .card h2 { font-size: 1.05rem; margin-bottom: 0.4rem; }
+      .card p { color: var(--muted); font-size: 0.83rem; flex-grow: 1; }
 
-      .swatches { display: flex; gap: 0.4rem; margin-top: 1.5rem; }
-      .sw { width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 1px solid var(--line); }
+      .swatches { display: flex; gap: 0.3rem; margin-top: 1.1rem; }
+      .sw {
+        width: 1.15rem;
+        height: 1.15rem;
+        border-radius: 50%;
+        border: 1px solid var(--line);
+      }
 
-      footer { margin-top: 3rem; color: var(--muted); font-size: 0.82rem; }
+      footer {
+        margin-top: 3rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+
+      footer a { color: var(--muted); }
 
       @media (prefers-color-scheme: light) {
-        :root { --bg: #fafafa; --fg: #111; --muted: #555; --line: rgba(0, 0, 0, 0.12); }
-        .card { background: #fff; }
-        .card:hover { border-color: rgba(0, 0, 0, 0.3); background: #fff; }
+        :root {
+          --bg: #fafafa;
+          --fg: #111;
+          --muted: #555;
+          --line: rgba(0, 0, 0, 0.13);
+          --card: #fff;
+        }
+        .card:hover { border-color: rgba(0, 0, 0, 0.32); background: #fff; }
       }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <h1>Arda Canbakış — Portfolio</h1>
-      <p class="sub">Two designs to compare. Pick one and it becomes the live site.</p>
+      <header>
+        <h1>Arda Canbakış — Portfolio</h1>
+        <p class="sub">Ten designs, one set of content. Pick the one you want to go live.</p>
+      </header>
 
-      <div class="grid grid-3">
+      <div class="grid">
         <a class="card" href="./v1/index.html">
           <span class="badge">Version 1</span>
-          <h2>Current styling, refreshed</h2>
-          <p>
-            The existing look, kept intact — updated with nine projects, a working contact form, a
-            WhatsApp button and gridSmith's footer.
-          </p>
+          <h2>Current, refreshed</h2>
+          <p>Your existing look, updated — six projects, contact form, WhatsApp, new footer.</p>
           <div class="swatches">
-            <span class="sw" style="background: #007bff"></span>
-            <span class="sw" style="background: #a21caf"></span>
-            <span class="sw" style="background: #74c0fc"></span>
+            <span class="sw" style="background:#007bff"></span>
+            <span class="sw" style="background:#a21caf"></span>
+            <span class="sw" style="background:#74c0fc"></span>
           </div>
         </a>
 
         <a class="card" href="./v2/index.html">
           <span class="badge">Version 2</span>
           <h2>Yin-yang</h2>
-          <p>
-            Opens dark, ends light, and turns over at a flowing S-curve seam. Frontend and backend
-            as the two halves — same projects, services, contact and footer.
-          </p>
+          <p>Opens dark, ends light, turning over at a flowing S-curve seam.</p>
           <div class="swatches">
-            <span class="sw" style="background: #0b0d0e"></span>
-            <span class="sw" style="background: #f6f6f4"></span>
-            <span class="sw" style="background: #2dd4bf"></span>
+            <span class="sw" style="background:#0b0d0e"></span>
+            <span class="sw" style="background:#f6f6f4"></span>
+            <span class="sw" style="background:#2dd4bf"></span>
           </div>
         </a>
 
         <a class="card" href="./v3/index.html">
           <span class="badge">Version 3</span>
           <h2>Terminal</h2>
-          <p>
-            The page as a command line — type or click <code>projects</code>, <code>about</code>,
-            <code>contact</code>. Monospace, blinking cursor, still a real document underneath.
-          </p>
+          <p>A command line you can actually drive. Type or click <code>projects</code>.</p>
           <div class="swatches">
-            <span class="sw" style="background: #0b0f0d"></span>
-            <span class="sw" style="background: #4ade80"></span>
-            <span class="sw" style="background: #22d3ee"></span>
+            <span class="sw" style="background:#0b0f0d"></span>
+            <span class="sw" style="background:#4ade80"></span>
+            <span class="sw" style="background:#22d3ee"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v4/index.html">
+          <span class="badge">Version 4</span>
+          <h2>Swiss minimal</h2>
+          <p>Strict grid, hairline rules, one red accent. The most restrained of the ten.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#f4f4f2"></span>
+            <span class="sw" style="background:#0e0e0e"></span>
+            <span class="sw" style="background:#e2231a"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v5/index.html">
+          <span class="badge">Version 5</span>
+          <h2>Editorial</h2>
+          <p>Oversized display type, heavy rules, giant folio numbers behind the work.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#111111"></span>
+            <span class="sw" style="background:#f2efe9"></span>
+            <span class="sw" style="background:#6f6a63"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v6/index.html">
+          <span class="badge">Version 6</span>
+          <h2>Bento grid</h2>
+          <p>A mosaic of tiles at different sizes. Scannable and very current.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0e1116"></span>
+            <span class="sw" style="background:#7c9cff"></span>
+            <span class="sw" style="background:#1d232d"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v7/index.html">
+          <span class="badge">Version 7</span>
+          <h2>Interactive 3D</h2>
+          <p>Project names orbit as a live wireframe, hand-drawn on canvas — no 3D library.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#05070c"></span>
+            <span class="sw" style="background:#7dd3fc"></span>
+            <span class="sw" style="background:#97a6c0"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v8/index.html">
+          <span class="badge">Version 8</span>
+          <h2>Timeline</h2>
+          <p>The work as stations on one vertical route. Warm paper, serif headings.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#faf7f2"></span>
+            <span class="sw" style="background:#1c1917"></span>
+            <span class="sw" style="background:#b45309"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v9/index.html">
+          <span class="badge">Version 9</span>
+          <h2>Glass / aurora</h2>
+          <p>Frosted panels floating over slow-moving coloured light.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0a0a18"></span>
+            <span class="sw" style="background:#c4b5fd"></span>
+            <span class="sw" style="background:#db2777"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v10/index.html">
+          <span class="badge">Version 10</span>
+          <h2>Retro CRT</h2>
+          <p>Scanlines, chromatic fringe, pixel type. The most playful of the set.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0d0221"></span>
+            <span class="sw" style="background:#00f5d4"></span>
+            <span class="sw" style="background:#ff2e97"></span>
           </div>
         </a>
       </div>
 
-      <footer>Both versions share the same content. Only the design differs.</footer>
+      <footer>
+        Same six projects, services, contact options and footer in every version — only the design
+        differs. See <a href="./ROADMAP.md">ROADMAP.md</a> for the details.
+      </footer>
     </div>
   </body>
 </html>

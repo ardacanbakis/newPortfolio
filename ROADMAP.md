@@ -14,16 +14,16 @@ Preview them all from `index.html` at the repo root, or live at
 | 1 | `v1/` | Current styling, refreshed | **Done** |
 | 2 | `v2/` | Yin-yang, scroll-driven inversion | **Done** |
 | 3 | `v3/` | Terminal / developer console | **Done** |
-| 4 | `v4/` | Swiss minimal / typographic | Planned |
-| 5 | `v5/` | Editorial / brutalist | Planned |
-| 6 | `v6/` | Bento grid dashboard | Planned |
-| 7 | `v7/` | Interactive 3D / WebGL | Planned |
-| 8 | `v8/` | Timeline / journey | Planned |
-| 9 | `v9/` | Glassmorphism / aurora | Planned |
-| 10 | `v10/` | Retro terminal / Y2K | Planned |
+| 4 | `v4/` | Swiss minimal / typographic | **Done** |
+| 5 | `v5/` | Editorial / brutalist | **Done** |
+| 6 | `v6/` | Bento grid dashboard | **Done** |
+| 7 | `v7/` | Interactive 3D / WebGL | **Done** |
+| 8 | `v8/` | Timeline / journey | **Done** |
+| 9 | `v9/` | Glassmorphism / aurora | **Done** |
+| 10 | `v10/` | Retro terminal / Y2K | **Done** |
 
-Built in that order: the ones most different from each other come first, so the useful
-comparisons arrive early. Stop at any point — each is finished and deployed as it lands.
+All ten are built and deployed. Compare them from the root `index.html`, then say which one
+should become the live site and I will promote it to the root and remove the rest.
 
 ## What every version must have
 

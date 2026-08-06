@@ -1,0 +1,745 @@
+/* ==========================================================================
+   Shared structure for versions 4 onward.
+
+   This file owns layout, components and — importantly — the responsive
+   ladder, so every version inherits the same tested behaviour instead of
+   seven hand-written copies that would each need auditing.
+
+   Everything visual is expressed through custom properties. A version's own
+   styles.css sets those tokens and adds its signature rules; it should rarely
+   need to fight this file.
+
+   Tokens a theme is expected to set:
+     --bg --surface --surface-2 --fg --muted --faint --line
+     --accent --accent-contrast
+     --font-body --font-display
+     --radius --maxw --section-y
+   ========================================================================== */
+
+:root {
+  --bg: #ffffff;
+  --surface: #f6f6f6;
+  --surface-2: #eeeeee;
+  --fg: #111111;
+  --muted: #555555;
+  --faint: #8a8a8a;
+  --line: rgba(0, 0, 0, 0.12);
+
+  --accent: #2563eb;
+  --accent-contrast: #ffffff;
+
+  --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-body);
+
+  --radius: 1rem;
+  --maxw: 118rem;
+  --section-y: 10rem;
+
+  --whatsapp: #25d366;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+  scroll-behavior: smooth;
+  scroll-padding-top: 9rem;
+  overflow-x: hidden;
+  background-color: var(--bg);
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 1.6rem;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+ul, ol { list-style: none; }
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  line-height: 1.12;
+}
+
+::selection { background-color: var(--accent); color: var(--accent-contrast); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 1rem 2rem;
+  background-color: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 1.5rem;
+}
+
+.skip-link:focus { left: 1rem; top: 1rem; }
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.site-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1.6rem max(3vw, calc((100vw - var(--maxw)) / 2));
+  background-color: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s linear, background-color 0.3s linear;
+}
+
+.site-header.scrolled { border-bottom-color: var(--line); }
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-height: 44px;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.brand-mark { color: var(--accent); }
+
+.nav { display: flex; align-items: center; gap: 2.6rem; }
+
+.nav a {
+  position: relative;
+  font-size: 1.5rem;
+  color: var(--muted);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s linear;
+}
+
+.nav a:hover,
+.nav a.active { color: var(--fg); }
+
+.nav a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.6rem;
+  height: 2px;
+  background-color: var(--accent);
+}
+
+.header-actions { display: flex; align-items: center; gap: 1.2rem; }
+
+#language-switcher {
+  background-color: transparent;
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 0.5);
+  padding: 0.4rem 0.9rem;
+  font-family: var(--font-body);
+  font-size: 1.3rem;
+  cursor: pointer;
+  /* px, not rem: the root font-size shrinks on small screens and a rem-sized
+     control would get smaller exactly where fingers need it biggest. */
+  min-height: 44px;
+}
+
+#menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 44px;
+  min-height: 44px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+#menu-toggle span {
+  display: block;
+  width: 2.2rem;
+  height: 1.5px;
+  background-color: var(--fg);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#menu-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+#menu-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+#menu-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.section {
+  position: relative;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding: var(--section-y) max(3vw, 2rem);
+}
+
+.section-head { margin-bottom: 5rem; }
+
+.section-title {
+  font-size: clamp(2.8rem, 4.6vw, 4.6rem);
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+}
+
+.section-lede {
+  font-size: 1.7rem;
+  color: var(--muted);
+  max-width: 62rem;
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.hero {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  align-content: center;
+  padding-top: 14rem;
+}
+
+.hero-inner { position: relative; z-index: 2; max-width: 82rem; }
+
+.hero-eyebrow {
+  font-size: 1.4rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2rem;
+}
+
+.hero-name {
+  font-size: clamp(4rem, 9vw, 9.5rem);
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+.hero-tagline {
+  font-size: clamp(1.7rem, 2.2vw, 2.2rem);
+  color: var(--muted);
+  max-width: 58rem;
+  margin-bottom: 3.5rem;
+}
+
+.hero-cta { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-bottom: 4rem; }
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.4rem;
+  font-size: 1.35rem;
+  color: var(--faint);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 1.3rem 3rem;
+  min-height: 44px;
+  border-radius: calc(var(--radius) * 3);
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.25s ease, background-color 0.25s ease, color 0.25s ease,
+    border-color 0.25s ease, opacity 0.25s ease;
+}
+
+.btn-solid {
+  background-color: var(--accent);
+  color: var(--accent-contrast);
+  border: 1px solid var(--accent);
+}
+
+.btn-ghost {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--fg);
+}
+
+.btn:hover { transform: translateY(-2px); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn:disabled { opacity: 0.55; cursor: wait; transform: none; }
+
+.more-link { margin-top: 5rem; }
+
+/* ── Projects ───────────────────────────────────────────────────────────── */
+
+.projects {
+  display: grid;
+  /* min() matters: an auto-fit track with a fixed minimum still demands that
+     minimum when the container is narrower, pushing cards past the viewport
+     on small phones. */
+  grid-template-columns: repeat(auto-fit, minmax(min(32rem, 100%), 1fr));
+  gap: 2.4rem;
+}
+
+.project {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform 0.35s ease, border-color 0.35s ease, background-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.project:hover {
+  transform: translateY(-6px);
+  border-color: var(--accent);
+}
+
+.project-media { display: block; overflow: hidden; background-color: var(--surface-2); }
+
+.project-media img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 8 / 5;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.project:hover .project-media img { transform: scale(1.05); }
+
+.project-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 2.6rem 2.4rem;
+}
+
+.project-index {
+  position: absolute;
+  top: 2.4rem;
+  right: 2.4rem;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--faint);
+}
+
+.project-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  padding-right: 4rem;
+}
+
+.project-desc { font-size: 1.5rem; color: var(--muted); flex-grow: 1; }
+
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.8rem 0 2rem;
+}
+
+.project-tags li {
+  font-size: 1.2rem;
+  padding: 0.4rem 1.1rem;
+  border-radius: calc(var(--radius) * 2);
+  border: 1px solid var(--line);
+  color: var(--faint);
+}
+
+.project-links { display: flex; flex-wrap: wrap; gap: 0.6rem 1.8rem; }
+
+.project-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--accent);
+  position: relative;
+}
+
+.project-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0.5rem;
+  width: 0;
+  height: 1px;
+  background-color: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.project-links a:hover::after { width: 100%; }
+
+/* ── About ──────────────────────────────────────────────────────────────── */
+
+.section-about {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+  gap: 6rem;
+  align-items: center;
+}
+
+.about-media img {
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+}
+
+.about-body p { color: var(--muted); margin-bottom: 1.8rem; max-width: 56rem; }
+.about-body .btn { margin-top: 1.5rem; }
+
+/* ── Services ───────────────────────────────────────────────────────────── */
+
+.services {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(27rem, 100%), 1fr));
+  gap: 2.4rem;
+}
+
+.service {
+  padding: 3.2rem 2.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: transform 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.service:hover { transform: translateY(-6px); border-color: var(--accent); }
+
+.service-index {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--accent);
+  margin-bottom: 1.4rem;
+}
+
+.service h3 { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
+.service p { font-size: 1.5rem; color: var(--muted); }
+
+/* ── Contact ────────────────────────────────────────────────────────────── */
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+}
+
+.contact-form,
+.contact-direct {
+  padding: 3.2rem 2.8rem;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.two-up {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(19rem, 100%), 1fr));
+  gap: 0 2rem;
+}
+
+.field { display: flex; flex-direction: column; margin-bottom: 1.8rem; }
+
+.field label {
+  font-size: 1.3rem;
+  color: var(--muted);
+  margin-bottom: 0.7rem;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 1.3rem 1.5rem;
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  color: var(--fg);
+  background-color: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 0.6);
+  resize: vertical;
+  transition: border-color 0.2s linear;
+}
+
+.field input:focus,
+.field textarea:focus { border-color: var(--accent); outline: none; }
+
+.field-error {
+  display: none;
+  font-size: 1.2rem;
+  color: #dc2626;
+  margin-top: 0.5rem;
+}
+
+.field.invalid .field-error { display: block; }
+.field.invalid input,
+.field.invalid textarea { border-color: #dc2626; }
+
+/* Honeypot — bots fill it in, humans never see it. */
+.hp-field {
+  position: absolute !important;
+  left: -9999px;
+  opacity: 0;
+  height: 0;
+  width: 0;
+}
+
+.form-status { font-size: 1.4rem; margin-top: 1.4rem; min-height: 2rem; }
+.form-status.success { color: var(--accent); }
+.form-status.error { color: #dc2626; }
+
+.contact-direct h3 { font-size: 1.9rem; margin-bottom: 2.2rem; }
+
+.direct-row {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.2rem 1.4rem;
+  margin-bottom: 1.1rem;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 0.6);
+  font-size: 1.4rem;
+  color: var(--muted);
+  word-break: break-word;
+  transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+.direct-row svg { width: 2rem; height: 2rem; flex-shrink: 0; color: var(--accent); }
+
+.direct-row:hover { border-color: var(--accent); color: var(--fg); transform: translateX(4px); }
+
+.qr {
+  margin: 1.8rem auto 0;
+  width: 17rem;
+  height: auto;
+  padding: 0.8rem;
+  border-radius: calc(var(--radius) * 0.6);
+  background-color: #fff;
+}
+
+/* ── Footer (ported from gridSmith's welcome screen) ────────────────────── */
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.3rem;
+  padding: 5rem max(3vw, 2rem) 3.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.footer-socials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.footer-socials a {
+  display: grid;
+  place-items: center;
+  width: 4.2rem;
+  height: 4.2rem;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 50%;
+  color: var(--faint);
+  transition: color 0.25s linear, background-color 0.25s linear, transform 0.25s ease;
+}
+
+.footer-socials a svg { width: 1.9rem; height: 1.9rem; }
+
+.footer-socials a:hover {
+  color: var(--fg);
+  background-color: var(--surface-2);
+  transform: translateY(-3px);
+}
+
+.footer-text { font-size: 1.3rem; color: var(--faint); text-align: center; }
+
+.footer-heart {
+  width: 1.2rem;
+  height: 1.2rem;
+  display: inline-block;
+  vertical-align: -0.15rem;
+}
+
+.footer-text .created:hover { color: var(--accent); }
+
+/* ── WhatsApp float ─────────────────────────────────────────────────────── */
+
+.whatsapp-float {
+  position: fixed;
+  right: 2.4rem;
+  bottom: 2.4rem;
+  z-index: 45;
+  display: grid;
+  place-items: center;
+  width: 5.6rem;
+  height: 5.6rem;
+  border-radius: 50%;
+  background-color: var(--whatsapp);
+  color: #fff;
+  box-shadow: 0 0.4rem 1.8rem rgba(37, 211, 102, 0.4);
+
+  /* Held back until the visitor has scrolled past the projects — see
+     shared/site.js. Someone who has just landed has nothing to ask about
+     yet; someone who has read the work does. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(1.2rem) scale(0.9);
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+}
+
+.whatsapp-float svg { width: 2.9rem; height: 2.9rem; }
+
+.whatsapp-float.revealed { opacity: 1; visibility: visible; transform: none; }
+.whatsapp-float.revealed:hover { transform: scale(1.08); }
+
+/* ── Scroll reveal ──────────────────────────────────────────────────────── */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ══ Responsive ══════════════════════════════════════════════════════════
+   ≥1281 desktop · 1024–1280 small laptop · 768–1023 tablet portrait ·
+   600–767 large phone landscape · 430–599 large phones ·
+   360–429 standard phones · ≤359 small phones · plus short landscape.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1280px) {
+  html { font-size: 60%; }
+  :root { --section-y: 9rem; }
+}
+
+/* Below this the nav collapses behind the hamburger. */
+@media (max-width: 1023px) {
+  html { font-size: 58%; }
+
+  #menu-toggle { display: flex; }
+
+  .nav {
+    position: fixed;
+    inset: 0 0 0 auto;
+    width: min(80vw, 34rem);
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2.4rem;
+    padding: 8rem 3rem 3rem;
+    background-color: var(--bg);
+    border-left: 1px solid var(--line);
+    transform: translateX(100%);
+    transition: transform 0.35s ease;
+    z-index: 39;
+  }
+
+  .nav.open { transform: translateX(0); }
+  .nav a { font-size: 2.2rem; }
+
+  .projects { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .services { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .section-about { grid-template-columns: 1fr; gap: 3.5rem; }
+  .about-media { max-width: 50rem; }
+
+  .contact-grid { grid-template-columns: 1fr; }
+  .contact-direct { max-width: 50rem; }
+}
+
+@media (max-width: 767px) {
+  :root { --section-y: 7.5rem; }
+
+  /* One column: two columns of body copy here leaves about twenty characters
+     per line, which nobody reads comfortably. */
+  .projects { grid-template-columns: 1fr; }
+  .services { grid-template-columns: 1fr; }
+
+  .hero { padding-top: 12rem; }
+  .section-head { margin-bottom: 3.5rem; }
+}
+
+@media (max-width: 599px) {
+  html { font-size: 56%; }
+
+  .hero-cta { flex-direction: column; align-items: stretch; }
+  .hero-cta .btn { width: 100%; }
+
+  .contact-form,
+  .contact-direct,
+  .service { padding: 2.4rem 2rem; }
+
+  .whatsapp-float { width: 5.2rem; height: 5.2rem; right: 1.8rem; bottom: 1.8rem; }
+  .whatsapp-float svg { width: 2.6rem; height: 2.6rem; }
+}
+
+@media (max-width: 429px) {
+  html { font-size: 54%; }
+
+  .site-header { padding-inline: 5vw; }
+  .footer-socials { gap: 0.3rem; }
+  .footer-socials a { width: 3.9rem; height: 3.9rem; }
+}
+
+@media (max-width: 359px) {
+  html { font-size: 51%; }
+
+  /* The wordmark is the first thing to give up room to the controls. */
+  .brand-name { display: none; }
+  .project-index { display: none; }
+  .project-title { padding-right: 0; }
+  .qr { width: 14rem; }
+}
+
+/* A full-height hero wastes the whole screen when it is only ~380px tall. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .hero { min-height: 0; padding-top: 11rem; padding-bottom: 6rem; }
+  :root { --section-y: 6rem; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal { opacity: 1; transform: none; }
+}
