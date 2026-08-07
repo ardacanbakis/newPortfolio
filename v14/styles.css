@@ -1,0 +1,117 @@
+/* ==========================================================================
+   v14 — Generative flow field
+
+   Near-black ground with an ember-coloured field drawing itself underneath.
+   The type is the opposite of the background: Syne is wide, geometric and
+   deliberately static against all that drift.
+   ========================================================================== */
+
+:root {
+  --bg: #0c0c0c;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-2: rgba(255, 255, 255, 0.08);
+  --fg: #f5f1ec;
+  --muted: #a39a90;
+  --faint: #6f665e;
+  --line: rgba(245, 241, 236, 0.14);
+
+  --accent: #ff7a45;
+  --accent-contrast: #140b06;
+
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Syne", system-ui, sans-serif;
+
+  --radius: 0.6rem;
+  --maxw: 124rem;
+  --section-y: 10rem;
+
+  --fx-cursor: #ff7a45;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.site-header,
+main,
+.footer { position: relative; z-index: 2; }
+
+.site-header {
+  background-color: rgba(12, 12, 12, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.site-header.scrolled { background-color: rgba(12, 12, 12, 0.93); }
+
+.brand { font-family: var(--font-display); font-weight: 800; }
+
+.hero-name {
+  font-size: clamp(4.2rem, 11vw, 11rem);
+  letter-spacing: -0.05em;
+  line-height: 0.92;
+}
+
+.hero-eyebrow { font-family: var(--font-display); letter-spacing: 0.24em; }
+
+/* ── Panels: thin, mostly transparent, so the field keeps drawing ──────── */
+
+.project,
+.service,
+.contact-form,
+.contact-direct {
+  background-color: var(--surface);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.project { border-radius: var(--radius); }
+
+.project:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 3rem rgba(255, 122, 69, 0.22);
+}
+
+.project-media { background-color: rgba(0, 0, 0, 0.4); border-radius: 0; }
+.project-media img { filter: grayscale(0.4) contrast(1.05); }
+.project:hover .project-media img { filter: none; }
+
+.project-title { font-family: var(--font-display); font-weight: 800; }
+
+.project-tags li {
+  border-radius: var(--radius);
+  border-color: rgba(255, 122, 69, 0.28);
+  color: #d8b09b;
+}
+
+.service h3 { font-family: var(--font-display); }
+.service-index { font-family: var(--font-display); font-size: 1.6rem; }
+
+.field input,
+.field textarea {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: var(--radius);
+}
+
+.btn { border-radius: var(--radius); font-family: var(--font-display); font-weight: 700; }
+.btn-solid { box-shadow: 0 0 2.4rem rgba(255, 122, 69, 0.35); }
+
+.about-media img { border-radius: var(--radius); filter: grayscale(0.3); }
+
+.nav { background-color: rgba(12, 12, 12, 0.97); }
+
+/* ── Motion accent: headings lean with scroll speed ─────────────────────── */
+
+.section-title {
+  transform: skewY(calc(var(--fx-vel, 0) * -1.4deg));
+  transition: transform 0.22s ease-out;
+}
+
+@media (pointer: coarse) {
+  .project,
+  .service,
+  .contact-form,
+  .contact-direct { background-color: rgba(20, 20, 20, 0.82); }
+}

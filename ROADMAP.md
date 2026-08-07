@@ -1,6 +1,6 @@
 # Portfolio versions — roadmap
 
-Ten designs over the same content. Every version carries the same six projects, the same four
+Fifteen designs over the same content. Every version carries the same six projects, the same four
 services, the same contact options and the same gridSmith-derived footer. Only the design
 changes, so they can be compared like for like.
 
@@ -21,8 +21,15 @@ Preview them all from `index.html` at the repo root, or live at
 | 8 | `v8/` | Timeline / journey | **Done** |
 | 9 | `v9/` | Glassmorphism / aurora | **Done** |
 | 10 | `v10/` | Retro terminal / Y2K | **Done** |
+| 11 | `v11/` | Particle constellation | **Done** |
+| 12 | `v12/` | Liquid mesh gradient | **Done** |
+| 13 | `v13/` | **Art piece** — scroll-choreographed typography | **Done** |
+| 14 | `v14/` | Generative flow field | **Done** |
+| 15 | `v15/` | Isometric parallax world | **Done** |
 
-All ten are built and deployed. Compare them from the root `index.html`, then say which one
+All fifteen are built and deployed. Versions 11–15 add a motion layer: an animated background, a custom cursor, magnetic buttons, scroll-velocity effects and section transitions, each with a different engine so none reads as a reskin of another.
+
+All fifteen are built and deployed. Compare them from the root `index.html`, then say which one
 should become the live site and I will promote it to the root and remove the rest.
 
 ## What every version must have

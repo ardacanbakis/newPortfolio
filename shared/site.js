@@ -557,6 +557,61 @@
     els.forEach((el) => observer.observe(el));
   };
 
+  /* ── Standard page wiring ─────────────────────────────────────────────
+     Language switcher, contact form, mobile menu, header state, active nav
+     link, WhatsApp gate and the footer year — identical in every version
+     that uses the generated markup, so it lives here rather than being
+     copied into each app.js. */
+  const wireStandardPage = () => {
+    const switcher = document.getElementById("language-switcher");
+    if (switcher) {
+      switcher.value = initialLanguage();
+      applyLanguage(switcher.value);
+      switcher.addEventListener("change", () => applyLanguage(switcher.value));
+    }
+
+    wireContactForm(document.getElementById("contact-form"));
+
+    const toggle = document.getElementById("menu-toggle");
+    const nav = document.getElementById("nav");
+
+    if (toggle && nav) {
+      const setMenu = (open) => {
+        nav.classList.toggle("open", open);
+        toggle.setAttribute("aria-expanded", String(open));
+        toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      };
+      toggle.addEventListener("click", () => setMenu(!nav.classList.contains("open")));
+      nav.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setMenu(false)));
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") setMenu(false);
+      });
+    }
+
+    const header = document.querySelector(".site-header");
+    const links = nav ? [...nav.querySelectorAll("a")] : [];
+    const sections = links.map((a) => document.getElementById(a.dataset.nav)).filter(Boolean);
+    const gate = gateWhatsappAfter(
+      document.getElementById("projects"),
+      document.querySelector(".whatsapp-float"),
+    );
+
+    onScroll(() => {
+      header?.classList.toggle("scrolled", window.scrollY > 20);
+
+      let active = 0;
+      sections.forEach((s, i) => {
+        if (s.getBoundingClientRect().top <= window.innerHeight * 0.35) active = i;
+      });
+      links.forEach((a, i) => a.classList.toggle("active", i === active));
+
+      gate();
+    });
+
+    const year = document.getElementById("footer-year");
+    if (year) year.textContent = String(new Date().getFullYear());
+  };
+
   global.Portfolio = {
     WHATSAPP_NUMBER,
     WHATSAPP_STYLE,
@@ -574,6 +629,7 @@
     initialLanguage,
     onLanguageChange: (fn) => listeners.push(fn),
     wireContactForm,
+    wireStandardPage,
     gateWhatsappAfter,
     onScroll,
     revealOnScroll,

@@ -1,0 +1,665 @@
+/* ==========================================================================
+   v13 — "Both Halves", the art piece
+
+   One page, no conventional sections. Type is the whole interface: words
+   assemble, drift apart and settle as you scroll, and the projects arrive as
+   typographic moments rather than cards.
+
+   Scroll position is published per act as --p (0 → 1) by app.js. Every
+   choreographed transform reads that one variable, so the animation is a
+   function of position rather than a queue of timers — scrubbing back up the
+   page rewinds it exactly.
+
+   Without JavaScript --p is simply never set, every fallback value applies,
+   and the page reads as a plain, complete document.
+   ========================================================================== */
+
+:root {
+  --bg: #0a0a0a;
+  --fg: #f5f2ec;
+  --muted: #9a938a;
+  --faint: #5f5952;
+  --line: rgba(245, 242, 236, 0.16);
+  --accent: #e8503a;
+
+  --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --sans: "Inter", system-ui, -apple-system, sans-serif;
+
+  --maxw: 116rem;
+  --fx-cursor: #e8503a;
+  --whatsapp: #25d366;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  font-size: 62.5%;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  background-color: var(--bg);
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 1.6rem;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* A fine grain over everything. Static, so it costs one paint. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+ul, ol { list-style: none; }
+
+::selection { background-color: var(--accent); color: var(--bg); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 1rem 2rem;
+  background-color: var(--accent);
+  color: var(--bg);
+}
+
+.skip-link:focus { left: 1rem; top: 1rem; }
+
+/* ── Fixed chrome ───────────────────────────────────────────────────────── */
+
+.chrome {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem max(4vw, 2rem);
+  mix-blend-mode: difference;
+}
+
+.mark {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  letter-spacing: 0.04em;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.chrome-right { display: flex; align-items: center; gap: 1.6rem; }
+
+.chrome-link {
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.chrome-link::after {
+  content: "";
+  display: block;
+  height: 1px;
+  background-color: currentColor;
+  width: 0;
+  transition: width 0.3s ease;
+  position: absolute;
+  bottom: 1.2rem;
+}
+
+.chrome-link:hover::after { width: 100%; }
+
+#language-switcher {
+  background: transparent;
+  color: inherit;
+  border: 1px solid currentColor;
+  border-radius: 100px;
+  padding: 0.4rem 0.9rem;
+  font-family: var(--sans);
+  font-size: 1.2rem;
+  cursor: pointer;
+  /* px, not rem — the root shrinks on small screens and this must not. */
+  min-height: 40px;
+}
+
+#language-switcher option { background-color: #111; color: #f5f2ec; }
+
+/* ── Progress rail ──────────────────────────────────────────────────────── */
+
+.rail {
+  position: fixed;
+  right: max(2.4vw, 1.6rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.rail a {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  min-height: 24px;
+  padding-left: 2rem;
+  position: relative;
+}
+
+.rail .dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  border: 1px solid var(--faint);
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+.rail-label {
+  position: absolute;
+  right: 1.8rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.rail a:hover .rail-label,
+.rail a.active .rail-label { opacity: 1; transform: none; }
+
+.rail a.active .dot {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  transform: scale(1.4);
+}
+
+/* ── Acts ───────────────────────────────────────────────────────────────── */
+
+.act {
+  position: relative;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding: 14rem max(4vw, 2rem);
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.kicker {
+  font-size: 1.3rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 3rem;
+}
+
+.giant {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(5rem, 15vw, 18rem);
+  line-height: 0.86;
+  letter-spacing: -0.03em;
+  margin-bottom: 3.5rem;
+}
+
+.giant-sm { font-size: clamp(3.6rem, 8vw, 8rem); margin-bottom: 2rem; }
+
+/* Each letter is wrapped by app.js and given --i. They start scattered and
+   settle as the first act's --p climbs. */
+.giant .ch {
+  display: inline-block;
+  white-space: pre;
+  transform:
+    translateY(calc((1 - var(--p, 1)) * var(--dy, 0) * 1px))
+    rotate(calc((1 - var(--p, 1)) * var(--rot, 0) * 1deg));
+  opacity: calc(0.25 + var(--p, 1) * 0.75);
+  will-change: transform;
+}
+
+.lede {
+  font-size: clamp(1.6rem, 2.1vw, 2.1rem);
+  color: var(--muted);
+  max-width: 52rem;
+  /* Rises slightly later than the name, so the two do not arrive together. */
+  transform: translateY(calc((1 - var(--p, 1)) * 26px));
+  opacity: var(--p, 1);
+}
+
+.scroll-cue {
+  position: absolute;
+  left: max(4vw, 2rem);
+  bottom: 4rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--faint);
+  /* Driven by scroll distance rather than the act's progress — the opening
+     act reaches full progress during its entrance animation, which would
+     hide the cue before anyone had scrolled at all. */
+  opacity: var(--cue, 1);
+}
+
+.scroll-cue span::after {
+  content: "";
+  display: inline-block;
+  width: 3.4rem;
+  height: 1px;
+  margin-left: 1rem;
+  vertical-align: middle;
+  background-color: currentColor;
+  animation: cue 2.4s ease-in-out infinite;
+  transform-origin: left;
+}
+
+@keyframes cue {
+  0%, 100% { transform: scaleX(0.3); opacity: 0.4; }
+  50% { transform: scaleX(1); opacity: 1; }
+}
+
+/* ── 02 · Thesis ────────────────────────────────────────────────────────── */
+
+.statement {
+  font-family: var(--serif);
+  font-size: clamp(3rem, 7.5vw, 8.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin-bottom: 3rem;
+}
+
+.statement .line {
+  display: block;
+  /* Lines slide in from alternating sides as the act scrolls through. */
+  transform: translateX(calc((1 - var(--p, 1)) * var(--from, 40px)));
+  opacity: var(--p, 1);
+  transition: none;
+}
+
+.statement .line:nth-child(1) { --from: -60px; }
+.statement .line:nth-child(2) { --from: 70px; }
+.statement .line:nth-child(3) { --from: -40px; }
+
+.statement em { font-style: italic; color: var(--accent); }
+
+.aside {
+  font-size: 1.6rem;
+  color: var(--muted);
+  max-width: 44rem;
+  opacity: var(--p, 1);
+}
+
+/* ── 03 · Work ──────────────────────────────────────────────────────────── */
+
+.act-label {
+  display: flex;
+  align-items: baseline;
+  gap: 1.2rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding-bottom: 2rem;
+  margin-bottom: 5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.count { color: var(--accent); }
+
+.works { display: flex; flex-direction: column; }
+
+.work {
+  padding: 3.4rem 0;
+  border-bottom: 1px solid var(--line);
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.work.in { opacity: 1; transform: none; }
+
+.work-link {
+  display: flex;
+  align-items: baseline;
+  gap: 1.6rem;
+  min-height: 44px;
+}
+
+.work-no {
+  font-size: 1.2rem;
+  letter-spacing: 0.16em;
+  color: var(--faint);
+  flex-shrink: 0;
+}
+
+.work-name {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(3rem, 6.5vw, 6.4rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  transition: color 0.3s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.work-link:hover .work-name { color: var(--accent); transform: translateX(1.4rem); }
+
+.work-go {
+  font-size: 2rem;
+  color: var(--faint);
+  margin-left: auto;
+  transition: transform 0.35s ease, color 0.3s ease;
+}
+
+.work-link:hover .work-go { color: var(--accent); transform: translate(4px, -4px); }
+
+.work-desc {
+  font-size: 1.5rem;
+  color: var(--muted);
+  max-width: 62ch;
+  margin: 1.4rem 0 1rem;
+  padding-left: 3.6rem;
+}
+
+.work-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 2rem;
+  font-size: 1.25rem;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+  padding-left: 3.6rem;
+}
+
+.work-meta a {
+  color: var(--accent);
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.work-meta a:hover { text-decoration: underline; }
+
+.ghost-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 4rem;
+  padding: 1.3rem 2.8rem;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  font-size: 1.4rem;
+  align-self: flex-start;
+  transition: border-color 0.25s ease, color 0.25s ease;
+}
+
+.ghost-link:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── 04 · Craft ─────────────────────────────────────────────────────────── */
+
+.crafts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(26rem, 100%), 1fr));
+  gap: 3.5rem 4rem;
+}
+
+.craft-no {
+  display: block;
+  font-size: 1.2rem;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  margin-bottom: 1.2rem;
+}
+
+.crafts h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 2.4rem;
+  margin-bottom: 1rem;
+}
+
+.crafts p { font-size: 1.45rem; color: var(--muted); }
+
+/* ── 05 · Who ───────────────────────────────────────────────────────────── */
+
+.who-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr);
+  gap: 5rem;
+  align-items: center;
+}
+
+.portrait { width: 100%; filter: grayscale(1) contrast(1.05); }
+.who-body { font-size: 1.6rem; color: var(--muted); margin-bottom: 1.6rem; max-width: 54ch; }
+
+/* ── 06 · Contact ───────────────────────────────────────────────────────── */
+
+.contact-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.7fr);
+  gap: 4rem;
+  align-items: start;
+  margin-top: 4rem;
+}
+
+.field { display: flex; flex-direction: column; margin-bottom: 2rem; }
+
+.field label {
+  font-size: 1.2rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 0.8rem;
+}
+
+/* Underlines rather than boxes — boxes would fight the typographic idea. */
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 0.9rem 0;
+  font-family: var(--sans);
+  font-size: 1.6rem;
+  color: var(--fg);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  resize: vertical;
+  transition: border-color 0.25s ease;
+}
+
+.field input:focus,
+.field textarea:focus { border-bottom-color: var(--accent); outline: none; }
+
+.field-error { display: none; font-size: 1.2rem; color: #f87171; margin-top: 0.5rem; }
+.field.invalid .field-error { display: block; }
+.field.invalid input,
+.field.invalid textarea { border-bottom-color: #f87171; }
+
+/* Honeypot — bots fill it in, humans never see it. */
+.hp-field {
+  position: absolute !important;
+  left: -9999px;
+  opacity: 0;
+  height: 0;
+  width: 0;
+}
+
+.solid-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 1.4rem 3.2rem;
+  min-height: 44px;
+  border: none;
+  border-radius: 100px;
+  background-color: var(--accent);
+  color: var(--bg);
+  font-family: var(--sans);
+  font-size: 1.45rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.25s ease;
+}
+
+.solid-link:hover { opacity: 0.88; }
+.solid-link:disabled { opacity: 0.5; cursor: wait; }
+
+.form-status { font-size: 1.35rem; margin-top: 1.4rem; min-height: 2rem; }
+.form-status.success { color: var(--accent); }
+.form-status.error { color: #f87171; }
+
+.direct { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.direct a {
+  display: block;
+  padding: 1.3rem 0;
+  min-height: 44px;
+  font-size: 1.5rem;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+  transition: color 0.25s ease, padding-left 0.25s ease;
+}
+
+.direct a:hover { color: var(--accent); padding-left: 0.8rem; }
+
+/* ── Footer (ported from gridSmith's welcome screen) ────────────────────── */
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.3rem;
+  padding: 6rem max(4vw, 2rem) 4rem;
+  border-top: 1px solid var(--line);
+}
+
+.footer-socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem; }
+
+.footer-socials a {
+  display: grid;
+  place-items: center;
+  width: 4.2rem;
+  height: 4.2rem;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 50%;
+  color: var(--faint);
+  transition: color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.footer-socials a svg { width: 1.9rem; height: 1.9rem; }
+
+.footer-socials a:hover {
+  color: var(--fg);
+  background-color: rgba(245, 242, 236, 0.08);
+  transform: translateY(-3px);
+}
+
+.footer-text { font-size: 1.25rem; color: var(--faint); text-align: center; }
+.footer-heart { width: 1.2rem; height: 1.2rem; display: inline-block; vertical-align: -0.15rem; }
+.footer-text .created:hover { color: var(--accent); }
+
+/* ── WhatsApp float ─────────────────────────────────────────────────────── */
+
+.whatsapp-float {
+  position: fixed;
+  right: 2.4rem;
+  bottom: 2.4rem;
+  z-index: 45;
+  display: grid;
+  place-items: center;
+  width: 5.4rem;
+  height: 5.4rem;
+  border-radius: 50%;
+  background-color: var(--whatsapp);
+  color: #fff;
+  box-shadow: 0 0.4rem 1.8rem rgba(37, 211, 102, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(1.2rem) scale(0.9);
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+}
+
+.whatsapp-float svg { width: 2.8rem; height: 2.8rem; }
+.whatsapp-float.revealed { opacity: 1; visibility: visible; transform: none; }
+.whatsapp-float.revealed:hover { transform: scale(1.08); }
+
+/* ══ Responsive ══════════════════════════════════════════════════════════
+   The rail is the only navigation, so unlike the other versions it stays on
+   phones — it just loses its labels and moves closer to the edge.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1280px) { html { font-size: 60%; } }
+
+@media (max-width: 1023px) {
+  html { font-size: 58%; }
+
+  .act { padding-block: 11rem; }
+  .who-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .portrait { max-width: 40rem; }
+  .contact-wrap { grid-template-columns: 1fr; gap: 3rem; }
+}
+
+@media (max-width: 767px) {
+  .work-desc,
+  .work-meta { padding-left: 0; }
+
+  .work-go { display: none; }
+  .rail { gap: 1.2rem; }
+  .rail-label { display: none; }
+}
+
+@media (max-width: 599px) {
+  html { font-size: 56%; }
+
+  .act { padding-block: 10rem; min-height: 0; }
+  .act-open { min-height: 100svh; }
+
+  .whatsapp-float { width: 5rem; height: 5rem; right: 1.6rem; bottom: 1.6rem; }
+  .whatsapp-float svg { width: 2.5rem; height: 2.5rem; }
+
+  /* The rail would sit on top of the text at this width. */
+  .rail { right: 0.8rem; }
+  .rail a { padding-left: 1rem; }
+}
+
+@media (max-width: 429px) { html { font-size: 54%; } }
+@media (max-width: 359px) { html { font-size: 51%; } .chrome-link { display: none; } }
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .act { min-height: 0; padding-block: 9rem; }
+  .scroll-cue { display: none; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────
+   Every choreographed transform reads --p, so neutralising it here is enough
+   to make the whole piece static and fully legible. */
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+
+  .giant .ch,
+  .statement .line,
+  .lede { transform: none !important; opacity: 1 !important; }
+
+  .work { opacity: 1; transform: none; }
+  .scroll-cue { opacity: 1; }
+}
