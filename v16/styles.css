@@ -1,0 +1,964 @@
+/* ==========================================================================
+   v16 — handheld overworld.
+
+   The page has one governing variable: --col, the palette progress, written
+   by app.js from the scroll position. At 0 the whole document is the four
+   greens of an original handheld screen and the world behind it is rendered
+   at about two hundred pixels across. At 1 it is a modern colour render.
+
+   The interpolated colours are computed in JavaScript and written back as
+   plain values, rather than being expressed as color-mix() here. That keeps
+   the CSS legible, makes the "no JavaScript" fallback exactly the handheld
+   palette below, and avoids a per-frame colour function on every rule.
+   ========================================================================== */
+
+:root {
+  /* Handheld palette — the fallback, and the state at the top of the page.
+     See voxel.js for why these are the evenly-spaced greens rather than the
+     literal hardware values. */
+  --dmg-0: #081820;
+  --dmg-1: #346856;
+  --dmg-2: #88c070;
+  --dmg-3: #e0f8d0;
+
+  --col: 0;
+
+  /* Written by app.js as --col moves. */
+  --gb-ink: var(--dmg-0);
+  --gb-mid: var(--dmg-1);
+  --gb-soft: var(--dmg-2);
+  --gb-paper: var(--dmg-3);
+  --gb-accent: var(--dmg-0);
+
+  /* The page ground is the ink colour: the world canvas floats over it, and
+     section titles are paper-coloured with an ink outline so they stay
+     legible whatever the canvas is doing behind them. */
+  --bg: var(--gb-ink);
+  --surface: var(--gb-paper);
+  --surface-2: var(--gb-soft);
+  --fg: var(--gb-ink);
+  --muted: var(--gb-ink);
+  --faint: var(--gb-mid);
+  --line: var(--gb-ink);
+
+  --accent: var(--gb-accent);
+  --accent-contrast: var(--gb-paper);
+
+  --font-body: "Pixelify Sans", "Trebuchet MS", monospace;
+  --font-display: "Press Start 2P", "Courier New", monospace;
+
+  --radius: 0;
+  --maxw: 112rem;
+  --section-y: 9rem;
+
+  /* Thickness of the classic double border, in px so it never blurs. */
+  --edge: 3px;
+}
+
+html { scroll-padding-top: 10rem; }
+
+body {
+  font-size: 1.75rem;
+  line-height: 1.7;
+  /* Nothing is antialiased into existence here — the whole point is that the
+     pixels are visible. */
+  -webkit-font-smoothing: none;
+  image-rendering: pixelated;
+}
+
+/* Long paragraphs are the one place a pixel face has to earn its keep. */
+p { letter-spacing: 0.01em; }
+
+/* ── The world ──────────────────────────────────────────────────────────── */
+
+.world {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Full strength while it is the subject; wallpaper once the text arrives. */
+  opacity: var(--world-op, 1);
+  transition: opacity 0.4s linear;
+}
+
+.world canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Dot matrix. Only present while the screen is still a screen. */
+.world::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(to right, rgba(8, 24, 32, 0.5) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(to bottom, rgba(8, 24, 32, 0.5) 0 1px, transparent 1px 5px);
+  /* Enough to read as a dot matrix, not so much that it competes with the
+     map underneath it. */
+  opacity: calc((1 - var(--col)) * 0.32);
+  pointer-events: none;
+}
+
+/* ── Handheld bezel ─────────────────────────────────────────────────────── */
+
+.shell {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: clamp(0, calc(1 - var(--col) * 2.4), 1);
+  transition: opacity 0.3s linear;
+}
+
+.shell-frame {
+  position: absolute;
+  inset: 0;
+  border: 1.6rem solid #cdc9bd;
+  border-bottom-width: 4.4rem;
+  border-radius: 1.4rem;
+  box-shadow:
+    inset 0 0 0 3px #6f6b62,
+    inset 0 0 0 6px #efece4,
+    0 0 0 100vmax #b8b4a9;
+  clip-path: inset(0);
+}
+
+.shell-led {
+  position: absolute;
+  left: 3.2rem;
+  bottom: 1.4rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #e04a3a;
+  box-shadow: 0 0 0.6rem rgba(224, 74, 58, 0.9);
+}
+
+.shell-label {
+  position: absolute;
+  left: 5.4rem;
+  right: 2rem;
+  bottom: 1rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  color: #4a463f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Everything else sits above both ────────────────────────────────────── */
+
+.site-header,
+main,
+.footer,
+.whatsapp-float,
+.exp-bar,
+.skip-link { position: relative; z-index: 2; }
+
+.site-header { z-index: 40; }
+
+/* ── The classic bordered box ───────────────────────────────────────────
+   White field, thick dark rule, a lighter rule inside it. Built from two
+   box-shadows rather than a border image so it stays crisp at any zoom and
+   costs nothing to recolour. */
+
+.gb-box {
+  position: relative;
+  padding: 2.2rem 2.4rem 2.6rem;
+  background-color: var(--gb-paper);
+  color: var(--gb-ink);
+  box-shadow:
+    0 0 0 var(--edge) var(--gb-paper),
+    0 0 0 calc(var(--edge) * 2) var(--gb-ink),
+    calc(var(--edge) * 2) calc(var(--edge) * 2) 0 calc(var(--edge) * 2) var(--gb-mid);
+  margin-bottom: calc(var(--edge) * 3);
+}
+
+/* The blinking "press A" arrow. */
+.gb-cue {
+  position: absolute;
+  right: 1.4rem;
+  bottom: 0.8rem;
+  width: 0;
+  height: 0;
+  border-left: 0.55rem solid transparent;
+  border-right: 0.55rem solid transparent;
+  border-top: 0.6rem solid var(--gb-ink);
+  animation: gb-blink 1s steps(1, end) infinite;
+}
+
+@keyframes gb-blink {
+  0%, 55% { opacity: 1; transform: translateY(0); }
+  56%, 100% { opacity: 0; transform: translateY(2px); }
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.site-header {
+  padding: 1rem max(3vw, calc((100vw - var(--maxw)) / 2));
+  background-color: var(--gb-paper);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: var(--edge) solid var(--gb-ink);
+}
+
+.site-header.scrolled { border-bottom-color: var(--gb-ink); }
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  letter-spacing: 0.06em;
+  gap: 0.8rem;
+  color: var(--gb-ink);
+}
+
+.brand-mark { display: grid; place-items: center; color: var(--gb-ink); }
+.brand-mark svg { display: block; }
+
+.nav { gap: 0.4rem; }
+
+.nav a {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color: var(--gb-ink);
+  padding: 0 1.2rem 0 2rem;
+  text-transform: uppercase;
+}
+
+/* The menu cursor, exactly where the games put it. */
+.nav a::before {
+  content: "▶";
+  position: absolute;
+  left: 0.4rem;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity 0.1s steps(1);
+}
+
+.nav a:hover::before,
+.nav a.active::before { opacity: 1; }
+.nav a.active::after { display: none; }
+
+#language-switcher {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--gb-ink);
+  background-color: var(--gb-paper);
+  border: var(--edge) solid var(--gb-ink);
+  border-radius: 0;
+  padding-inline: 0.7rem;
+}
+
+#menu-toggle span { background-color: var(--gb-ink); height: 3px; }
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.hero {
+  min-height: 100svh;
+  align-content: end;
+  padding-bottom: 7rem;
+  padding-top: 12rem;
+}
+
+.hero-inner { max-width: 74rem; width: 100%; }
+
+.hero-box { padding: 2.6rem 2.8rem 3rem; }
+
+.hero-eyebrow {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.16em;
+  color: var(--gb-ink);
+  margin-bottom: 1.6rem;
+  text-transform: uppercase;
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 5.2vw, 4rem);
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  margin-bottom: 1.8rem;
+  word-break: break-word;
+}
+
+.hero-tagline {
+  font-size: 1.75rem;
+  color: var(--gb-ink);
+  margin-bottom: 2.6rem;
+  max-width: 54rem;
+}
+
+.hero-meta {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--gb-mid);
+  letter-spacing: 0.1em;
+}
+
+.hero-hint {
+  margin-top: 1.6rem;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+  color: var(--gb-paper);
+  text-shadow: 2px 2px 0 var(--gb-ink);
+  opacity: var(--hint-op, 1);
+  transition: opacity 0.3s linear;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.btn {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  border-radius: 0;
+  padding: 1.4rem 2.4rem;
+  text-transform: uppercase;
+  transition: transform 0.08s steps(1), background-color 0.08s steps(1),
+    color 0.08s steps(1);
+}
+
+.btn-solid {
+  background-color: var(--gb-ink);
+  color: var(--gb-paper);
+  border: var(--edge) solid var(--gb-ink);
+  box-shadow: var(--edge) var(--edge) 0 0 var(--gb-mid);
+}
+
+.btn-ghost {
+  background-color: var(--gb-paper);
+  color: var(--gb-ink);
+  border: var(--edge) solid var(--gb-ink);
+  box-shadow: var(--edge) var(--edge) 0 0 var(--gb-mid);
+}
+
+/* Pressed, not lifted: the button goes down into the shadow. */
+.btn:hover,
+.btn:focus-visible {
+  transform: translate(var(--edge), var(--edge));
+  box-shadow: 0 0 0 0 var(--gb-mid);
+}
+
+.btn-ghost:hover { border-color: var(--gb-ink); color: var(--gb-ink); }
+
+/* ── Section furniture ──────────────────────────────────────────────────── */
+
+.section { padding-inline: max(3vw, 1.6rem); }
+
+.section-head { margin-bottom: 4rem; }
+
+.kicker {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.2em;
+  padding: 0.7rem 1.2rem;
+  margin-bottom: 1.4rem;
+  background-color: var(--gb-ink);
+  color: var(--gb-paper);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3.4vw, 2.6rem);
+  line-height: 1.35;
+  color: var(--gb-paper);
+  text-shadow:
+    3px 0 0 var(--gb-ink), -3px 0 0 var(--gb-ink),
+    0 3px 0 var(--gb-ink), 0 -3px 0 var(--gb-ink),
+    3px 3px 0 var(--gb-ink), -3px 3px 0 var(--gb-ink),
+    3px -3px 0 var(--gb-ink), -3px -3px 0 var(--gb-ink),
+    6px 6px 0 var(--gb-mid);
+}
+
+.section-lede {
+  font-size: 1.7rem;
+  color: var(--gb-paper);
+  text-shadow: 2px 2px 0 var(--gb-ink);
+}
+
+/* ── Projects: dex entries ──────────────────────────────────────────────── */
+
+.dex-count {
+  margin-top: 1.4rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--gb-paper);
+  text-shadow: 2px 2px 0 var(--gb-ink);
+}
+
+.projects { gap: 3.4rem; }
+
+.project {
+  position: relative;
+  background-color: var(--gb-paper);
+  border: none;
+  border-radius: 0;
+  box-shadow:
+    0 0 0 var(--edge) var(--gb-ink),
+    calc(var(--edge) * 2) calc(var(--edge) * 2) 0 var(--edge) var(--gb-mid);
+  transition: transform 0.1s steps(1), box-shadow 0.1s steps(1);
+  overflow: visible;
+}
+
+.project:hover {
+  transform: translate(calc(var(--edge) * -1), calc(var(--edge) * -1));
+  box-shadow:
+    0 0 0 var(--edge) var(--gb-ink),
+    calc(var(--edge) * 4) calc(var(--edge) * 4) 0 var(--edge) var(--gb-mid);
+}
+
+.dex-no {
+  position: absolute;
+  top: calc(var(--edge) * -1);
+  left: 1.6rem;
+  z-index: 3;
+  transform: translateY(-50%);
+  padding: 0.5rem 1rem;
+  background-color: var(--gb-ink);
+  color: var(--gb-paper);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+}
+
+.project-media {
+  border-bottom: var(--edge) solid var(--gb-ink);
+  background-color: var(--gb-soft);
+}
+
+.project-media img { image-rendering: auto; }
+.project:hover .project-media img { transform: none; }
+
+.project-body { padding: 3rem 2.2rem 2.4rem; }
+
+.project-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  line-height: 1.4;
+  padding-right: 0;
+  margin-bottom: 1.4rem;
+  word-break: break-word;
+}
+
+/* Tech, shown the way the games show types: small solid slabs of colour.
+   The colour comes from app.js, which maps each tag to a fixed hue. */
+.project-tags { margin: 0 0 1.8rem; gap: 0.5rem; }
+
+.project-tags li {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.55rem 0.8rem;
+  border: 2px solid var(--gb-ink);
+  border-radius: 0;
+  background-color: var(--tag, var(--gb-soft));
+  color: var(--tag-ink, var(--gb-ink));
+}
+
+.dex-entry { margin-bottom: 2.4rem; padding: 1.8rem 2rem 2.4rem; }
+.dex-entry .project-desc { font-size: 1.6rem; color: var(--gb-ink); min-height: 4em; }
+
+/* The four stat bars, filled by app.js when the entry scrolls in. */
+.dex-stats { display: grid; gap: 0.5rem; margin-bottom: 2rem; }
+
+.dex-stat {
+  display: grid;
+  grid-template-columns: 6.4rem 1fr 3.4rem;
+  align-items: center;
+  gap: 0.8rem;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+}
+
+.dex-stat b { font-weight: 400; text-align: right; }
+
+.dex-stat i {
+  display: block;
+  height: 1rem;
+  border: 2px solid var(--gb-ink);
+  background-color: var(--gb-soft);
+}
+
+.dex-stat i::before {
+  content: "";
+  display: block;
+  height: 100%;
+  width: var(--fill, 0%);
+  background-color: var(--gb-ink);
+  transition: width 0.9s steps(20, end);
+}
+
+.dex-lv {
+  /* The card body is a flex column, so an inline-block would still be
+     stretched to the full width by the default align-items. */
+  align-self: flex-start;
+  margin-bottom: 1.2rem;
+  padding: 0.4rem 0.9rem;
+  border: 2px solid var(--gb-ink);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+}
+
+/* Pushed to the bottom of the card so the actions line up across a row even
+   though the entries are different lengths. */
+.project-links { margin-top: auto; padding-top: 1rem; }
+
+.project-links a {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  color: var(--gb-ink);
+  text-transform: uppercase;
+  padding-left: 1.6rem;
+}
+
+.project-links a::before {
+  content: "▶";
+  position: absolute;
+  left: 0;
+  font-size: 0.75rem;
+  opacity: 0;
+}
+
+.project-links a:hover::before { opacity: 1; }
+.project-links a::after { display: none; }
+
+.more-link { margin-top: 4rem; }
+
+/* ── About: trainer card ────────────────────────────────────────────────── */
+
+.section-about {
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr);
+  gap: 4.5rem;
+  align-items: start;
+}
+
+.trainer-card {
+  background-color: var(--gb-paper);
+  box-shadow:
+    0 0 0 var(--edge) var(--gb-ink),
+    calc(var(--edge) * 2) calc(var(--edge) * 2) 0 var(--edge) var(--gb-mid);
+}
+
+.trainer-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.6rem;
+  background-color: var(--gb-ink);
+  color: var(--gb-paper);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+}
+
+.trainer-card-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 1.8rem;
+  padding: 1.8rem;
+}
+
+.about-media img {
+  border: var(--edge) solid var(--gb-ink);
+  border-radius: 0;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+
+.tc-stats { display: grid; align-content: start; gap: 0.9rem; }
+
+.tc-stats > div {
+  display: grid;
+  grid-template-columns: 6.8rem 1fr;
+  gap: 0.8rem;
+  align-items: baseline;
+  border-bottom: 2px dotted var(--gb-mid);
+  padding-bottom: 0.5rem;
+}
+
+.tc-stats dt {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--gb-mid);
+}
+
+.tc-stats dd { font-size: 1.5rem; word-break: break-word; }
+
+.about-body .gb-box p { font-size: 1.65rem; min-height: 3em; }
+.about-body .section-title { margin-bottom: 2.4rem; }
+
+/* ── Services: badge case ───────────────────────────────────────────────── */
+
+.services { gap: 3rem 2.6rem; }
+
+.service {
+  position: relative;
+  padding: 4.6rem 2.2rem 2.6rem;
+  background-color: var(--gb-paper);
+  border: none;
+  border-radius: 0;
+  box-shadow:
+    0 0 0 var(--edge) var(--gb-ink),
+    calc(var(--edge) * 2) calc(var(--edge) * 2) 0 var(--edge) var(--gb-mid);
+  transition: transform 0.1s steps(1);
+}
+
+.service:hover { transform: translate(calc(var(--edge) * -1), calc(var(--edge) * -1)); }
+
+.badge-medal {
+  position: absolute;
+  top: 0;
+  left: 2rem;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 5.4rem;
+  height: 5.4rem;
+  background-color: var(--gb-paper);
+  border: var(--edge) solid var(--gb-ink);
+  /* The shine below sweeps past the edges; without this it escapes the
+     medal and draws a diagonal streak across the card. */
+  overflow: hidden;
+}
+
+.badge-medal svg {
+  width: 3.2rem;
+  height: 3.2rem;
+  fill: none;
+  stroke: var(--gb-ink);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+/* A slow sweep across the badge, like light catching the enamel. */
+.badge-medal::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 42%, var(--gb-soft) 50%, transparent 58%);
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+  transform: translateX(-120%);
+  animation: badge-shine 5.5s steps(14, end) infinite;
+}
+
+@keyframes badge-shine {
+  0%, 70% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+.service-index {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  color: var(--gb-mid);
+  margin-bottom: 1.2rem;
+}
+
+.service h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.45;
+  margin-bottom: 1.4rem;
+}
+
+.service p { font-size: 1.6rem; color: var(--gb-ink); }
+
+/* ── Contact ────────────────────────────────────────────────────────────── */
+
+.contact-form,
+.contact-direct {
+  background-color: var(--gb-paper);
+  border: none;
+  border-radius: 0;
+  box-shadow:
+    0 0 0 var(--edge) var(--gb-ink),
+    calc(var(--edge) * 2) calc(var(--edge) * 2) 0 var(--edge) var(--gb-mid);
+  padding: 2.8rem 2.4rem;
+}
+
+.field label {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: var(--gb-ink);
+  margin-bottom: 0.9rem;
+}
+
+.field input,
+.field textarea {
+  font-family: var(--font-body);
+  font-size: 1.6rem;
+  color: var(--gb-ink);
+  background-color: var(--gb-paper);
+  border: var(--edge) solid var(--gb-ink);
+  border-radius: 0;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--gb-ink);
+  outline: 2px dashed var(--gb-mid);
+  outline-offset: 2px;
+}
+
+.field-error { font-family: var(--font-display); font-size: 0.8rem; color: #b4231b; }
+.field.invalid input,
+.field.invalid textarea { border-color: #b4231b; }
+
+.form-status { font-family: var(--font-display); font-size: 0.95rem; line-height: 1.7; }
+.form-status.success { color: var(--gb-ink); }
+
+.contact-direct h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.5;
+}
+
+.direct-row {
+  border: var(--edge) solid var(--gb-ink);
+  border-radius: 0;
+  color: var(--gb-ink);
+  font-size: 1.5rem;
+}
+
+.direct-row svg { color: var(--gb-ink); }
+.direct-row:hover { background-color: var(--gb-soft); color: var(--gb-ink); transform: none; }
+
+.qr { border: var(--edge) solid var(--gb-ink); image-rendering: pixelated; }
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+
+.footer {
+  background-color: var(--gb-paper);
+  border-top: var(--edge) solid var(--gb-ink);
+  margin-top: 6rem;
+}
+
+.footer-socials a {
+  border-radius: 0;
+  border: var(--edge) solid transparent;
+  color: var(--gb-ink);
+}
+
+.footer-socials a:hover {
+  background-color: var(--gb-soft);
+  border-color: var(--gb-ink);
+  transform: none;
+}
+
+.footer-text {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  line-height: 2;
+  color: var(--gb-ink);
+}
+
+.footer-text .created:hover { color: var(--gb-mid); }
+
+/* ── WhatsApp ───────────────────────────────────────────────────────────── */
+
+.whatsapp-float {
+  border-radius: 0;
+  border: var(--edge) solid var(--gb-ink);
+  box-shadow: var(--edge) var(--edge) 0 0 var(--gb-ink);
+  bottom: 5.6rem;
+}
+
+.whatsapp-float.revealed:hover {
+  transform: translate(var(--edge), var(--edge));
+  box-shadow: none;
+}
+
+/* ── Level meter ────────────────────────────────────────────────────────── */
+
+.exp-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 44;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1.4rem;
+  background-color: var(--gb-paper);
+  border-top: var(--edge) solid var(--gb-ink);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  color: var(--gb-ink);
+  pointer-events: none;
+}
+
+.exp-lv { white-space: nowrap; }
+.exp-lv b { font-weight: 400; }
+
+.exp-track {
+  flex: 1;
+  height: 0.9rem;
+  border: 2px solid var(--gb-ink);
+  background-color: var(--gb-soft);
+}
+
+.exp-fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background-color: var(--gb-ink);
+}
+
+/* ── The encounter ──────────────────────────────────────────────────────
+   The transition into the projects. Horizontal bars close over the page and
+   open again — the old battle wipe. Deliberately not a strobe: it is one
+   pass, no flashing, and it is skipped entirely under reduced motion. */
+
+.encounter {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-rows: repeat(12, 1fr);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.encounter span {
+  display: block;
+  background-color: var(--dmg-0);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.encounter span:nth-child(even) { transform-origin: right center; }
+
+.encounter.play { visibility: visible; }
+
+.encounter.play span {
+  animation: wipe 1.05s steps(8, end) forwards;
+  animation-delay: calc(var(--i) * 22ms);
+}
+
+@keyframes wipe {
+  0% { transform: scaleX(0); }
+  38%, 58% { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+
+.encounter-cry {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 61;
+  transform: translate(-50%, -50%);
+  padding: 1.6rem 2.2rem;
+  background-color: var(--dmg-3);
+  color: var(--dmg-0);
+  box-shadow: 0 0 0 3px var(--dmg-3), 0 0 0 6px var(--dmg-0);
+  font-family: var(--font-display);
+  font-size: clamp(0.85rem, 2.4vw, 1.2rem);
+  letter-spacing: 0.08em;
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.encounter-cry.play {
+  visibility: visible;
+  animation: cry 1.4s steps(6, end) forwards;
+  animation-delay: 0.35s;
+}
+
+@keyframes cry {
+  0% { opacity: 0; }
+  18%, 78% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ── Typewriter ─────────────────────────────────────────────────────────
+   Dialogue prints a character at a time. The element keeps its full text in
+   the DOM until app.js takes it over, so the page reads normally without
+   JavaScript and for anything parsing the markup. */
+
+[data-type].typing { white-space: pre-wrap; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────
+   base.css carries the ladder; these are the places the pixel type and the
+   bezel need their own handling. */
+
+@media (max-width: 1023px) {
+  .nav {
+    background-color: var(--gb-paper);
+    border-left: var(--edge) solid var(--gb-ink);
+    padding: 9rem 2.4rem 3rem;
+    gap: 1.6rem;
+  }
+
+  .nav a { font-size: 1.3rem; padding-left: 2.4rem; }
+  .nav a::before { left: 0.6rem; font-size: 1.1rem; }
+
+  .trainer-card-body { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr); }
+  .about-media { max-width: none; }
+}
+
+@media (max-width: 767px) {
+  :root { --edge: 3px; }
+
+  .shell-frame { border-width: 1rem; border-bottom-width: 3.2rem; }
+  .shell-label { font-size: 0.7rem; left: 4.4rem; }
+
+  .hero { padding-bottom: 6rem; }
+  .hero-box { padding: 2rem 1.8rem 2.6rem; }
+
+  .trainer-card-body { grid-template-columns: 1fr; }
+  .about-media img { aspect-ratio: 4 / 3; }
+}
+
+@media (max-width: 599px) {
+  body { font-size: 1.7rem; }
+  .section-title { font-size: 1.5rem; }
+  .dex-stat { grid-template-columns: 5.4rem 1fr 3rem; }
+  .exp-bar { font-size: 0.75rem; }
+  .whatsapp-float { bottom: 5rem; }
+}
+
+@media (max-width: 429px) {
+  .brand { font-size: 1.1rem; }
+  .project-body { padding: 3rem 1.6rem 2rem; }
+  .gb-box { padding: 1.8rem 1.6rem 2.4rem; }
+  .tc-stats > div { grid-template-columns: 5.6rem 1fr; }
+}
+
+@media (max-width: 359px) {
+  .shell { display: none; }
+  .hero-name { font-size: 1.5rem; }
+  .exp-lv { display: none; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .gb-cue,
+  .badge-medal::after { animation: none; }
+  .gb-cue { opacity: 1; }
+  .encounter { display: none; }
+}
