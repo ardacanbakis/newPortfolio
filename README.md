@@ -212,11 +212,29 @@ no unreachable navigation at any of them.
 - v1's mobile drawer inherited `justify-content: space-between` from the desktop bar, spreading
   four links down the full height, and had no way to dismiss it by tapping outside. Both fixed.
 
+## The themed versions (v16–v18)
+
+Three fandom-flavoured builds, listed in `ROADMAP.md` alongside the rest.
+
+They are **original homages, not reproductions.** There is no copyrighted sprite, character
+likeness, logo or trademarked font anywhere in them — every tile, figure, badge and glyph in the
+three folders was drawn for this repository. The point of reference is the *look* of a handheld
+tile map, a heads-up display and a stop-motion paper cut-out, not any particular character.
+
+Two notes on what these need:
+
+- **v16 draws its overworld itself.** `v16/voxel.js` is a small orthographic renderer on a 2D
+  canvas — no WebGL, no library, nothing to install. It runs the whole page, so it caps its own
+  frame rate once the world has faded back to being wallpaper, drops to a quarter resolution on
+  small screens, and stops entirely when the tab is hidden.
+- **v17 and v18 need `shared/fx.js` and `shared/fx.css`** as well as `shared/site.js`, the same
+  as versions 11–15.
+
 ## Known limitations
 
 Fonts and icons still load from Google Fonts and cdnjs. Self-hosting them would remove two
 third-party requests and make the site faster and more private — worth doing, but it changes the
 asset pipeline, so it is left as a follow-up.
 
-The two folders duplicate their assets and translation strings so that either can be uploaded on
-its own. Once you pick a version, the other can simply be deleted.
+Every version folder duplicates the `assets/` directory so that any one of them can be uploaded on
+its own. Once you pick a version, the rest can simply be deleted.

@@ -1,6 +1,6 @@
 # Portfolio versions — roadmap
 
-Fifteen designs over the same content. Every version carries the same six projects, the same four
+Eighteen designs over the same content. Every version carries the same six projects, the same four
 services, the same contact options and the same gridSmith-derived footer. Only the design
 changes, so they can be compared like for like.
 
@@ -26,10 +26,19 @@ Preview them all from `index.html` at the repo root, or live at
 | 13 | `v13/` | **Art piece** — scroll-choreographed typography | **Done** |
 | 14 | `v14/` | Generative flow field | **Done** |
 | 15 | `v15/` | Isometric parallax world | **Done** |
+| 16 | `v16/` | **Themed** — handheld overworld, voxel 3D | **Done** |
+| 17 | `v17/` | **Themed** — scouter HUD | **Done** |
+| 18 | `v18/` | **Themed** — construction-paper cutout | **Done** |
 
-All fifteen are built and deployed. Versions 11–15 add a motion layer: an animated background, a custom cursor, magnetic buttons, scroll-velocity effects and section transitions, each with a different engine so none reads as a reskin of another.
+Versions 11–15 add a motion layer: an animated background, a custom cursor, magnetic buttons,
+scroll-velocity effects and section transitions, each with a different engine so none reads as a
+reskin of another.
 
-All fifteen are built and deployed. Compare them from the root `index.html`, then say which one
+Versions 16–18 are the three fandom-flavoured builds. They are **original homages, not
+reproductions** — there are no copyrighted sprites, character likenesses, logos or trademarked
+fonts anywhere in them. Every figure, badge, tile and glyph was drawn for this repository.
+
+All eighteen are built and deployed. Compare them from the root `index.html`, then say which one
 should become the live site and I will promote it to the root and remove the rest.
 
 ## What every version must have
@@ -74,6 +83,26 @@ Narrative rather than grid.
 
 **v10 · Retro terminal / Y2K.** CRT scanlines, pixel type, boot chime. Deliberately the most
 playful — and deliberately last, since it overlaps v3 and is the easiest to cut.
+
+**v16 · Handheld overworld.** A voxel town rendered from scratch on a 2D canvas through an
+orthographic camera. It opens at 90° pitch, where every box's side faces have zero projected area
+and the world reads as a flat grid of coloured squares; scrolling drops the pitch and swings the
+yaw, and the tiles turn out to have been solid geometry all along. The render also upgrades its
+hardware as you go — a ~200px backing store in four greens at the top of the page, full device
+resolution in full colour by the time the work arrives. Projects are dex entries with type slabs
+and stat bars; dialogue prints a character at a time.
+
+**v17 · Scouter.** The page seen through an eyepiece: lens tint, hex mesh, corner brackets, and a
+reticle that locks onto whichever project is nearest the middle of the viewport. Each one is given
+a power level computed from what is actually on the card — 800 per technology, 600 per link, plus
+a hand-set scope figure — and the numbers climb rather than appearing. The largest reads past the
+device's range and cracks the glass, once, never under reduced motion.
+
+**v18 · Construction paper.** Every element is a piece of card: the same fibre grain on each sheet,
+torn clip-path edges rather than radii, a hard offset shadow because paper sits on paper, and a
+three-frame stop-motion wobble on the cut-out pieces. A mountain town parallaxes behind in three
+layers and paper snow falls as squares, not circles. The wobble is deliberately kept off body
+copy — text that will not hold still is unreadable.
 
 ## Shared code
 

@@ -1,0 +1,674 @@
+/* ==========================================================================
+   v17 — scouter.
+
+   The whole page is seen through an eyepiece. A fixed overlay carries the
+   lens tint, the hex grid, the corner brackets, a reticle that locks onto
+   whatever is being read, and a readout that counts a power level up from
+   zero. Every project is a target; the strongest one overloads the device
+   and cracks the glass.
+
+   The overlay is decoration in the strictest sense — pointer-events: none
+   throughout, aria-hidden, and nothing in the document depends on it. Turn
+   off JavaScript and you get a dark, high-contrast portfolio with no HUD.
+   ========================================================================== */
+
+:root {
+  --bg: #070b18;
+  --surface: #0d1424;
+  --surface-2: #131c30;
+  --fg: #e8eefc;
+  --muted: #9fb0cc;
+  --faint: #6d80a0;
+  --line: rgba(122, 246, 138, 0.16);
+
+  /* Scouter green, and the two gi colours it reads everything against. */
+  --scan: #7af68a;
+  --scan-dim: rgba(122, 246, 138, 0.5);
+  --gi: #f08a24;
+  --under: #3d63d8;
+  --danger: #ff4d3d;
+
+  --accent: var(--scan);
+  --accent-contrast: #04180a;
+
+  --font-body: "Barlow", system-ui, -apple-system, sans-serif;
+  --font-display: "Saira Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-hud: "Share Tech Mono", ui-monospace, "Courier New", monospace;
+
+  --radius: 0.2rem;
+  --maxw: 118rem;
+  --section-y: 11rem;
+}
+
+body {
+  background:
+    radial-gradient(120rem 70rem at 78% -10%, rgba(61, 99, 216, 0.28), transparent 62%),
+    radial-gradient(90rem 60rem at 8% 108%, rgba(240, 138, 36, 0.18), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+h1, h2, h3 { letter-spacing: 0.01em; }
+
+/* The aura canvas is prepended to the body at z-index 0, so the document
+   needs a stacking order of its own or the ki would be drawn over the text. */
+main,
+.footer { position: relative; z-index: 1; }
+
+.fx-cursor-dot,
+.fx-cursor-ring { --fx-cursor: var(--scan); }
+
+/* ══ The scouter ══════════════════════════════════════════════════════════ */
+
+.scouter {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* The lens. A soft wedge of green over the right-hand side of the view,
+   the way a scouter only ever covers one eye. */
+.scouter-lens {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(78vmax 78vmax at 82% 42%, rgba(122, 246, 138, 0.12), transparent 66%),
+    linear-gradient(105deg, transparent 44%, rgba(122, 246, 138, 0.07) 62%, rgba(122, 246, 138, 0.14) 100%);
+  mix-blend-mode: screen;
+}
+
+/* A hex mesh, faint enough to read as glass rather than as a pattern. */
+.scouter-grid {
+  position: absolute;
+  inset: -2rem;
+  opacity: 0.3;
+  background-image:
+    repeating-linear-gradient(60deg, rgba(122, 246, 138, 0.16) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(-60deg, rgba(122, 246, 138, 0.16) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(0deg, rgba(122, 246, 138, 0.1) 0 1px, transparent 1px 34px);
+  /* Fades toward the middle so text is never read through a grid. */
+  -webkit-mask-image: radial-gradient(70vmax 60vmax at 50% 46%, transparent 30%, #000 84%);
+  mask-image: radial-gradient(70vmax 60vmax at 50% 46%, transparent 30%, #000 84%);
+}
+
+.scouter-brackets i {
+  position: absolute;
+  width: 3.6rem;
+  height: 3.6rem;
+  border: 2px solid var(--scan-dim);
+}
+
+.scouter-brackets i:nth-child(1) { top: 1.6rem; left: 1.6rem; border-right: 0; border-bottom: 0; }
+.scouter-brackets i:nth-child(2) { top: 1.6rem; right: 1.6rem; border-left: 0; border-bottom: 0; }
+.scouter-brackets i:nth-child(3) { bottom: 1.6rem; left: 1.6rem; border-right: 0; border-top: 0; }
+.scouter-brackets i:nth-child(4) { bottom: 1.6rem; right: 1.6rem; border-left: 0; border-top: 0; }
+
+/* ── Reticle ────────────────────────────────────────────────────────────
+   Four corner marks that jump to whatever is being scanned. Position and
+   size come from app.js as custom properties, so the movement is one
+   transition on one element rather than a per-frame write. */
+
+.scouter-reticle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--rw, 24rem);
+  height: var(--rh, 16rem);
+  transform: translate3d(var(--rx, 30vw), var(--ry, 40vh), 0);
+  opacity: var(--ro, 0);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s linear;
+}
+
+.scouter-reticle i {
+  position: absolute;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 2px solid var(--scan);
+}
+
+.scouter-reticle i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+.scouter-reticle i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+.scouter-reticle i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+.scouter-reticle i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+
+/* The sweep that runs down a target while it is being read. */
+.ret-tick {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--scan), transparent);
+  box-shadow: 0 0 1.2rem rgba(122, 246, 138, 0.8);
+  animation: sweep 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@keyframes sweep {
+  0%, 100% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  50% { top: calc(100% - 2px); }
+}
+
+/* ── Readout ────────────────────────────────────────────────────────────── */
+
+.scouter-readout {
+  position: absolute;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s linear, visibility 0.3s;
+  /* Left, not right: the WhatsApp button lives in the bottom-right corner
+     in every version of this site.
+
+     And a strip rather than a panel. A tall block in the corner of a fixed
+     overlay permanently covers whatever is under it, which on a three-column
+     grid is a third of a project card. This is the same information at a
+     tenth of the footprint. */
+  left: 2.4rem;
+  bottom: 2.4rem;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: baseline;
+  gap: 0 1.4rem;
+  max-width: min(48rem, calc(100vw - 12rem));
+  padding: 0.8rem 1.6rem 0.9rem;
+  font-family: var(--font-hud);
+  color: var(--scan);
+  background: rgba(4, 12, 10, 0.86);
+  border: 1px solid var(--scan-dim);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  clip-path: polygon(0 0, 100% 0, 100% 62%, calc(100% - 1.4rem) 100%, 0 100%);
+}
+
+.ro-label { font-size: 1.05rem; letter-spacing: 0.26em; opacity: 0.75; white-space: nowrap; }
+
+.ro-value {
+  font-size: 2.2rem;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 1.4rem rgba(122, 246, 138, 0.55);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ro-target {
+  font-size: 1.15rem;
+  letter-spacing: 0.14em;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.ro-bar {
+  grid-column: 1 / -1;
+  display: block;
+  height: 3px;
+  margin-top: 0.6rem;
+  background: rgba(122, 246, 138, 0.16);
+}
+
+.ro-bar i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--scan);
+  box-shadow: 0 0 1rem rgba(122, 246, 138, 0.9);
+  transition: width 0.25s linear, background-color 0.2s linear;
+}
+
+.scouter.scanning .scouter-readout { opacity: 1; visibility: visible; }
+
+/* Over range: the readout turns and the bar goes red. */
+.scouter.overload .ro-value { color: var(--danger); text-shadow: 0 0 1.8rem rgba(255, 77, 61, 0.7); }
+.scouter.overload .ro-bar i { background: var(--danger); }
+.scouter.overload .ro-target { color: var(--danger); }
+
+/* ── The crack ──────────────────────────────────────────────────────────
+   Fired once, when a target reads past the device's range. The strokes
+   draw themselves in with a dash offset; nothing flashes. */
+
+.scouter-crack {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.2s linear;
+}
+
+.scouter-crack svg { width: 100%; height: 100%; }
+
+.scouter-crack path {
+  fill: none;
+  stroke: rgba(233, 255, 240, 0.92);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px rgba(122, 246, 138, 0.9));
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+}
+
+.scouter.cracked .scouter-crack { opacity: 1; }
+
+.scouter.cracked .scouter-crack path {
+  animation: crack 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.scouter.cracked .scouter-crack path:nth-child(2) { animation-delay: 0.1s; }
+.scouter.cracked .scouter-crack path:nth-child(3) { animation-delay: 0.16s; }
+.scouter.cracked .scouter-crack path:nth-child(4) { animation-delay: 0.22s; }
+.scouter.cracked .scouter-crack path:nth-child(5) { animation-delay: 0.3s; }
+.scouter.cracked .scouter-crack path:nth-child(6) { animation-delay: 0.36s; }
+
+@keyframes crack { to { stroke-dashoffset: 0; } }
+
+.scouter-alarm {
+  position: absolute;
+  left: 50%;
+  top: 16%;
+  transform: translateX(-50%);
+  padding: 0.9rem 1.6rem;
+  font-family: var(--font-hud);
+  font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+  letter-spacing: 0.2em;
+  color: var(--danger);
+  border: 1px solid rgba(255, 77, 61, 0.6);
+  background: rgba(20, 4, 4, 0.78);
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s linear, visibility 0.25s;
+}
+
+.scouter.cracked .scouter-alarm { opacity: 1; visibility: visible; }
+
+/* ══ Page ═════════════════════════════════════════════════════════════════ */
+
+.site-header {
+  background: linear-gradient(180deg, rgba(7, 11, 24, 0.94), rgba(7, 11, 24, 0.6));
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.brand-mark { color: var(--scan); display: grid; place-items: center; }
+
+.nav a {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.nav a.active { color: var(--scan); }
+.nav a.active::after { background-color: var(--scan); box-shadow: 0 0 0.8rem var(--scan); }
+
+#language-switcher {
+  font-family: var(--font-hud);
+  border-color: var(--line);
+  color: var(--scan);
+  background-color: rgba(7, 11, 24, 0.8);
+}
+
+#menu-toggle span { background-color: var(--scan); }
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.hero-inner { max-width: 88rem; }
+
+.hero-eyebrow {
+  font-family: var(--font-hud);
+  color: var(--scan);
+  letter-spacing: 0.3em;
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  /* The gi, over the undershirt, over the glow. */
+  background: linear-gradient(178deg, #ffd9a8 6%, var(--gi) 44%, #c2531a 76%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 2.4rem rgba(240, 138, 36, 0.4));
+}
+
+.hero-tagline { max-width: 62rem; }
+.hero-meta { font-family: var(--font-hud); letter-spacing: 0.16em; }
+
+.hero-power {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1.4rem;
+  margin-top: 3rem;
+  padding: 1rem 1.8rem;
+  font-family: var(--font-hud);
+  border: 1px solid var(--line);
+  background: rgba(9, 20, 18, 0.6);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 1.6rem 100%, 0 72%);
+}
+
+.hp-label { font-size: 1.1rem; letter-spacing: 0.24em; color: var(--faint); }
+
+.hp-value {
+  font-size: 2.6rem;
+  color: var(--scan);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 1.4rem rgba(122, 246, 138, 0.5);
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.btn {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: 0;
+  clip-path: polygon(1.2rem 0, 100% 0, calc(100% - 1.2rem) 100%, 0 100%);
+}
+
+.btn-solid {
+  background: linear-gradient(180deg, #ffa845, var(--gi));
+  border-color: transparent;
+  color: #1a0c02;
+  box-shadow: 0 0 2.4rem rgba(240, 138, 36, 0.36);
+}
+
+/* Filled rather than outlined. A clip-path cuts the border along with the
+   box, so a 1px outline on an angled shape survives only on the two straight
+   edges and reads as a broken frame; a translucent fill lets the cut shape
+   carry itself. */
+.btn-ghost {
+  border-color: transparent;
+  color: var(--scan);
+  background: rgba(122, 246, 138, 0.14);
+}
+
+.btn-ghost:hover { border-color: transparent; color: #04180a; background: var(--scan); }
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.kicker {
+  display: inline-block;
+  margin-bottom: 1.4rem;
+  padding: 0.5rem 1.2rem 0.5rem 1.8rem;
+  font-family: var(--font-hud);
+  font-size: 1.2rem;
+  letter-spacing: 0.26em;
+  color: var(--scan);
+  border: 1px solid var(--scan-dim);
+  clip-path: polygon(0.9rem 0, 100% 0, 100% 100%, 0 100%, 0 0.9rem);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* ── Projects ───────────────────────────────────────────────────────────── */
+
+.project {
+  position: relative;
+  background: linear-gradient(180deg, rgba(19, 28, 48, 0.9), rgba(9, 14, 26, 0.9));
+  border: 1px solid var(--line);
+  border-radius: 0;
+  clip-path: polygon(0 0, calc(100% - 2.4rem) 0, 100% 2.4rem, 100% 100%, 2.4rem 100%, 0 calc(100% - 2.4rem));
+  overflow: hidden;
+}
+
+.project:hover { border-color: var(--scan-dim); transform: translateY(-4px); }
+
+/* Marks the card the reticle is currently on. */
+.project.locked { border-color: var(--scan); box-shadow: 0 0 0 1px var(--scan), 0 0 4rem rgba(122, 246, 138, 0.16); }
+
+.project-media { background: #0a1120; }
+
+.project-body { padding: 2.8rem 2.6rem; }
+
+.project-index {
+  font-family: var(--font-hud);
+  color: var(--scan);
+  letter-spacing: 0.18em;
+}
+
+.project-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* The per-card power readout, written by app.js. */
+.power {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.2rem;
+  margin: 0 0 1.6rem;
+  padding: 0.9rem 1.2rem;
+  font-family: var(--font-hud);
+  border: 1px solid var(--line);
+  background: rgba(122, 246, 138, 0.05);
+}
+
+.power-label { font-size: 1.1rem; letter-spacing: 0.22em; color: var(--faint); }
+
+.power-value {
+  font-size: 2.2rem;
+  color: var(--scan);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 1.2rem rgba(122, 246, 138, 0.45);
+}
+
+.project.over .power { border-color: rgba(255, 77, 61, 0.55); background: rgba(255, 77, 61, 0.07); }
+.project.over .power-value { color: var(--danger); text-shadow: 0 0 1.4rem rgba(255, 77, 61, 0.5); }
+
+.project-tags li {
+  font-family: var(--font-hud);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 0;
+  border-color: var(--line);
+  color: var(--muted);
+}
+
+.project-links a { font-family: var(--font-display); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* ── About ──────────────────────────────────────────────────────────────── */
+
+.about-media { position: relative; }
+
+.about-media img {
+  border-radius: 0;
+  border: 1px solid var(--line);
+  clip-path: polygon(0 0, calc(100% - 3rem) 0, 100% 3rem, 100% 100%, 3rem 100%, 0 calc(100% - 3rem));
+}
+
+/* A scan frame over the photograph, so the About reads as another target. */
+.about-media::after {
+  content: "";
+  position: absolute;
+  inset: 1.4rem;
+  border: 1px solid var(--scan-dim);
+  pointer-events: none;
+}
+
+/* ── Services: techniques ───────────────────────────────────────────────── */
+
+.service {
+  position: relative;
+  background: linear-gradient(180deg, rgba(19, 28, 48, 0.72), rgba(9, 14, 26, 0.72));
+  border-color: var(--line);
+  border-radius: 0;
+  clip-path: polygon(0 0, calc(100% - 2rem) 0, 100% 2rem, 100% 100%, 0 100%);
+  overflow: hidden;
+}
+
+.service:hover { border-color: var(--scan-dim); }
+
+.service-index { font-family: var(--font-hud); letter-spacing: 0.24em; color: var(--scan); }
+
+.service h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* A charge meter along the bottom edge, filled on reveal. */
+.service::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, var(--under), var(--scan));
+  transition: width 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.service.charged::after { width: 100%; }
+
+/* ── Contact ────────────────────────────────────────────────────────────── */
+
+.contact-form,
+.contact-direct {
+  background: linear-gradient(180deg, rgba(19, 28, 48, 0.8), rgba(9, 14, 26, 0.8));
+  border-color: var(--line);
+  border-radius: 0;
+  clip-path: polygon(0 0, calc(100% - 2.6rem) 0, 100% 2.6rem, 100% 100%, 2.6rem 100%, 0 calc(100% - 2.6rem));
+}
+
+.field label { font-family: var(--font-hud); letter-spacing: 0.16em; text-transform: uppercase; }
+
+.field input,
+.field textarea {
+  background: rgba(4, 9, 18, 0.8);
+  border-color: var(--line);
+  border-radius: 0;
+  color: var(--fg);
+}
+
+.field input:focus,
+.field textarea:focus { border-color: var(--scan); }
+
+.contact-direct h3 { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.06em; }
+.direct-row { border-radius: 0; border-color: var(--line); }
+.direct-row svg { color: var(--scan); }
+.direct-row:hover { border-color: var(--scan); background: rgba(122, 246, 138, 0.06); }
+.form-status { font-family: var(--font-hud); }
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+
+.footer { border-top-color: var(--line); background: rgba(4, 8, 16, 0.6); }
+.footer-socials a { color: var(--faint); }
+.footer-socials a:hover { color: var(--scan); background: rgba(122, 246, 138, 0.08); }
+.footer-text { font-family: var(--font-hud); letter-spacing: 0.08em; }
+
+.whatsapp-float { border-radius: 0; clip-path: polygon(1.4rem 0, 100% 0, 100% calc(100% - 1.4rem), calc(100% - 1.4rem) 100%, 0 100%, 0 1.4rem); }
+
+/* ── Motion layer ───────────────────────────────────────────────────────
+   fx.css owns the cursor and the section transitions; these are the parts
+   specific to this version. --fx-vel is the signed scroll velocity. */
+
+.fx-cursor-dot { background: var(--scan); }
+.fx-cursor-ring { border-color: var(--scan-dim); }
+
+/* Speed lines. They only exist while the page is actually moving fast, and
+   they are drawn from the edges so they never cross the text.
+
+   --speed is the unsigned scroll velocity, published by app.js rather than
+   taken from fx.js's signed --fx-vel: CSS abs() is too new to rely on, and
+   the direction makes no difference to a speed line. */
+.speedlines {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: calc(var(--speed, 0) * 0.55);
+  background-image:
+    repeating-linear-gradient(90deg, rgba(232, 238, 252, 0.5) 0 1px, transparent 1px 9px);
+  -webkit-mask-image: linear-gradient(90deg, #000 0, transparent 22%, transparent 78%, #000 100%);
+  mask-image: linear-gradient(90deg, #000 0, transparent 22%, transparent 78%, #000 100%);
+  transform: scaleY(calc(1 + var(--speed, 0) * 0.4));
+}
+
+.fx-section { opacity: 0; transform: translateY(28px); }
+
+.fx-section.fx-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  .nav { background: rgba(7, 11, 24, 0.97); border-left-color: var(--line); }
+
+  /* Along the bottom edge, stopping short of the WhatsApp button. Docking
+     it under the header instead would put it straight through the reading
+     line, which on a single-column layout is the whole page. */
+  .scouter-readout {
+    left: 1.2rem;
+    right: 8.6rem;
+    bottom: 1.2rem;
+    max-width: none;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "label value" "target target" "bar bar";
+    gap: 0.1rem 1.2rem;
+    padding: 0.8rem 1.2rem 0.9rem;
+  }
+
+  .ro-label { grid-area: label; }
+  .ro-value { grid-area: value; text-align: right; }
+  .ro-target { grid-area: target; }
+  .ro-bar { grid-area: bar; }
+}
+
+@media (max-width: 767px) {
+  .scouter-brackets i { width: 2.4rem; height: 2.4rem; }
+  .scouter-grid { opacity: 0.2; }
+  .hero-power { width: 100%; justify-content: space-between; }
+}
+
+@media (max-width: 599px) {
+  .ro-label { font-size: 1rem; letter-spacing: 0.18em; }
+  .scouter-alarm { top: auto; bottom: 12rem; letter-spacing: 0.12em; width: min(92vw, 44rem); }
+}
+
+@media (max-width: 359px) {
+  .scouter-brackets { display: none; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ret-tick,
+  .scouter-crack path { animation: none; }
+  .scouter-crack path { stroke-dashoffset: 0; }
+  .speedlines { display: none; }
+  .fx-section { opacity: 1; transform: none; }
+  .service::after { width: 100%; }
+}
