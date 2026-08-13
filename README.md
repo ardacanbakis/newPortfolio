@@ -230,6 +230,23 @@ Two notes on what these need:
 - **v17 and v18 need `shared/fx.js` and `shared/fx.css`** as well as `shared/site.js`, the same
   as versions 11–15.
 
+## The sliders (v19–v23)
+
+Five one-page versions with no scrollbar: content advances one full-viewport panel at a time. See
+`ROADMAP.md` for what distinguishes each of the five.
+
+They need **`shared/deck.js` and `shared/deck.css`** uploaded alongside `shared/site.js`; v21 and
+v23 also need `shared/fx.js` and `shared/fx.css`.
+
+Two things worth knowing before you test them:
+
+- **They fall back.** If JavaScript is off or `deck.js` does not load, the same markup is an
+  ordinary scrolling page — every rule that kills the scrollbar is scoped under a class the script
+  adds. Nothing is lost, it just scrolls.
+- **A panel that does not fit keeps its own scrollbar.** On a short laptop screen or a phone in
+  landscape the contact panel needs a little inner scroll, and the deck will not change slide until
+  you have reached the end of it. That is deliberate: the alternative is content you cannot reach.
+
 ## Known limitations
 
 Fonts and icons still load from Google Fonts and cdnjs. Self-hosting them would remove two

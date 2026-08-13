@@ -519,6 +519,23 @@
     return update;
   };
 
+  /** The same content rule as gateWhatsappAfter, for a page that does not
+      scroll: reveal the button once the visitor has moved past the work, and
+      leave it revealed. Someone who has just landed has nothing to ask about
+      yet; someone who has read the projects does. */
+  const gateWhatsappAfterChapter = (deck, chapterName, button) => {
+    if (!deck || !button) return;
+
+    const chapter = deck.chapters.find((c) => c.name === chapterName);
+    if (!chapter) return;
+
+    let seen = false;
+    deck.on((i) => {
+      if (i > chapter.to) seen = true;
+      button.classList.toggle("revealed", seen);
+    });
+  };
+
   /** rAF-throttled scroll listener; returns the handler so it can be reused. */
   const onScroll = (fn) => {
     let ticking = false;
@@ -562,7 +579,14 @@
      link, WhatsApp gate and the footer year — identical in every version
      that uses the generated markup, so it lives here rather than being
      copied into each app.js. */
-  const wireStandardPage = () => {
+  /* The parts of a page that have nothing to do with scrolling: language,
+     the contact form, the menu drawer and the footer year.
+
+     Split out of wireStandardPage so the slider versions can reuse it. A deck
+     has no scroll position, so the nav-active tracking and the WhatsApp gate
+     below would either do nothing or do the wrong thing there; those versions
+     drive both from the slide index instead. */
+  const wireChrome = () => {
     const switcher = document.getElementById("language-switcher");
     if (switcher) {
       switcher.value = initialLanguage();
@@ -588,6 +612,14 @@
       });
     }
 
+    const year = document.getElementById("footer-year");
+    if (year) year.textContent = String(new Date().getFullYear());
+  };
+
+  const wireStandardPage = () => {
+    wireChrome();
+
+    const nav = document.getElementById("nav");
     const header = document.querySelector(".site-header");
     const links = nav ? [...nav.querySelectorAll("a")] : [];
     const sections = links.map((a) => document.getElementById(a.dataset.nav)).filter(Boolean);
@@ -607,9 +639,6 @@
 
       gate();
     });
-
-    const year = document.getElementById("footer-year");
-    if (year) year.textContent = String(new Date().getFullYear());
   };
 
   global.Portfolio = {
@@ -629,7 +658,9 @@
     initialLanguage,
     onLanguageChange: (fn) => listeners.push(fn),
     wireContactForm,
+    wireChrome,
     wireStandardPage,
+    gateWhatsappAfterChapter,
     gateWhatsappAfter,
     onScroll,
     revealOnScroll,

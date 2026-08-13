@@ -1,0 +1,140 @@
+/* ==========================================================================
+   v22 — Iris.
+
+   Each panel is revealed by a circle opening from the point you touched: the
+   arrow you clicked, the dot you pressed, the place your finger left the
+   screen. app.js writes that point as --ox / --oy and the reveal grows from
+   there, so the page opens where you asked it to rather than always from the
+   middle.
+
+   The one subtlety is the panel being covered. It has to stay fully painted
+   until the incoming circle has grown over it, in both directions — so the
+   outgoing panel's clip snaps shut on a delay rather than a transition, by
+   which time nothing can see it happen.
+   ========================================================================== */
+
+:root {
+  --bg: #fffdf8;
+  --surface: #ffffff;
+  --surface-2: #f5f1e8;
+  --fg: #14120f;
+  --muted: #514c44;
+  --faint: #857f74;
+  --line: rgba(20, 18, 15, 0.13);
+
+  --accent: #e0483d;
+  --accent-contrast: #fffdf8;
+
+  --font-body: "Outfit", system-ui, -apple-system, sans-serif;
+  --font-display: "Outfit", system-ui, -apple-system, sans-serif;
+
+  --radius: 1.4rem;
+  --maxw: 108rem;
+
+  /* Where the next panel opens from. Replaced by app.js on every move. */
+  --ox: 50%;
+  --oy: 50%;
+  --iris: 0.8s;
+}
+
+.site-header { background-color: color-mix(in srgb, var(--bg) 90%, transparent); }
+.brand { font-weight: 500; letter-spacing: -0.01em; }
+h1, h2, h3 { font-weight: 300; letter-spacing: -0.035em; }
+.hero-name { font-weight: 200; }
+.hero-eyebrow { letter-spacing: 0.28em; font-weight: 400; }
+.btn { border-radius: 3rem; font-weight: 400; }
+
+/* ══ The iris ═════════════════════════════════════════════════════════════
+   150% rather than 100%: the radius is measured to the nearest side, so a
+   circle that has to cover a corner of a wide viewport needs the overshoot. */
+
+.deck-ready .slide {
+  background-color: var(--bg);
+  clip-path: circle(0% at var(--ox) var(--oy));
+}
+
+.deck-ready .slide[data-state="current"] {
+  z-index: 3;
+  clip-path: circle(150% at var(--ox) var(--oy));
+  transition: clip-path var(--iris) cubic-bezier(0.62, 0, 0.24, 1);
+}
+
+/* The panel underneath holds its ground, then shuts instantly once it is
+   covered. A transition here would show it shrinking through the one that
+   just opened over it. */
+.deck-ready .slide[data-state="past"],
+.deck-ready .slide[data-state="future"] {
+  z-index: 1;
+  clip-path: circle(150% at var(--ox) var(--oy));
+  transition: clip-path 0s linear var(--iris);
+}
+
+/* Once the reveal has finished, everything but the current panel is closed;
+   this is the state they settle into. */
+.deck-ready .slide[data-state="past"].settled,
+.deck-ready .slide[data-state="future"].settled {
+  clip-path: circle(0% at var(--ox) var(--oy));
+}
+
+.deck-instant .slide,
+.deck-instant .slide[data-state="current"] { transition: none; }
+
+.deck-instant .slide[data-state="past"],
+.deck-instant .slide[data-state="future"] { clip-path: circle(0% at 50% 50%); }
+
+/* The dot that pulses at the origin as the panel opens — a small
+   acknowledgement that the page heard where you pressed. */
+.iris-ping {
+  position: fixed;
+  z-index: 48;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin: -0.7rem 0 0 -0.7rem;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.iris-ping.on { animation: ping 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+@keyframes ping {
+  0% { opacity: 0.9; transform: scale(0.4); }
+  100% { opacity: 0; transform: scale(7); }
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────────── */
+
+.deck-dot.active .deck-dot-mark { background-color: var(--accent); border-color: var(--accent); }
+.deck-dot.active .deck-dot-label { color: var(--accent); }
+.deck-arrow { border-color: var(--line); }
+.deck-arrow:hover { background-color: var(--surface-2); }
+.deck-progress { color: var(--accent); }
+
+/* ── Content ────────────────────────────────────────────────────────────── */
+
+.slide-kicker b { color: var(--accent); }
+.section-title { font-weight: 300; }
+
+.deck-ready .slide-work .project-media {
+  border-radius: var(--radius);
+  box-shadow: 0 2rem 5rem rgba(20, 18, 15, 0.13);
+}
+
+.deck-ready .about-media img { border-radius: var(--radius); }
+
+.deck-ready .slide-services .service,
+.deck-ready .slide-contact .contact-form,
+.deck-ready .slide-contact .contact-direct {
+  background-color: var(--surface-2);
+  border-color: transparent;
+  border-radius: var(--radius);
+}
+
+.field input,
+.field textarea { background-color: var(--surface); border-radius: 0.8rem; }
+.direct-row { border-radius: 0.8rem; background-color: var(--surface); }
+
+@media (prefers-reduced-motion: reduce) {
+  .iris-ping { display: none; }
+}

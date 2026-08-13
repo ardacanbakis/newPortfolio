@@ -1,6 +1,6 @@
 # Portfolio versions — roadmap
 
-Eighteen designs over the same content. Every version carries the same six projects, the same four
+Twenty-three designs over the same content. Every version carries the same six projects, the same four
 services, the same contact options and the same gridSmith-derived footer. Only the design
 changes, so they can be compared like for like.
 
@@ -29,6 +29,11 @@ Preview them all from `index.html` at the repo root, or live at
 | 16 | `v16/` | **Themed** — handheld overworld, voxel 3D | **Done** |
 | 17 | `v17/` | **Themed** — scouter HUD | **Done** |
 | 18 | `v18/` | **Themed** — construction-paper cutout | **Done** |
+| 19 | `v19/` | **Slider** — filmstrip | **Done** |
+| 20 | `v20/` | **Slider** — card stack | **Done** |
+| 21 | `v21/` | **Slider** — prism | **Done** |
+| 22 | `v22/` | **Slider** — iris | **Done** |
+| 23 | `v23/` | **Slider** — fly-through | **Done** |
 
 Versions 11–15 add a motion layer: an animated background, a custom cursor, magnetic buttons,
 scroll-velocity effects and section transitions, each with a different engine so none reads as a
@@ -38,8 +43,11 @@ Versions 16–18 are the three fandom-flavoured builds. They are **original homa
 reproductions** — there are no copyrighted sprites, character likenesses, logos or trademarked
 fonts anywhere in them. Every figure, badge, tile and glyph was drawn for this repository.
 
-All eighteen are built and deployed. Compare them from the root `index.html`, then say which one
-should become the live site and I will promote it to the root and remove the rest.
+Versions 19–23 are the sliders: one page, no scrollbar, content advancing one full-viewport panel
+at a time. They share a single engine (`shared/deck.js`) and differ only in how a panel arrives.
+
+All twenty-three are built and deployed. Compare them from the root `index.html`, then say which
+one should become the live site and I will promote it to the root and remove the rest.
 
 ## What every version must have
 
@@ -115,3 +123,36 @@ fully self-contained and can still be uploaded on their own.
 
 Project cards stay written out in each version's HTML rather than generated from data at
 runtime, so the content is in the page for search engines and for anyone with JavaScript off.
+
+
+## The sliders (v19–v23)
+
+One page, no scrollbar. Content advances a full viewport at a time, driven by the wheel, the arrow
+keys, a swipe, the dot rail or the header nav. All five run on `shared/deck.js` and each supplies
+only its own transition, written against the two things the engine publishes: `[data-state]`
+(`current` / `past` / `future`) and `--offset`, a slide's signed distance from the current one.
+
+| # | Mechanic | The feature to test |
+| --- | --- | --- |
+| 19 | Panels travel sideways | A **filmstrip** of every panel along the bottom — thumbnails for the work, labels for the rest. Replaces the dot rail: with ten panels, a picture you recognise beats a circle you have to count. |
+| 20 | A literal stack of cards | **Drag-to-throw.** The top card follows your finger and tilts before it commits, and the next two are visible behind it so you can see how much is left. |
+| 21 | Faces of a turning prism | **Direction-aware rotation.** Forward turns one way, back turns the other, so the deck has handedness instead of always looking like it is going forward. |
+| 22 | A circle opening over the page | **Origin-aware reveal.** The panel opens from the exact point you pressed — the arrow, the dot, where your finger left. A keypress has no point on screen, so that one opens from the middle rather than inventing a location. |
+| 23 | Panels stacked in depth | **Parallax on arrival.** You fly through the panels, and the pieces inside each one sit at different depths and separate as it lands. A starfield behind speeds up on the frames the deck is actually moving. |
+
+### What the shared engine has to get right
+
+A deck breaks three things by default, so `deck.js` handles all three:
+
+- **It degrades.** Every rule that removes the scrollbar is scoped under `.deck-ready`, a class the
+  script adds. With JavaScript off — or if `deck.js` simply fails to load — the same markup is an
+  ordinary scrolling page and each version falls back to the standard wiring.
+- **Focus does not wander off-screen.** Tabbing into a panel parked three screens away is the
+  classic carousel bug. Inactive panels are `inert`, with a tabindex sweep behind it.
+- **It yields.** A panel taller than the viewport keeps its own scrollbar, and the wheel will not
+  change slide until that inner region has reached its end. This is what makes the contact panel
+  usable on a short laptop screen, on a phone in landscape and at 200% browser zoom.
+
+Each project gets its own panel — ten in total. That is the only honest way to fit a paragraph of
+description on a phone screen that cannot scroll, and it is why the rail is built from *chapters*
+rather than slides: six work panels are one dot.
