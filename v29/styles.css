@@ -1,0 +1,291 @@
+/* ==========================================================================
+   v29 — Command palette.
+
+   The navigation is search. Press ⌘K (Ctrl+K, or just /) and everything on
+   the site — every project, section, social link, the CV, the languages — is
+   one fuzzy query away. The header nav collapses to a single search affordance
+   once the script has confirmed it can deliver on it.
+
+   That last part is the rule this version lives by: the nav links are real
+   anchors in the markup and stay visible until `palette-ready` is added. A
+   page that hides its navigation behind a keyboard shortcut it cannot honour
+   is not minimal, it is broken.
+
+   The page underneath is deliberately plain. When the interface is a search
+   box, the surface it searches should be quiet.
+   ========================================================================== */
+
+:root {
+  --bg: #0b0b0f;
+  --surface: #131319;
+  --surface-2: #1b1b23;
+  --fg: #f5f5f7;
+  --muted: #a1a1ac;
+  --faint: #6e6e7a;
+  --line: rgba(245, 245, 247, 0.11);
+
+  --accent: #5b8cff;
+  --accent-contrast: #05070f;
+
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius: 0.9rem;
+  --maxw: 104rem;
+  --section-y: 12rem;
+}
+
+body { letter-spacing: -0.008em; }
+
+h1, h2, h3 { letter-spacing: -0.03em; font-weight: 600; }
+
+.site-header { background-color: color-mix(in srgb, var(--bg) 82%, transparent); }
+.brand { font-weight: 600; }
+.brand-mark { font-family: var(--font-mono); color: var(--accent); }
+
+.hero-eyebrow { font-family: var(--font-mono); font-size: 1.25rem; letter-spacing: 0.2em; }
+.hero-name { font-weight: 600; letter-spacing: -0.045em; }
+.hero-meta { font-family: var(--font-mono); font-size: 1.2rem; }
+
+.btn { border-radius: 0.7rem; font-weight: 500; }
+.btn-solid { background-color: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+
+.project,
+.service,
+.contact-form,
+.contact-direct { background-color: var(--surface); border-color: var(--line); }
+
+.project-index { font-family: var(--font-mono); color: var(--accent); }
+.project-tags li { font-family: var(--font-mono); font-size: 1.15rem; border-radius: 0.5rem; }
+.field input, .field textarea { background-color: var(--bg); border-radius: 0.6rem; }
+.direct-row { border-radius: 0.6rem; }
+.direct-row svg { color: var(--accent); }
+.form-status { font-family: var(--font-mono); }
+.footer-text { font-family: var(--font-mono); font-size: 1.2rem; }
+
+/* ══ The search affordance ════════════════════════════════════════════════
+   Replaces the nav only once the script is running. */
+
+.palette-ready .nav { display: none; }
+.palette-ready #menu-toggle { display: none; }
+
+.palette-open { overflow: hidden; }
+
+.palette-trigger {
+  display: none;
+  align-items: center;
+  gap: 1rem;
+  min-height: 44px;
+  padding: 0 1.2rem 0 1.4rem;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: border-color 0.2s linear, color 0.2s linear;
+}
+
+.palette-ready .palette-trigger { display: inline-flex; }
+.palette-trigger:hover { border-color: var(--accent); color: var(--fg); }
+
+.palette-trigger svg { width: 1.6rem; height: 1.6rem; flex-shrink: 0; }
+
+.palette-trigger kbd {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  color: var(--faint);
+  background-color: var(--bg);
+}
+
+/* ══ The palette ══════════════════════════════════════════════════════════ */
+
+.palette {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  padding: clamp(6rem, 14vh, 14rem) 1.6rem 4rem;
+  background-color: rgba(5, 5, 8, 0.66);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s linear, visibility 0.18s;
+}
+
+.palette.open { opacity: 1; visibility: visible; }
+
+.palette-box {
+  width: min(64rem, 100%);
+  max-height: min(58rem, 72vh);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 1.2rem;
+  box-shadow: 0 3rem 8rem rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  transform: translateY(-8px) scale(0.99);
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.palette.open .palette-box { transform: none; }
+
+.palette-field {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.6rem 1.8rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.palette-field svg { width: 1.9rem; height: 1.9rem; color: var(--faint); flex-shrink: 0; }
+
+.palette-field input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 1.8rem;
+  letter-spacing: -0.01em;
+}
+
+.palette-field input::placeholder { color: var(--faint); }
+
+.palette-esc {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  color: var(--faint);
+}
+
+.palette-list {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.8rem;
+}
+
+.palette-group {
+  padding: 1.2rem 1.2rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.9rem 1.2rem;
+  border: none;
+  border-radius: 0.7rem;
+  background: none;
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Selection follows the keyboard, so it is a class rather than :hover —
+   a mouse resting somewhere unrelated must not fight the arrow keys. */
+.palette-item.selected { background-color: var(--surface-2); }
+.palette-item.selected .palette-go { opacity: 1; }
+
+.palette-icon {
+  display: grid;
+  place-items: center;
+  width: 3.2rem;
+  height: 3.2rem;
+  flex-shrink: 0;
+  border-radius: 0.6rem;
+  background-color: var(--surface-2);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+}
+
+.palette-item.selected .palette-icon { background-color: var(--accent); color: var(--accent-contrast); }
+.palette-icon svg { width: 1.7rem; height: 1.7rem; }
+
+.palette-text { flex: 1; min-width: 0; }
+.palette-title { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* The matched characters, marked as the query is typed. */
+.palette-title b { color: var(--accent); font-weight: 600; }
+
+.palette-sub {
+  display: block;
+  font-size: 1.2rem;
+  color: var(--faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.palette-go {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--faint);
+  opacity: 0;
+  flex-shrink: 0;
+}
+
+.palette-empty {
+  padding: 3.4rem 1.6rem;
+  text-align: center;
+  color: var(--faint);
+  font-size: 1.5rem;
+}
+
+.palette-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.8rem;
+  padding: 1rem 1.8rem;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--faint);
+}
+
+.palette-foot kbd {
+  font-family: inherit;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  margin-right: 0.4rem;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+  .palette { padding-top: 4rem; }
+  .palette-box { max-height: 80vh; }
+  .palette-trigger span { display: none; }
+  .palette-trigger { padding-inline: 1.2rem; }
+  .palette-trigger kbd { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .palette,
+  .palette-box { transition: none; }
+}
