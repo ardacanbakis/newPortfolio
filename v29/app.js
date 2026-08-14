@@ -316,7 +316,20 @@ document.addEventListener("DOMContentLoaded", () => {
     root.classList.add("palette-open");
     input.value = "";
     render("");
+
+    /* The dialog is `visibility: hidden` until the class lands, and focus()
+       on a hidden element is silently a no-op — which leaves every keystroke
+       going to the document and the palette looking broken while behaving
+       exactly as written.
+
+       Reading a layout property forces the style change to be committed
+       first, so the focus below is guaranteed to find a focusable element.
+       Waiting a frame is not enough on its own: the transition means the
+       element is still resolving when the next frame runs. */
+    void palette.offsetWidth;
     input.focus();
+    // Belt and braces for engines that defer it anyway.
+    if (document.activeElement !== input) requestAnimationFrame(() => input.focus());
   };
 
   const close = () => {

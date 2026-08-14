@@ -1,0 +1,327 @@
+/* ==========================================================================
+   v26 — Inbox.
+
+   Three columns: folders, a message list, a reading pane. The six projects
+   are threads; About and Services are messages; Contact is a compose window.
+   Nobody has to learn anything, which is the point — the navigation is a
+   shape everyone already has in their hands every day.
+
+   On a phone it becomes what a mail app becomes: a list that pushes a reader
+   over the top of it, with a back button. That is a genuinely different
+   layout, not a narrower version of the same one.
+   ========================================================================== */
+
+:root {
+  --bg: #f6f7f9;
+  --chrome: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #eef0f4;
+  --fg: #16181d;
+  --muted: #565b66;
+  --faint: #868d9b;
+  --line: rgba(22, 24, 29, 0.11);
+
+  --accent: #2c6df0;
+  --accent-contrast: #ffffff;
+  --unread: #2c6df0;
+
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Inter", system-ui, -apple-system, sans-serif;
+
+  --radius: 0.8rem;
+  --maxw: none;
+  --bar: 5.6rem;
+  --folders: 20rem;
+  --list: 34rem;
+}
+
+body { background-color: var(--bg); overflow: hidden; letter-spacing: -0.006em; }
+
+h1, h2, h3 { letter-spacing: -0.025em; font-weight: 600; }
+
+.site-header {
+  position: fixed;
+  min-height: var(--bar);
+  background-color: var(--chrome);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding-inline: 1.8rem;
+}
+
+.brand-mark { color: var(--accent); }
+
+/* ══ Layout ═══════════════════════════════════════════════════════════════ */
+
+.mail {
+  display: grid;
+  grid-template-columns: var(--folders) var(--list) minmax(0, 1fr);
+  height: 100vh;
+  height: 100svh;
+  padding-top: var(--bar);
+}
+
+/* ── Folders ────────────────────────────────────────────────────────────── */
+
+.mail-folders {
+  padding: 1.6rem 1rem;
+  background-color: var(--bg);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+}
+
+.folder {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 1.4rem;
+  margin-bottom: 0.2rem;
+  background: none;
+  border: none;
+  border-radius: 3rem;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 1.45rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.folder:hover { background-color: var(--surface-2); color: var(--fg); }
+.folder.active { background-color: var(--accent); color: var(--accent-contrast); }
+
+.folder-count { font-size: 1.2rem; opacity: 0.7; font-variant-numeric: tabular-nums; }
+
+/* ── List ───────────────────────────────────────────────────────────────── */
+
+.mail-list {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  background-color: var(--chrome);
+  border-right: 1px solid var(--line);
+}
+
+.list-head { padding: 1.2rem; border-bottom: 1px solid var(--line); }
+
+.list-head input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 1.4rem;
+  background-color: var(--surface-2);
+  border: 1px solid transparent;
+  border-radius: 3rem;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 1.4rem;
+}
+
+.list-head input:focus { border-color: var(--accent); outline: none; background-color: var(--chrome); }
+
+.msgs { overflow-y: auto; overscroll-behavior: contain; }
+
+.msg-row {
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 1.3rem 1.4rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  border-left: 3px solid transparent;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.msg-row:hover { background-color: var(--surface-2); }
+
+.msg.active .msg-row {
+  background-color: color-mix(in srgb, var(--accent) 9%, transparent);
+  border-left-color: var(--accent);
+}
+
+.msg-dot {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background-color: var(--unread);
+  align-self: center;
+}
+
+/* Opened messages lose the dot, the way they do everywhere else.
+
+   `.seen`, not `.read` — `.read` is the reading pane below, and a message row
+   carrying both would have picked up its `display: none` and vanished from
+   the list the moment it was opened. */
+.msg.seen .msg-dot { background-color: transparent; }
+.msg.seen .msg-from { font-weight: 500; color: var(--muted); }
+
+.msg-from {
+  grid-column: 2;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.msg-when { grid-column: 3; font-size: 1.2rem; color: var(--faint); white-space: nowrap; }
+
+.msg-subject {
+  grid-column: 2 / -1;
+  font-size: 1.3rem;
+  color: var(--faint);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.msg[data-star="1"] .msg-when::after { content: " ★"; color: #f0b429; }
+
+/* ── Reader ─────────────────────────────────────────────────────────────── */
+
+.mail-read {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background-color: var(--chrome);
+  padding: 3.4rem clamp(2rem, 4vw, 5rem) 6rem;
+}
+
+.read { display: none; max-width: 78rem; }
+.read.active { display: block; }
+
+.read-head { padding-bottom: 2rem; margin-bottom: 2.4rem; border-bottom: 1px solid var(--line); }
+.read-subject { font-size: clamp(2.4rem, 3.4vw, 3.4rem); margin-bottom: 0.8rem; }
+.read-meta { font-size: 1.35rem; color: var(--faint); }
+.read-meta b { color: var(--muted); font-weight: 600; }
+
+.read-body p { color: var(--muted); margin-bottom: 1.6rem; max-width: 68ch; }
+
+.read-hero { display: block; margin-bottom: 2.4rem; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
+.read-hero img { width: 100%; height: auto; }
+
+.read-portrait { width: min(28rem, 60%); border-radius: var(--radius); margin-bottom: 2rem; }
+
+.read-attach-label {
+  font-size: 1.2rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 2.4rem 0 0.9rem !important;
+}
+
+.read-attach { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+.read-attach li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.2rem;
+  background-color: var(--surface-2);
+  border-radius: 0.6rem;
+  font-size: 1.25rem;
+  color: var(--muted);
+}
+
+.read-attach li::before { content: "📎"; font-size: 1.1rem; }
+
+.read-actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2.8rem; }
+
+.svc { padding-bottom: 2rem; margin-bottom: 2rem; border-bottom: 1px solid var(--line); }
+.svc:last-child { border-bottom: none; }
+.svc h2 { font-size: 1.9rem; margin-bottom: 0.7rem; }
+
+.btn { border-radius: 0.7rem; font-size: 1.4rem; }
+.btn-solid { background-color: var(--accent); border-color: var(--accent); }
+
+.contact-grid { gap: 2.4rem; }
+.contact-form, .contact-direct { background-color: var(--surface-2); border-color: transparent; }
+.field input, .field textarea { background-color: var(--chrome); border-radius: 0.6rem; }
+.direct-row { border-radius: 0.6rem; background-color: var(--chrome); }
+.direct-row svg { color: var(--accent); }
+.footer { margin-top: 4rem; padding: 3rem 0 1rem; }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ── Back, for the phone layout ─────────────────────────────────────────── */
+
+.mail-back {
+  display: none;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 44px;
+  padding: 0 1.4rem 0 1rem;
+  margin-bottom: 1.6rem;
+  background-color: var(--surface-2);
+  border: none;
+  border-radius: 3rem;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+/* ══ Responsive ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 1279px) {
+  :root { --folders: 17rem; --list: 30rem; }
+}
+
+@media (max-width: 1023px) {
+  /* The folders become a row of chips above the list. */
+  .mail { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); grid-template-rows: auto minmax(0, 1fr); }
+
+  .mail-folders {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.9rem 1.2rem;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .mail-folders::-webkit-scrollbar { display: none; }
+  .mail-folders ul { display: flex; gap: 0.6rem; }
+  .folder { white-space: nowrap; padding-inline: 1.6rem; }
+  .folder-count { display: none; }
+}
+
+@media (max-width: 767px) {
+  /* One column at a time, like every mail app on a phone. */
+  .mail { grid-template-columns: minmax(0, 1fr); }
+
+  .mail-read {
+    position: fixed;
+    inset: var(--bar) 0 0 0;
+    z-index: 30;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    padding: 2rem 1.6rem 8rem;
+  }
+
+  .reading-open .mail-read { transform: none; }
+  .mail-back { display: inline-flex; }
+  .read-portrait { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mail-read { transition: none; }
+}

@@ -247,6 +247,25 @@ Two things worth knowing before you test them:
   landscape the contact panel needs a little inner scroll, and the deck will not change slide until
   you have reached the end of it. That is deliberate: the alternative is content you cannot reach.
 
+## Beyond the surface (v24–v35)
+
+Twelve versions that vary what the content *is*, how you operate it, or what medium it imitates —
+rather than how it looks. See `ROADMAP.md` for the full table.
+
+Worth knowing before you test them:
+
+- **v24 downloads a real file.** The bin in the hero is meshed, rendered and exported by
+  `v24/solid.js`; the STL it saves is binary, Z-up and printable. Nothing to install.
+- **v25, v26, v28, v27, v31 and v32 are app shells.** They fill the window and manage their own
+  scrolling, so the page itself does not scroll. Each keeps its content in the markup in reading
+  order, so with JavaScript off they are ordinary documents.
+- **v27 and v31 need `shared/pan.js`** as well as `shared/site.js`.
+- **v30 remembers your choice.** If you turn the lights on, they stay on next visit
+  (`localStorage`). It also opens lit for reduced-motion, high-contrast, or no pointing device.
+- **v32 is skippable and always readable.** The whole portfolio sits below the arena as a normal
+  document; nothing is locked behind playing.
+- **v33 is the one to actually print.** Open it and press Ctrl+P.
+
 ## Known limitations
 
 Fonts and icons still load from Google Fonts and cdnjs. Self-hosting them would remove two

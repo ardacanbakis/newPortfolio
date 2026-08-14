@@ -161,7 +161,7 @@ main,
   position: absolute;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s linear, visibility 0.3s;
+  transition: opacity 0.3s linear, visibility 0s linear 0.3s;
   /* Left, not right: the WhatsApp button lives in the bottom-right corner
      in every version of this site.
 
@@ -224,7 +224,11 @@ main,
   transition: width 0.25s linear, background-color 0.2s linear;
 }
 
-.scouter.scanning .scouter-readout { opacity: 1; visibility: visible; }
+.scouter.scanning .scouter-readout {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s linear, visibility 0s linear 0s;
+}
 
 /* Over range: the readout turns and the bar goes red. */
 .scouter.overload .ro-value { color: var(--danger); text-shadow: 0 0 1.8rem rgba(255, 77, 61, 0.7); }

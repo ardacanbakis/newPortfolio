@@ -1,6 +1,6 @@
 # Portfolio versions — roadmap
 
-Twenty-three designs over the same content. Every version carries the same six projects, the same four
+Thirty-five designs over the same content. Every version carries the same six projects, the same four
 services, the same contact options and the same gridSmith-derived footer. Only the design
 changes, so they can be compared like for like.
 
@@ -34,6 +34,18 @@ Preview them all from `index.html` at the repo root, or live at
 | 21 | `v21/` | **Slider** — prism | **Done** |
 | 22 | `v22/` | **Slider** — iris | **Done** |
 | 23 | `v23/` | **Slider** — fly-through | **Done** |
+| 24 | `v24/` | **Tool** — working parametric configurator | **Done** |
+| 25 | `v25/` | **App** — file explorer | **Done** |
+| 26 | `v26/` | **App** — inbox | **Done** |
+| 27 | `v27/` | **Spatial** — map | **Done** |
+| 28 | `v28/` | **App** — spreadsheet | **Done** |
+| 29 | `v29/` | **Search** — command palette | **Done** |
+| 30 | `v30/` | **Light** — torch | **Done** |
+| 31 | `v31/` | **Spatial** — infinite canvas | **Done** |
+| 32 | `v32/` | **Playable** — arena | **Done** |
+| 33 | `v33/` | **Print** — print-first CV | **Done** |
+| 34 | `v34/` | **Print** — risograph | **Done** |
+| 35 | `v35/` | **Type** — kinetic variable font | **Done** |
 
 Versions 11–15 add a motion layer: an animated background, a custom cursor, magnetic buttons,
 scroll-velocity effects and section transitions, each with a different engine so none reads as a
@@ -46,7 +58,10 @@ fonts anywhere in them. Every figure, badge, tile and glyph was drawn for this r
 Versions 19–23 are the sliders: one page, no scrollbar, content advancing one full-viewport panel
 at a time. They share a single engine (`shared/deck.js`) and differ only in how a panel arrives.
 
-All twenty-three are built and deployed. Compare them from the root `index.html`, then say which
+Versions 24–35 stop varying the surface and vary the *substance*: what the content is structured
+as, how you operate it, and what medium it pretends to be.
+
+All thirty-five are built and deployed. Compare them from the root `index.html`, then say which
 one should become the live site and I will promote it to the root and remove the rest.
 
 ## What every version must have
@@ -156,3 +171,51 @@ A deck breaks three things by default, so `deck.js` handles all three:
 Each project gets its own panel — ten in total. That is the only honest way to fit a paragraph of
 description on a phone screen that cannot scroll, and it is why the rail is built from *chapters*
 rather than slides: six work panels are one dot.
+
+
+## Beyond the surface (v24–v35)
+
+Everything up to v23 varies how the same page *looks* or how you move through it. These twelve
+vary something harder: what the content **is**, how you **operate** it, or what **medium** it
+imitates.
+
+### What the content is
+
+| # | Shape | The idea |
+| --- | --- | --- |
+| 24 | **A tool** | The hero is a working parametric bin generator — columns, rows, height and wall thickness, a live shaded 3D preview, and a **real binary STL** you can download and print. `v24/solid.js` meshes it, renders it and exports it in about four hundred lines with no WebGL and no library. This is the only version that *proves* the "3D & Parametric Tools" service instead of claiming it. |
+| 25 | **A file explorer** | Tree, tabs, gutter, minimap, status bar. Not v3's terminal — the graphical thing you actually spend the day in. The minimap is built from the real paragraph lengths of the open pane. |
+| 26 | **An inbox** | Projects as threads with attachments; folders, live search, a reading pane. On a phone it becomes what a mail app becomes: a list that pushes a reader over it, with a back button. |
+| 27 | **A map** | Six pins in a workshop quarter, three districts around them, roads between. Pan, zoom, click a pin. Spatial memory does real work here — people remember *where* something was. |
+| 28 | **A spreadsheet** | Column letters, row numbers, a formula bar, sheet tabs. The totals row is genuinely computed from the cells it names, and it is a real `<table>` underneath, so it reads correctly to a screen reader. |
+| 31 | **A board** | One infinite canvas. Zoom out and the entire portfolio is visible at once as a single shape — the only version that can show you all of it in one glance. |
+| 32 | **A game** | An arena you walk around, collecting the six projects. Built around one rule: the game is a way in, never the only way. Every card is in the document from the first frame and there is a permanent one-click skip. |
+
+### How you operate it
+
+| # | Idea | The interesting part |
+| --- | --- | --- |
+| 29 | **Command palette** | Search *is* the navigation. ⌘K, Ctrl+K or `/`. The matcher is a subsequence scorer, so "gs" finds gridSmith and "wnd" finds the Windows build — a substring test finds neither. The header nav only collapses once the script has confirmed it can honour the shortcut. |
+| 30 | **Torch** | The page arrives unlit and you read by moving a beam, which also finds margin notes too dark to see otherwise. The switch matters more than the effect: a remembered lights-on control, and a lit default whenever the visitor cannot aim or has asked for less motion or more contrast. |
+| 35 | **Kinetic type** | One variable font, driven per letter by pointer distance across both the weight and width axes. Letter positions are measured once rather than per frame, and the loop parks when nothing is moving. |
+
+### What medium it imitates
+
+| # | Idea | The interesting part |
+| --- | --- | --- |
+| 33 | **Print-first CV** | The only version designed for paper. An A4 sheet on screen with the page breaks drawn where the printer will make them; Ctrl+P strips the navigation, prints link URLs after their text, and never splits an entry across a page. No other version has a print stylesheet at all. |
+| 34 | **Risograph** | Not flat colour on textured paper — that is v18. This is *printing*: separate ink layers blended with multiply, deliberate and consistent misregistration, and photographs screened into real halftone dots. |
+
+### Shared code
+
+Two new shared pieces came out of these:
+
+- **`shared/pan.js`** — the pan-and-zoom surface behind v27 and v31. Zoom about a point solved
+  properly rather than corrected after the fact, two-pointer pinch, clamping so the plane can
+  never be lost off-screen, and a published counter-scale so pins hold their size at any zoom.
+- **`shared/content.py`** *(build-time, in the scratchpad)* — every generated version parses its
+  projects, services and about copy out of `v15/index.html` rather than repeating them, so the
+  content can only ever change in one place.
+
+Both spatial versions keep a real, ordered list of everything in the markup and treat the plane as
+a view onto it. A spatial layout that is *only* spatial is one most people cannot use.

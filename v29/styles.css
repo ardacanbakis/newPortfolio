@@ -118,10 +118,19 @@ h1, h2, h3 { letter-spacing: -0.03em; font-weight: 600; }
   backdrop-filter: blur(6px);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.18s linear, visibility 0.18s;
+  /* visibility gets a *delay*, never a duration. A duration flips the
+     property at the halfway point, so for the first ninety milliseconds after
+     opening the dialog is painted and still `hidden` — and focus() on a
+     hidden element is silently a no-op, which sends every keystroke to the
+     document and makes a working palette look broken. */
+  transition: opacity 0.18s linear, visibility 0s linear 0.18s;
 }
 
-.palette.open { opacity: 1; visibility: visible; }
+.palette.open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.18s linear, visibility 0s linear 0s;
+}
 
 .palette-box {
   width: min(64rem, 100%);
