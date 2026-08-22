@@ -1,6 +1,6 @@
 # Portfolio versions — roadmap
 
-Thirty-five designs over the same content. Every version carries the same six projects, the same four
+Forty designs over the same content. Every version carries the same six projects, the same four
 services, the same contact options and the same gridSmith-derived footer. Only the design
 changes, so they can be compared like for like.
 
@@ -46,6 +46,11 @@ Preview them all from `index.html` at the repo root, or live at
 | 33 | `v33/` | **Print** — print-first CV | **Done** |
 | 34 | `v34/` | **Print** — risograph | **Done** |
 | 35 | `v35/` | **Type** — kinetic variable font | **Done** |
+| 36 | `v36/` | **Platform** — liquid glass, OKLCH, `@property` | **Done** |
+| 37 | `v37/` | **Platform** — scroll-driven animation, no motion script | **Done** |
+| 38 | `v38/` | **Platform** — view transitions, shared-element morph | **Done** |
+| 39 | `v39/` | **Platform** — container queries, anchor positioning, popover | **Done** |
+| 40 | `v40/` | **Maximalist** — collage zine | **Done** |
 
 Versions 11–15 add a motion layer: an animated background, a custom cursor, magnetic buttons,
 scroll-velocity effects and section transitions, each with a different engine so none reads as a
@@ -61,7 +66,22 @@ at a time. They share a single engine (`shared/deck.js`) and differ only in how 
 Versions 24–35 stop varying the surface and vary the *substance*: what the content is structured
 as, how you operate it, and what medium it pretends to be.
 
-All thirty-five are built and deployed. Compare them from the root `index.html`, then say which
+Versions 36–40 are built on browser features that appear nowhere in the first thirty-five, each
+one carrying the design rather than decorating it:
+
+| Version | The feature | What it is actually for |
+| --- | --- | --- |
+| 36 | `oklch()`, `@property`, layered `backdrop-filter` | One hue token drives the whole palette; typed custom properties let the specular and the rim light interpolate at all |
+| 37 | `animation-timeline: view()` / `scroll()`, `timeline-scope` | Every animation, the reading bar, the active nav link and the WhatsApp gate, with no script reading the scroll |
+| 38 | `startViewTransition`, `view-transition-name` | A project card that morphs into its own detail view, and a theme swap revealed through an expanding circle |
+| 39 | `@container`, `anchor-name` / `position-try-fallbacks`, `popover`, `@starting-style` | One card component that lays itself out three ways from its slot, with a popover the browser positions and dismisses |
+| 40 | `text-wrap: balance` / `pretty`, `field-sizing: content` | Display type at poster size that never rags badly, and a message box that grows with what you write |
+
+Each of the five feature-detects and degrades: 37 hands the work back to script where scroll-driven
+animation is missing, 38 swaps views instantly without `startViewTransition`, 39 centres its popover
+where anchor positioning is unsupported, and 36 and 40 lose only polish.
+
+All forty are built and deployed. Compare them from the root `index.html`, then say which
 one should become the live site and I will promote it to the root and remove the rest.
 
 ## What every version must have
@@ -72,7 +92,11 @@ Non-negotiables, so the comparison stays fair:
   VetApp, Theo's Gym. hushBar carries separate macOS and Windows links; the wedding site points
   at `/story/`.
 - Working contact form (Web3Forms), plus direct email, WhatsApp and Linktree.
-- WhatsApp button that appears only after the projects, then stays.
+- WhatsApp button that appears only after the projects, then stays. (One exception, and a
+  deliberate one: v37 drives the gate from a CSS scroll timeline rather than from script, and a
+  scroll timeline tracks position rather than remembering it — so the button also goes away again
+  if you scroll back up to the hero. The rule it is serving is unchanged: nobody is offered
+  WhatsApp before they have seen the work.)
 - gridSmith's footer: circular social icons over "Created with ♥ by Arda Canbakış".
   No Stack Overflow.
 - English, Turkish and Spanish.

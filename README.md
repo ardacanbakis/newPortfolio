@@ -266,6 +266,40 @@ Worth knowing before you test them:
   document; nothing is locked behind playing.
 - **v33 is the one to actually print.** Open it and press Ctrl+P.
 
+## The platform five (v36–v40)
+
+The last five are built on browser features that appear nowhere in versions 1–35. Each one is the
+reason its version exists, rather than a garnish on a design that would have worked anyway.
+
+- **v36 — liquid glass.** Every surface refracts one live backdrop. The whole palette is derived
+  from a single `--hue` through `oklch()`, and the tint slider in the hero changes that one number;
+  `@property` is what lets the specular highlight and the rim light animate, because an untyped
+  custom property cannot be interpolated. Drag the slider, then hover a card and watch where the
+  light lands.
+- **v37 — native scroll.** Every animation on the page is a CSS scroll-driven animation. Reveals,
+  the hero's exit, the reading bar, the image parallax, the active nav link and even the WhatsApp
+  gate — none of them is script. If the browser lacks `animation-timeline`, or if you have reduced
+  motion on, `app.js` quietly hands the work back to the ordinary scripted path.
+- **v38 — morph.** Clicking a project does not navigate: the card's thumbnail grows into the detail
+  image and its title travels into place, because both carry the same `view-transition-name` across
+  the DOM change. The theme toggle rides a transition too, revealing the new theme through a circle
+  that expands from the button you pressed. Back, Escape and deep links (`#p-gridsmith`) all work.
+- **v39 — container.** One card component, three layouts, chosen by how wide its *slot* is rather
+  than how wide the window is. The workbench in the hero makes the point directly: drag the handle
+  and the card re-lays-out while the window holds perfectly still. The "•••" button on each card is
+  a native `popover` tethered with CSS anchor positioning, which flips itself when it would run off
+  the screen.
+- **v40 — zine.** The loud one. Cut paper, overprinted display type, halftone, five parallax planes
+  and stickers at angles. `text-wrap: balance` keeps headlines from ragging at poster size, and the
+  message box uses `field-sizing: content` so it grows as you type instead of making you scroll
+  inside it.
+
+One shared fix came out of building these: the mobile nav drawer in `shared/base.css` was being
+sized to the header rather than to the viewport, because a `backdrop-filter` ancestor becomes the
+containing block for its fixed children. The first link sat eighty pixels above the top of the
+screen. It is anchored and given an explicit `100svh` now, which fixes it in every version from v4
+onward.
+
 ## Known limitations
 
 Fonts and icons still load from Google Fonts and cdnjs. Self-hosting them would remove two

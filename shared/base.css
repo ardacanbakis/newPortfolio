@@ -148,7 +148,17 @@ h1, h2, h3 {
   background-color: var(--accent);
 }
 
-.header-actions { display: flex; align-items: center; gap: 1.2rem; }
+/* Above the drawer. The drawer is a child of the header with z-index 39, and
+   a positioned child paints over a static sibling regardless of source order,
+   so without this the open menu covers the very button that closes it — the
+   only ways out being Escape or picking a link. */
+.header-actions {
+  position: relative;
+  z-index: 41;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
 
 #language-switcher {
   background-color: transparent;
@@ -618,12 +628,20 @@ h1, h2, h3 {
   opacity: 0;
   visibility: hidden;
   transform: translateY(1.2rem) scale(0.9);
-  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+  /* visibility gets a delay, not a duration: a duration flips the property at
+     the halfway point, so the button spends the first 175ms of its reveal
+     painted and still `hidden`. */
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0s linear 0.35s;
 }
 
 .whatsapp-float svg { width: 2.9rem; height: 2.9rem; }
 
-.whatsapp-float.revealed { opacity: 1; visibility: visible; transform: none; }
+.whatsapp-float.revealed {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.35s ease, transform 0.35s ease, visibility 0s linear 0s;
+}
 .whatsapp-float.revealed:hover { transform: scale(1.08); }
 
 /* ── Scroll reveal ──────────────────────────────────────────────────────── */
@@ -656,13 +674,30 @@ h1, h2, h3 {
 
   .nav {
     position: fixed;
-    inset: 0 0 0 auto;
+    /* The drawer is a fixed child of a header that carries a backdrop-filter,
+       and a filtered ancestor becomes the containing block for its fixed
+       descendants. So `inset: 0 0 0 auto` does not mean the viewport here — it
+       means the header, which is about seventy pixels tall. The drawer came
+       out header-height, and with the links centred in it the first one sat
+       eighty pixels *above* the top of the screen, unreachable.
+
+       Anchoring the top and stating the height explicitly is immune to which
+       box the browser picked: the header sits at the top of the viewport, so
+       `top: 0` lands in the same place either way, and 100svh is 100svh. */
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: auto;
+    height: 100svh;
     width: min(80vw, 34rem);
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
     gap: 2.4rem;
     padding: 8rem 3rem 3rem;
+    /* A landscape phone has room for about three of these. */
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background-color: var(--bg);
     border-left: 1px solid var(--line);
     transform: translateX(100%);

@@ -166,6 +166,13 @@
         "Away from the keyboard I am learning new languages, chasing extreme sports, building things by hand and spending as much time outdoors as I can.",
       downloadCv: "Download my CV",
 
+      hueLabel: "Tint",
+      nativeNote: "Every animation on this page is CSS. No script reads the scroll position.",
+      backToWork: "Back to the work",
+      viewDetails: "View details",
+      benchLabel: "Same component, three layouts",
+      benchNote: "Nothing below depends on the window size. Every card asks its own container how much room it has.",
+
       servicesTitle: "What I can build for you",
       serviceWebTitle: "Web Development",
       serviceWebBody:
@@ -244,6 +251,13 @@
         "Klavyeden uzaktayken yeni diller öğreniyor, ekstrem sporların peşinden gidiyor, elimle bir şeyler yapıyor ve mümkün olduğunca çok vakti dışarıda geçiriyorum.",
       downloadCv: "Özgeçmişimi indir",
 
+      hueLabel: "Renk",
+      nativeNote: "Bu sayfadaki bütün animasyonlar CSS. Hiçbir betik kaydırma konumunu okumuyor.",
+      backToWork: "İşlere geri dön",
+      viewDetails: "Ayrıntılar",
+      benchLabel: "Aynı bileşen, üç ayrı yerleşim",
+      benchNote: "Aşağıdakilerin hiçbiri pencere boyutuna bakmıyor. Her kart kendi kabına ne kadar yer olduğunu soruyor.",
+
       servicesTitle: "Sizin için neler yapabilirim",
       serviceWebTitle: "Web Geliştirme",
       serviceWebBody:
@@ -321,6 +335,13 @@
       aboutBody2:
         "Lejos del teclado estoy aprendiendo idiomas, practicando deportes extremos, construyendo cosas a mano y pasando todo el tiempo que puedo al aire libre.",
       downloadCv: "Descargar mi CV",
+
+      hueLabel: "Tono",
+      nativeNote: "Toda la animación de esta página es CSS. Ningún script lee la posición del scroll.",
+      backToWork: "Volver a los proyectos",
+      viewDetails: "Ver detalles",
+      benchLabel: "El mismo componente, tres diseños",
+      benchNote: "Nada de lo de abajo depende del tamaño de la ventana. Cada tarjeta le pregunta a su propio contenedor cuánto espacio tiene.",
 
       servicesTitle: "Lo que puedo construir para ti",
       serviceWebTitle: "Desarrollo Web",

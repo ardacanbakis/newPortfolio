@@ -1,0 +1,489 @@
+/* ==========================================================================
+   v40 — Zine.
+
+   Every other version in this set is quiet, restrained and grid-aligned. This
+   one is the argument against that. Cut paper, five parallax planes, halftone
+   dots, ink that overprints where two layers cross, stickers stuck on at
+   angles, a ticker running across the top and display type set far too large
+   on purpose.
+
+   Loud is not the same as careless, so the rules are strict underneath:
+
+   * The type ramp is two faces and four sizes, and the enormous headline is
+     the only thing allowed to be enormous.
+   * Nothing rotates by more than four degrees. Past that it stops reading as
+     hand-placed and starts reading as broken.
+   * The collage is all pseudo-elements and gradients — no images beyond the
+     project thumbnails, so the page still weighs almost nothing.
+   * `mix-blend-mode: multiply` is what makes overlapping shapes look printed
+     rather than stacked. It is also what forces a light palette: multiply
+     against a dark ground turns everything to mud.
+
+   Two newer bits of CSS carry real weight here rather than being decoration:
+   `text-wrap: balance` on every heading, because ragged display type at this
+   size is the difference between a poster and a mistake, and `field-sizing:
+   content` on the message box, so the form grows with what you write instead
+   of making you scroll inside a small grey rectangle.
+   ========================================================================== */
+
+:root {
+  --bg: #f2e9db;
+  --surface: #fffdf7;
+  --surface-2: #e8dcc8;
+  --fg: #16130f;
+  --muted: #4a4238;
+  --faint: #8a7f6e;
+  --line: rgba(22, 19, 15, 0.22);
+
+  --accent: #e0361f;
+  --accent-contrast: #fffdf7;
+
+  --ink-blue: #1d3fd4;
+  --ink-yellow: #f5c518;
+  --ink-green: #157a4a;
+
+  --font-body: "Archivo", system-ui, -apple-system, sans-serif;
+  --font-display: "Archivo Black", "Archivo", system-ui, sans-serif;
+
+  --radius: 0;
+  --maxw: 124rem;
+  --section-y: 12rem;
+}
+
+body {
+  background-color: var(--bg);
+  /* Paper. Two very fine gradients rather than a texture image. */
+  background-image:
+    repeating-linear-gradient(0deg, rgba(22, 19, 15, 0.022) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(22, 19, 15, 0.018) 0 1px, transparent 1px 4px);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* Not the floating button — it is `position: fixed` in base.css and would
+   fall into the flow if it were given `position: relative` here. Its z-index
+   is already 45, well above the planes. */
+.site-header,
+main,
+.footer,
+.ticker { position: relative; z-index: 1; }
+
+.site-header { z-index: 40; }
+
+/* ══ The planes ═══════════════════════════════════════════════════════════
+   Five fixed layers behind the document, each moving at its own rate. The
+   translate is written by app.js into --plane, and each plane multiplies it
+   by its own depth — one number per frame for the whole backdrop. */
+
+.planes {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.plane {
+  position: absolute;
+  inset: -20% -10%;
+  transform: translate3d(0, calc(var(--plane, 0px) * var(--depth)), 0);
+  will-change: transform;
+}
+
+/* 1 — halftone. Two offset dot grids at different pitches, which is how a
+   cheap press actually made a tone. */
+.plane-1 {
+  --depth: 0.06;
+  background-image:
+    radial-gradient(circle at center, rgba(224, 54, 31, 0.2) 1.4px, transparent 1.5px),
+    radial-gradient(circle at center, rgba(29, 63, 212, 0.14) 1.1px, transparent 1.2px);
+  background-size: 14px 14px, 22px 22px;
+  background-position: 0 0, 7px 5px;
+}
+
+/* 2 — big flat shapes, cut with clip-path. */
+.plane-2 {
+  --depth: 0.14;
+  background:
+    linear-gradient(var(--ink-yellow), var(--ink-yellow)) 6% 12% / 26vw 26vw no-repeat,
+    linear-gradient(var(--ink-blue), var(--ink-blue)) 78% 62% / 34vw 18vw no-repeat;
+  opacity: 0.28;
+}
+
+/* 3 — rules. Long thin lines that pass behind the columns. */
+.plane-3 {
+  --depth: 0.24;
+  background-image:
+    linear-gradient(90deg, transparent 0 8%, var(--fg) 8% calc(8% + 2px), transparent calc(8% + 2px)),
+    linear-gradient(90deg, transparent 0 71%, var(--fg) 71% calc(71% + 2px), transparent calc(71% + 2px));
+  opacity: 0.16;
+}
+
+/* 4 — a torn edge sweeping across the middle of the page. */
+.plane-4 {
+  --depth: 0.36;
+  background: linear-gradient(var(--accent), var(--accent));
+  clip-path: polygon(0 46%, 12% 44%, 26% 48%, 41% 43%, 58% 47%, 73% 42%, 88% 46%, 100% 44%, 100% 50%, 0 52%);
+  opacity: 0.2;
+}
+
+/* 5 — corner marks, the closest thing this page has to a grid. */
+.plane-5 {
+  --depth: 0.5;
+  background-image:
+    linear-gradient(var(--fg), var(--fg)) 4vw 12vh / 3.4rem 2px no-repeat,
+    linear-gradient(var(--fg), var(--fg)) 4vw 12vh / 2px 3.4rem no-repeat,
+    linear-gradient(var(--fg), var(--fg)) calc(96vw - 3.4rem) 82vh / 3.4rem 2px no-repeat,
+    linear-gradient(var(--fg), var(--fg)) 96vw calc(82vh - 3.4rem) / 2px 3.4rem no-repeat;
+  opacity: 0.4;
+}
+
+/* ══ Ticker ═══════════════════════════════════════════════════════════════ */
+
+.ticker {
+  /* Not sticky. The header is fixed and its height moves with the type ramp,
+     so a sticky offset would have to be re-guessed at every breakpoint; the
+     margin below simply clears it once. */
+  position: relative;
+  z-index: 39;
+  overflow: hidden;
+  padding: 0.7rem 0;
+  margin-top: 8.6rem;
+  background-color: var(--fg);
+  color: var(--bg);
+  border-block: 2px solid var(--fg);
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker 34s linear infinite;
+}
+
+.ticker-track span {
+  padding-right: 2rem;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@keyframes ticker {
+  /* The track holds the phrase twice, so half a track is exactly one loop. */
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ══ Chrome ═══════════════════════════════════════════════════════════════ */
+
+.site-header {
+  background-color: var(--surface);
+  border-bottom: 2px solid var(--fg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.brand-mark { color: var(--accent); font-size: 2.2rem; }
+.brand-name { font-family: var(--font-display); text-transform: uppercase; font-size: 1.5rem; letter-spacing: 0.02em; }
+.nav a { font-weight: 600; text-transform: uppercase; font-size: 1.35rem; letter-spacing: 0.06em; }
+.nav a.active::after { height: 3px; background-color: var(--accent); }
+
+#language-switcher, #menu-toggle { border: 2px solid var(--fg); border-radius: 0; }
+
+/* ══ Hero ═════════════════════════════════════════════════════════════════ */
+
+/* The ticker sits above the hero and takes about eleven rems of the first
+   screen with it, so the hero's own 100svh would push the buttons under the
+   fold. It gives that height back. */
+.hero {
+  min-height: calc(100svh - 13rem);
+  padding-top: 3rem;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  padding: 0.3rem 1rem;
+  background-color: var(--accent);
+  color: var(--accent-contrast);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transform: rotate(-1.5deg);
+}
+
+.hero-name {
+  margin: 2rem 0 2.4rem;
+  font-size: clamp(6rem, 17vw, 20rem);
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  /* Overprint: the headline is drawn twice, the second copy offset and in a
+     different ink, exactly the way a plate that was a hair out of register
+     used to look. */
+  text-shadow: 0.4rem 0.4rem 0 var(--ink-blue), 0.8rem 0.8rem 0 var(--ink-yellow);
+}
+
+.hero-tagline {
+  max-width: 46rem;
+  padding: 1.6rem 1.8rem;
+  background-color: var(--surface);
+  border: 2px solid var(--fg);
+  box-shadow: 0.6rem 0.6rem 0 var(--fg);
+  font-size: 1.75rem;
+  text-wrap: pretty;
+  transform: rotate(-0.6deg);
+}
+
+.hero-meta { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.1em; }
+
+/* ── Stickers ─────────────────────────────────────────────────────────────
+   Absolutely placed on the hero, and pulled inside the flow on phones where
+   there is no margin to stick them into. */
+
+.stickers { position: absolute; inset: 0; pointer-events: none; }
+
+.sticker {
+  position: absolute;
+  padding: 0.6rem 1.2rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 2px solid var(--fg);
+  box-shadow: 0.3rem 0.3rem 0 var(--fg);
+  white-space: nowrap;
+}
+
+.sticker-1 { top: 4%;  right: 2%;  background-color: var(--ink-yellow); transform: rotate(3deg); }
+.sticker-2 { top: 44%; right: 8%;  background-color: var(--surface); transform: rotate(-2.5deg); }
+.sticker-3 { bottom: 16%; right: 22%; background-color: var(--ink-green); color: var(--surface); transform: rotate(1.8deg); }
+
+.sticker-4 {
+  top: 26%;
+  right: 30%;
+  width: 6.4rem;
+  height: 6.4rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  background-color: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 2.8rem;
+  transform: rotate(-8deg);
+}
+
+/* ══ Buttons ══════════════════════════════════════════════════════════════ */
+
+.btn {
+  border: 2px solid var(--fg);
+  border-radius: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0.4rem 0.4rem 0 var(--fg);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.btn:hover { transform: translate(0.2rem, 0.2rem); box-shadow: 0.2rem 0.2rem 0 var(--fg); }
+.btn:active { transform: translate(0.4rem, 0.4rem); box-shadow: none; }
+.btn-solid { background-color: var(--accent); border-color: var(--fg); color: var(--accent-contrast); }
+.btn-ghost { background-color: var(--surface); }
+
+/* ══ Sections ═════════════════════════════════════════════════════════════ */
+
+.section-title {
+  font-size: clamp(3.6rem, 8vw, 8rem);
+  line-height: 0.9;
+}
+
+.section-title::after {
+  content: "";
+  display: block;
+  width: 12rem;
+  height: 0.8rem;
+  margin-top: 1.6rem;
+  background-color: var(--accent);
+}
+
+.section-lede { max-width: 52rem; text-wrap: pretty; }
+
+/* ══ Projects ═════════════════════════════════════════════════════════════ */
+
+.projects { gap: 3.4rem 2.6rem; }
+
+.project {
+  background-color: var(--surface);
+  border: 2px solid var(--fg);
+  border-radius: 0;
+  box-shadow: 0.7rem 0.7rem 0 var(--fg);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+/* Alternating tilt, so the grid reads as things laid down rather than as a
+   grid. Small numbers — this is the difference between a collage and a mess. */
+.projects .project:nth-child(3n + 1) { transform: rotate(-0.8deg); }
+.projects .project:nth-child(3n + 2) { transform: rotate(0.5deg); }
+.projects .project:nth-child(3n + 3) { transform: rotate(-0.3deg); }
+
+.project:hover {
+  transform: rotate(0deg) translate(-0.3rem, -0.3rem);
+  box-shadow: 1rem 1rem 0 var(--accent);
+  border-color: var(--fg);
+}
+
+.project-media { border-bottom: 2px solid var(--fg); }
+.project-media img { filter: saturate(1.15) contrast(1.06); }
+
+.project-index {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--accent);
+}
+
+.project-title { font-size: 2.6rem; }
+
+.project-tags li {
+  background-color: var(--ink-yellow);
+  border: 2px solid var(--fg);
+  border-radius: 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.project-links a { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.project-links a::after { height: 3px; background-color: var(--accent); }
+
+/* ══ About ════════════════════════════════════════════════════════════════ */
+
+.about-media {
+  border: 2px solid var(--fg);
+  box-shadow: 0.8rem 0.8rem 0 var(--ink-blue);
+  transform: rotate(-1.2deg);
+}
+
+.about-media img { filter: grayscale(1) contrast(1.25); mix-blend-mode: multiply; }
+.about-title { font-size: clamp(3rem, 6vw, 5.4rem); }
+.about-body p { font-size: 1.7rem; text-wrap: pretty; }
+
+/* ══ Services ═════════════════════════════════════════════════════════════ */
+
+.service {
+  background-color: var(--surface);
+  border: 2px solid var(--fg);
+  border-radius: 0;
+  box-shadow: 0.6rem 0.6rem 0 var(--fg);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.services .service:nth-child(4n + 1) { background-color: var(--ink-yellow); }
+.services .service:nth-child(4n + 2) { background-color: var(--surface); }
+.services .service:nth-child(4n + 3) { background-color: var(--accent); color: var(--accent-contrast); }
+.services .service:nth-child(4n + 4) { background-color: var(--ink-blue); color: var(--accent-contrast); }
+
+.services .service:nth-child(4n + 3) p,
+.services .service:nth-child(4n + 4) p { color: inherit; opacity: 0.86; }
+
+.service:hover { transform: translate(-0.3rem, -0.3rem); box-shadow: 0.9rem 0.9rem 0 var(--fg); border-color: var(--fg); }
+.service-index { font-family: var(--font-display); color: inherit; opacity: 0.6; }
+.service h3 { font-size: 1.9rem; }
+
+/* ══ Contact ══════════════════════════════════════════════════════════════ */
+
+.contact-form,
+.contact-direct {
+  background-color: var(--surface);
+  border: 2px solid var(--fg);
+  border-radius: 0;
+  box-shadow: 0.8rem 0.8rem 0 var(--fg);
+}
+
+.field label { font-family: var(--font-display); font-size: 1.15rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.field input,
+.field textarea {
+  background-color: var(--bg);
+  border: 2px solid var(--fg);
+  border-radius: 0;
+  color: var(--fg);
+}
+
+/* The box grows with the message instead of making you scroll inside it. */
+.field textarea {
+  field-sizing: content;
+  min-height: 12rem;
+  max-height: 40rem;
+}
+
+.field input:focus, .field textarea:focus { border-color: var(--accent); outline-offset: 2px; }
+
+.direct-row { border: 2px solid var(--fg); border-radius: 0; background-color: var(--bg); }
+.direct-row svg { color: var(--accent); }
+.form-status { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* ══ Footer ═══════════════════════════════════════════════════════════════ */
+
+.footer { border-top: 2px solid var(--fg); background-color: var(--surface); }
+.footer-socials a { border: 2px solid var(--fg); border-radius: 0; background-color: var(--bg); }
+.footer-socials a:hover { background-color: var(--accent); color: var(--accent-contrast); border-color: var(--fg); }
+.footer-text { font-family: var(--font-display); font-size: 1.1rem; letter-spacing: 0.06em; text-transform: uppercase; }
+
+.whatsapp-float { border: 2px solid var(--fg); border-radius: 0; box-shadow: 0.5rem 0.5rem 0 var(--fg); }
+
+/* ══ Responsive ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 1023px) {
+  .sticker-4 { display: none; }
+  .sticker-3 { bottom: 8%; right: 4%; }
+}
+
+@media (max-width: 767px) {
+  /* There is no margin to stick anything into at this width, so the stickers
+     come inside and become a row under the buttons. */
+  .stickers {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 3rem;
+  }
+
+  .sticker,
+  .sticker-1, .sticker-2, .sticker-3 {
+    position: static;
+    transform: rotate(-1deg);
+  }
+
+  .sticker-2 { transform: rotate(1.4deg); }
+  .sticker-3 { transform: rotate(-0.8deg); }
+
+  .hero-name { text-shadow: 0.3rem 0.3rem 0 var(--ink-blue), 0.6rem 0.6rem 0 var(--ink-yellow); }
+  .projects .project { transform: none; }
+  .plane-2, .plane-4 { opacity: 0.16; }
+}
+
+@media (max-width: 599px) {
+  .project { box-shadow: 0.5rem 0.5rem 0 var(--fg); }
+}
+
+/* ══ Reduced motion ═══════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  /* The ticker is the one thing here that moves on its own, and a marquee is
+     precisely the pattern this preference exists to stop. It stays as a
+     static strip of text. */
+  .ticker-track { animation: none; }
+  .plane { transform: none; }
+}
