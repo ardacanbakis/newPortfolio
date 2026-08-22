@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arda Canbakış — Portfolio Versions</title>
+    <meta name="description" content="Forty portfolio designs over the same content." />
+    <meta name="robots" content="noindex" />
+    <link rel="shortcut icon" href="./v1/assets/icons/huskyMeh.png" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      :root {
+        --bg: #0f1115;
+        --fg: #f5f5f5;
+        --muted: #9aa3af;
+        --line: rgba(255, 255, 255, 0.12);
+        --card: rgba(255, 255, 255, 0.03);
+      }
+
+      body {
+        min-height: 100vh;
+        padding: 5rem 1.5rem 6rem;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        line-height: 1.6;
+      }
+
+      .wrap { width: 100%; max-width: 78rem; margin-inline: auto; }
+
+      header { text-align: center; margin-bottom: 3.5rem; }
+      h1 { font-size: clamp(1.9rem, 5vw, 2.7rem); font-weight: 700; margin-bottom: 0.5rem; }
+      .sub { color: var(--muted); font-size: 1rem; }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+        gap: 1.1rem;
+      }
+
+      .card {
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem 1.4rem;
+        border: 1px solid var(--line);
+        border-radius: 0.9rem;
+        background: var(--card);
+        color: inherit;
+        text-decoration: none;
+        min-height: 44px;
+        transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255, 255, 255, 0.34);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .badge {
+        font-size: 0.66rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 0.7rem;
+      }
+
+      .card h2 { font-size: 1.05rem; margin-bottom: 0.4rem; }
+      .card p { color: var(--muted); font-size: 0.83rem; flex-grow: 1; }
+
+      .swatches { display: flex; gap: 0.3rem; margin-top: 1.1rem; }
+      .sw {
+        width: 1.15rem;
+        height: 1.15rem;
+        border-radius: 50%;
+        border: 1px solid var(--line);
+      }
+
+      footer {
+        margin-top: 3rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+
+      footer a { color: var(--muted); }
+
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #fafafa;
+          --fg: #111;
+          --muted: #555;
+          --line: rgba(0, 0, 0, 0.13);
+          --card: #fff;
+        }
+        .card:hover { border-color: rgba(0, 0, 0, 0.32); background: #fff; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>Arda Canbakış — Portfolio</h1>
+        <p class="sub">Forty designs, one set of content. Pick the one you want to go live.</p>
+      </header>
+
+      <div class="grid">
+        <a class="card" href="./v1/index.html">
+          <span class="badge">Version 1</span>
+          <h2>Current, refreshed</h2>
+          <p>Your existing look, updated — six projects, contact form, WhatsApp, new footer.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#007bff"></span>
+            <span class="sw" style="background:#a21caf"></span>
+            <span class="sw" style="background:#74c0fc"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v2/index.html">
+          <span class="badge">Version 2</span>
+          <h2>Yin-yang</h2>
+          <p>Opens dark, ends light, turning over at a flowing S-curve seam.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0b0d0e"></span>
+            <span class="sw" style="background:#f6f6f4"></span>
+            <span class="sw" style="background:#2dd4bf"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v3/index.html">
+          <span class="badge">Version 3</span>
+          <h2>Terminal</h2>
+          <p>A command line you can actually drive. Type or click <code>projects</code>.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0b0f0d"></span>
+            <span class="sw" style="background:#4ade80"></span>
+            <span class="sw" style="background:#22d3ee"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v4/index.html">
+          <span class="badge">Version 4</span>
+          <h2>Swiss minimal</h2>
+          <p>Strict grid, hairline rules, one red accent. The most restrained of the set.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#f4f4f2"></span>
+            <span class="sw" style="background:#0e0e0e"></span>
+            <span class="sw" style="background:#e2231a"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v5/index.html">
+          <span class="badge">Version 5</span>
+          <h2>Editorial</h2>
+          <p>Oversized display type, heavy rules, giant folio numbers behind the work.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#111111"></span>
+            <span class="sw" style="background:#f2efe9"></span>
+            <span class="sw" style="background:#6f6a63"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v6/index.html">
+          <span class="badge">Version 6</span>
+          <h2>Bento grid</h2>
+          <p>A mosaic of tiles at different sizes. Scannable and very current.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0e1116"></span>
+            <span class="sw" style="background:#7c9cff"></span>
+            <span class="sw" style="background:#1d232d"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v7/index.html">
+          <span class="badge">Version 7</span>
+          <h2>Interactive 3D</h2>
+          <p>Project names orbit as a live wireframe, hand-drawn on canvas — no 3D library.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#05070c"></span>
+            <span class="sw" style="background:#7dd3fc"></span>
+            <span class="sw" style="background:#97a6c0"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v8/index.html">
+          <span class="badge">Version 8</span>
+          <h2>Timeline</h2>
+          <p>The work as stations on one vertical route. Warm paper, serif headings.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#faf7f2"></span>
+            <span class="sw" style="background:#1c1917"></span>
+            <span class="sw" style="background:#b45309"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v9/index.html">
+          <span class="badge">Version 9</span>
+          <h2>Glass / aurora</h2>
+          <p>Frosted panels floating over slow-moving coloured light.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0a0a18"></span>
+            <span class="sw" style="background:#c4b5fd"></span>
+            <span class="sw" style="background:#db2777"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v10/index.html">
+          <span class="badge">Version 10</span>
+          <h2>Retro CRT</h2>
+          <p>Scanlines, chromatic fringe, pixel type. The most playful of the set.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0d0221"></span>
+            <span class="sw" style="background:#00f5d4"></span>
+            <span class="sw" style="background:#ff2e97"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v11/index.html">
+          <span class="badge">Version 11 · animated</span>
+          <h2>Constellation</h2>
+          <p>A drifting particle field that links its neighbours and leans away from your cursor.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#04060f"></span>
+            <span class="sw" style="background:#7db0ff"></span>
+            <span class="sw" style="background:#e8eeff"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v12/index.html">
+          <span class="badge">Version 12 · animated</span>
+          <h2>Liquid mesh</h2>
+          <p>Great soft fields of colour drifting and blending behind frosted glass.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#1a0b2e"></span>
+            <span class="sw" style="background:#f0abfc"></span>
+            <span class="sw" style="background:#38bdf8"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v13/index.html">
+          <span class="badge">Version 13 · art piece</span>
+          <h2>Both Halves</h2>
+          <p>One page, no sections. Letters scatter and assemble; the work arrives as typography.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0a0a0a"></span>
+            <span class="sw" style="background:#f5f2ec"></span>
+            <span class="sw" style="background:#e8503a"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v14/index.html">
+          <span class="badge">Version 14 · animated</span>
+          <h2>Flow field</h2>
+          <p>Hundreds of particles following a vector field, drawing the background as you watch.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0c0c0c"></span>
+            <span class="sw" style="background:#ff7a45"></span>
+            <span class="sw" style="background:#f5f1ec"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v15/index.html">
+          <span class="badge">Version 15 · animated</span>
+          <h2>Isometric world</h2>
+          <p>A blueprint landscape in three parallax layers that shifts with scroll and cursor.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#eef2f7"></span>
+            <span class="sw" style="background:#6366f1"></span>
+            <span class="sw" style="background:#38bdf8"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v16/index.html">
+          <span class="badge">Version 16 · themed</span>
+          <h2>Handheld overworld</h2>
+          <p>A voxel town filmed straight down, so it reads as a flat tile map — until you scroll.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#081820"></span>
+            <span class="sw" style="background:#88c070"></span>
+            <span class="sw" style="background:#e0f8d0"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v17/index.html">
+          <span class="badge">Version 17 · themed</span>
+          <h2>Scouter</h2>
+          <p>The page read through an eyepiece. Every project gets scanned and given a number.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#070b18"></span>
+            <span class="sw" style="background:#7af68a"></span>
+            <span class="sw" style="background:#f08a24"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v18/index.html">
+          <span class="badge">Version 18 · themed</span>
+          <h2>Construction paper</h2>
+          <p>Cut out with scissors and laid down — torn edges, hard shadows, three-frame wobble.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#7ec8e3"></span>
+            <span class="sw" style="background:#d94b3a"></span>
+            <span class="sw" style="background:#f0c419"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v19/index.html">
+          <span class="badge">Version 19 · slider</span>
+          <h2>Filmstrip</h2>
+          <p>No scrollbar. Panels travel sideways and a strip of frames shows the whole reel.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#f7f5f0"></span>
+            <span class="sw" style="background:#16150f"></span>
+            <span class="sw" style="background:#b4552f"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v20/index.html">
+          <span class="badge">Version 20 · slider</span>
+          <h2>Card stack</h2>
+          <p>A deck you throw. Drag the top card and it follows your finger before it commits.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#101014"></span>
+            <span class="sw" style="background:#1a1a21"></span>
+            <span class="sw" style="background:#e5b769"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v21/index.html">
+          <span class="badge">Version 21 · slider</span>
+          <h2>Prism</h2>
+          <p>Every panel is a face. Advancing turns the object — and going back turns it the other way.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0a0e1a"></span>
+            <span class="sw" style="background:#6ee7f0"></span>
+            <span class="sw" style="background:#182135"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v22/index.html">
+          <span class="badge">Version 22 · slider</span>
+          <h2>Iris</h2>
+          <p>Each panel opens as a circle growing from the exact point you pressed.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#fffdf8"></span>
+            <span class="sw" style="background:#14120f"></span>
+            <span class="sw" style="background:#e0483d"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v23/index.html">
+          <span class="badge">Version 23 · slider</span>
+          <h2>Fly-through</h2>
+          <p>Panels stacked in depth. You travel through them, and the pieces inside separate as you go.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#05060a"></span>
+            <span class="sw" style="background:#7c5cff"></span>
+            <span class="sw" style="background:#141926"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v24/index.html">
+          <span class="badge">Version 24 · tool</span>
+          <h2>Studio</h2>
+          <p>The hero is a working parametric bin generator — drag it, size it, download a real STL.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0d1014"></span>
+            <span class="sw" style="background:#78d6ff"></span>
+            <span class="sw" style="background:#141a21"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v25/index.html">
+          <span class="badge">Version 25 · app</span>
+          <h2>File explorer</h2>
+          <p>Tree, tabs, gutter and minimap. The work, filed as documents you open.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#15161c"></span>
+            <span class="sw" style="background:#7cc4ff"></span>
+            <span class="sw" style="background:#c3e88d"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v26/index.html">
+          <span class="badge">Version 26 · app</span>
+          <h2>Inbox</h2>
+          <p>Projects as threads with attachments. Folders, live search, a reading pane.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#f6f7f9"></span>
+            <span class="sw" style="background:#2c6df0"></span>
+            <span class="sw" style="background:#16181d"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v27/index.html">
+          <span class="badge">Version 27 · spatial</span>
+          <h2>Map</h2>
+          <p>The work as geography. Pan, zoom, and click a pin to open a place.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#eef3ee"></span>
+            <span class="sw" style="background:#1f7a53"></span>
+            <span class="sw" style="background:#cfe1e6"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v28/index.html">
+          <span class="badge">Version 28 · app</span>
+          <h2>Spreadsheet</h2>
+          <p>Rows of facts, a formula bar, and totals that are genuinely computed.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#ffffff"></span>
+            <span class="sw" style="background:#107c41"></span>
+            <span class="sw" style="background:#f1f3f5"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v29/index.html">
+          <span class="badge">Version 29 · search</span>
+          <h2>Command palette</h2>
+          <p>No nav bar. Press ⌘K and fuzzy-search every project, section and link.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0b0b0f"></span>
+            <span class="sw" style="background:#5b8cff"></span>
+            <span class="sw" style="background:#131319"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v30/index.html">
+          <span class="badge">Version 30 · light</span>
+          <h2>Torch</h2>
+          <p>Arrives unlit. You read by moving a beam — and it finds the margin notes.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#07070a"></span>
+            <span class="sw" style="background:#ffb454"></span>
+            <span class="sw" style="background:#101016"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v31/index.html">
+          <span class="badge">Version 31 · spatial</span>
+          <h2>Infinite canvas</h2>
+          <p>One board. Zoom out and the whole portfolio is a single shape.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#f3f3f1"></span>
+            <span class="sw" style="background:#4b3bff"></span>
+            <span class="sw" style="background:#ececea"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v32/index.html">
+          <span class="badge">Version 32 · playable</span>
+          <h2>Arena</h2>
+          <p>Walk in and collect the work. Skippable in one click, always.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0a0c14"></span>
+            <span class="sw" style="background:#5ce1b0"></span>
+            <span class="sw" style="background:#ffd166"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v33/index.html">
+          <span class="badge">Version 33 · print</span>
+          <h2>Print-first CV</h2>
+          <p>An A4 sheet with the page breaks drawn. Ctrl+P gives you a real document.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#ffffff"></span>
+            <span class="sw" style="background:#1a3d7c"></span>
+            <span class="sw" style="background:#e9e7e2"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v34/index.html">
+          <span class="badge">Version 34 · print</span>
+          <h2>Risograph</h2>
+          <p>Real ink layers, deliberate misregistration, halftone screens.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#f4f1e8"></span>
+            <span class="sw" style="background:#ff48b0"></span>
+            <span class="sw" style="background:#0078bf"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v35/index.html">
+          <span class="badge">Version 35 · type</span>
+          <h2>Kinetic type</h2>
+          <p>A variable font whose weight and width answer the cursor, letter by letter.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#faf9f7"></span>
+            <span class="sw" style="background:#ff4d17"></span>
+            <span class="sw" style="background:#101010"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v36/index.html">
+          <span class="badge">Version 36 · glass</span>
+          <h2>Liquid glass</h2>
+          <p>Every surface refracts one live backdrop. The whole palette is a single OKLCH hue you can drag.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0a0d18"></span>
+            <span class="sw" style="background:#7c8cff"></span>
+            <span class="sw" style="background:#b9f0e0"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v37/index.html">
+          <span class="badge">Version 37 · native</span>
+          <h2>Native scroll</h2>
+          <p>Every animation is CSS scroll-driven. No script on the page reads the scroll position.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#0f0f10"></span>
+            <span class="sw" style="background:#c9f24a"></span>
+            <span class="sw" style="background:#f4f4f5"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v38/index.html">
+          <span class="badge">Version 38 · morph</span>
+          <h2>View transitions</h2>
+          <p>A card grows into its own detail page. The light switch arrives as a circle from the button.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#111114"></span>
+            <span class="sw" style="background:#ff6a3d"></span>
+            <span class="sw" style="background:#f7f6f4"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v39/index.html">
+          <span class="badge">Version 39 · container</span>
+          <h2>Container</h2>
+          <p>One card component, three layouts, decided by its slot. Drag the handle and watch it change.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#f7f7f5"></span>
+            <span class="sw" style="background:#2f5bff"></span>
+            <span class="sw" style="background:#14140f"></span>
+          </div>
+        </a>
+
+        <a class="card" href="./v40/index.html">
+          <span class="badge">Version 40 · zine</span>
+          <h2>Maximalist zine</h2>
+          <p>Cut paper, halftone, five parallax planes and stickers stuck on at angles. Loud on purpose.</p>
+          <div class="swatches">
+            <span class="sw" style="background:#f2e9db"></span>
+            <span class="sw" style="background:#e0361f"></span>
+            <span class="sw" style="background:#1d3fd4"></span>
+          </div>
+        </a>
+      </div>
+
+      <footer>
+        Same six projects, services, contact options and footer in every version — only the design
+        differs. 19–23 have no scrollbar; 24–32 change what the content <em>is</em> — a tool, a
+        file tree, an inbox, a map, a spreadsheet, a board, a game; 36–40 are built on platform
+        features the earlier thirty-five never touch.
+        See <a href="./ROADMAP.md">ROADMAP.md</a> for the details.
+      </footer>
+    </div>
+  </body>
+</html>

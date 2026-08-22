@@ -1,0 +1,313 @@
+/* ==========================================================================
+   v34 — Risograph.
+
+   Not "flat colour on textured paper" — that is v18. This is *printing*, and
+   printing has accidents: two or three ink drums, each laid down in a
+   separate pass, never quite in register. So:
+
+     · every ink is a real layer, blended with multiply the way ink is
+     · headings are printed twice, a couple of pixels out, in two colours
+     · photographs are screened into halftone dots, not merely tinted
+     · the paper shows through everything, because riso ink is translucent
+
+   The misregistration is the whole idea, so it is deliberate and consistent
+   — always the same two-pixel offset in the same direction, as if one drum
+   were seated slightly wrong. Random offsets would read as a bug.
+   ========================================================================== */
+
+:root {
+  --paper: #f4f1e8;
+  --bg: var(--paper);
+  --surface: #fbf9f3;
+  --surface-2: #eae5d6;
+  --fg: #2b2a28;
+  --muted: #55524b;
+  --faint: #857f73;
+  --line: rgba(43, 42, 40, 0.22);
+
+  /* The three drums. Real Riso ink names, real Riso hexes. */
+  --ink-pink: #ff48b0;
+  --ink-blue: #0078bf;
+  --ink-black: #2b2a28;
+
+  --accent: var(--ink-pink);
+  --accent-contrast: var(--paper);
+
+  --font-body: "Karla", system-ui, -apple-system, sans-serif;
+  --font-display: "Anton", "Arial Narrow", system-ui, sans-serif;
+
+  --radius: 0;
+  --maxw: 112rem;
+  --section-y: 9rem;
+
+  /* How far out of register the second drum is. One value, used everywhere. */
+  --slip-x: 2px;
+  --slip-y: 3px;
+}
+
+body {
+  background-color: var(--paper);
+  font-weight: 500;
+}
+
+/* Paper. A fine grain plus the faint mottling of uncoated stock — two
+   layered gradients rather than an image, so it costs no request. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(43, 42, 40, 0.045) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(43, 42, 40, 0.03) 0 1px, transparent 1px 4px),
+    radial-gradient(circle at 20% 30%, rgba(43, 42, 40, 0.05), transparent 40%),
+    radial-gradient(circle at 78% 68%, rgba(43, 42, 40, 0.04), transparent 44%);
+}
+
+.site-header,
+main,
+.footer,
+.whatsapp-float { position: relative; z-index: 1; }
+.site-header { z-index: 40; }
+
+/* ── Type ───────────────────────────────────────────────────────────────── */
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+/* ══ The second drum ══════════════════════════════════════════════════════
+   Headings printed twice. The pink pass is laid down first, the black pass
+   sits on top and slightly off, and multiply lets the overlap darken the way
+   two translucent inks actually do. */
+
+.hero-name,
+.section-title,
+.project-title {
+  position: relative;
+  color: var(--ink-black);
+  text-shadow:
+    calc(var(--slip-x) * -1) calc(var(--slip-y) * -1) 0 var(--ink-pink),
+    var(--slip-x) var(--slip-y) 0 var(--ink-blue);
+  /* isolate keeps the blend from reaching the paper texture behind. */
+  isolation: isolate;
+}
+
+.hero-name { font-size: clamp(4.4rem, 11vw, 11rem); line-height: 0.94; }
+
+.section-title { font-size: clamp(3rem, 5.4vw, 5.4rem); }
+
+.hero-eyebrow {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 0.3em;
+  color: var(--ink-blue);
+}
+
+.hero-tagline { font-size: clamp(1.8rem, 2.2vw, 2.3rem); color: var(--fg); max-width: 56rem; }
+.hero-meta { font-family: var(--font-display); letter-spacing: 0.16em; color: var(--ink-blue); }
+.section-lede { color: var(--muted); }
+
+/* ── Halftone ───────────────────────────────────────────────────────────
+   A real screen, not a tint. The image is pushed to high contrast, printed
+   in one ink, and a dot grid is multiplied over it — which is what a riso
+   actually does to a photograph. */
+
+.project-media,
+.about-media { position: relative; isolation: isolate; overflow: hidden; }
+
+.project-media img,
+.about-media img {
+  filter: grayscale(1) contrast(1.5) brightness(1.08);
+  mix-blend-mode: multiply;
+}
+
+/* The ink the picture is printed in. */
+.project-media::before,
+.about-media::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background-color: var(--drum, var(--ink-blue));
+  mix-blend-mode: screen;
+  opacity: 0.34;
+  pointer-events: none;
+}
+
+/* The screen itself. 4px pitch is coarse enough to see and fine enough to
+   still read as a photograph. */
+.project-media::after,
+.about-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background-image: radial-gradient(circle at center, var(--paper) 0.9px, transparent 1.1px);
+  background-size: 4px 4px;
+  opacity: 0.5;
+}
+
+.project:hover .project-media img { transform: none; }
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+
+.project {
+  background-color: transparent;
+  border: 2px solid var(--ink-black);
+  border-radius: 0;
+  overflow: visible;
+  transition: transform 0.14s ease;
+}
+
+/* The card's own second pass: a pink block sitting under it, out of
+   register. */
+.project::before,
+.service::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--card-ink, var(--ink-pink));
+  opacity: 0.24;
+  transform: translate(calc(var(--slip-x) * 2), calc(var(--slip-y) * 2));
+}
+
+.project { position: relative; }
+.project:hover { transform: translate(-2px, -3px); border-color: var(--ink-black); }
+
+.project-body { padding: 2.4rem 2.2rem; }
+.project-title { font-size: 2.4rem; --slip-x: 1px; --slip-y: 2px; }
+.project-index { font-family: var(--font-display); color: var(--ink-pink); }
+.project-desc { color: var(--muted); }
+
+.project-tags li {
+  border: 2px solid var(--ink-black);
+  border-radius: 0;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-black);
+  background-color: var(--surface-2);
+}
+
+.project-links a { font-family: var(--font-display); letter-spacing: 0.08em; color: var(--ink-blue); }
+.project-links a::after { height: 3px; background-color: var(--ink-pink); }
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.btn {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  letter-spacing: 0.1em;
+  border-radius: 0;
+  border: 2px solid var(--ink-black);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.btn-solid {
+  background-color: var(--ink-pink);
+  color: var(--paper);
+  box-shadow: var(--slip-x) var(--slip-y) 0 var(--ink-blue);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--ink-black);
+  box-shadow: var(--slip-x) var(--slip-y) 0 var(--ink-pink);
+}
+
+.btn:hover { transform: translate(var(--slip-x), var(--slip-y)); box-shadow: 0 0 0 var(--ink-blue); }
+.btn-ghost:hover { color: var(--ink-black); border-color: var(--ink-black); }
+
+/* ── Services ───────────────────────────────────────────────────────────── */
+
+.service {
+  position: relative;
+  border: 2px solid var(--ink-black);
+  border-radius: 0;
+  background-color: transparent;
+  transition: transform 0.14s ease;
+}
+
+.service:hover { transform: translate(-2px, -3px); border-color: var(--ink-black); }
+.service-index { font-family: var(--font-display); letter-spacing: 0.16em; color: var(--ink-blue); }
+.service h3 { font-size: 2rem; }
+
+/* ── Contact ────────────────────────────────────────────────────────────── */
+
+.contact-form,
+.contact-direct {
+  position: relative;
+  background-color: var(--surface);
+  border: 2px solid var(--ink-black);
+  border-radius: 0;
+  box-shadow: calc(var(--slip-x) * 2) calc(var(--slip-y) * 2) 0 var(--ink-pink);
+}
+
+.field label { font-family: var(--font-display); letter-spacing: 0.1em; color: var(--ink-blue); }
+
+.field input,
+.field textarea {
+  border: 2px solid var(--ink-black);
+  border-radius: 0;
+  background-color: var(--paper);
+}
+
+.field input:focus,
+.field textarea:focus { border-color: var(--ink-pink); outline-color: var(--ink-pink); }
+
+.contact-direct h3 { font-size: 1.9rem; }
+.direct-row { border: 2px solid var(--ink-black); border-radius: 0; background-color: var(--paper); }
+.direct-row svg { color: var(--ink-pink); }
+.direct-row:hover { background-color: var(--surface-2); transform: translate(2px, 3px); }
+.qr { border: 2px solid var(--ink-black); }
+
+.form-status { font-family: var(--font-display); letter-spacing: 0.06em; }
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+
+.footer { border-top: 3px solid var(--ink-black); }
+.footer-socials a { border-radius: 0; color: var(--ink-black); }
+.footer-socials a:hover { background-color: var(--ink-pink); color: var(--paper); transform: translate(1px, 2px); }
+.footer-text { font-family: var(--font-display); letter-spacing: 0.08em; }
+
+.whatsapp-float { border-radius: 0; border: 2px solid var(--ink-black); box-shadow: var(--slip-x) var(--slip-y) 0 var(--ink-black); }
+.whatsapp-float.revealed:hover { transform: translate(var(--slip-x), var(--slip-y)); box-shadow: none; }
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.site-header {
+  background-color: color-mix(in srgb, var(--paper) 94%, transparent);
+  border-bottom: 3px solid var(--ink-black);
+}
+
+.brand { font-family: var(--font-display); font-size: 2rem; letter-spacing: 0.04em; }
+.brand-mark { color: var(--ink-pink); }
+.nav a { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 0.1em; }
+.nav a.active { color: var(--ink-pink); }
+.nav a.active::after { height: 3px; background-color: var(--ink-pink); }
+
+#language-switcher { border: 2px solid var(--ink-black); border-radius: 0; font-family: var(--font-display); }
+#menu-toggle span { height: 3px; background-color: var(--ink-black); }
+
+@media (max-width: 1023px) {
+  .nav { background-color: var(--paper); border-left: 3px solid var(--ink-black); }
+}
+
+@media (max-width: 599px) {
+  :root { --slip-x: 1.5px; --slip-y: 2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover,
+  .project:hover,
+  .service:hover,
+  .direct-row:hover { transform: none; }
+}

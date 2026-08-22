@@ -1,0 +1,262 @@
+/* ==========================================================================
+   v32 — Playable.
+
+   An arena you walk around; the six projects are markers you collect. It is
+   the most enjoyable version and the one with the most obvious way to fail,
+   so the rule it is built around is stated up front:
+
+     **The game is a way in, never the only way.**
+
+   The whole portfolio sits below the arena as an ordinary document, in order,
+   always reachable. There is a permanent "skip the game" control. Collecting
+   a marker opens its card; not collecting anything costs you nothing. A
+   recruiter with four minutes should never have to play anything.
+
+   The arena is one screen tall, not the whole page — so the scrollbar itself
+   tells you there is more, which is the cheapest possible way to say so.
+   ========================================================================== */
+
+:root {
+  --bg: #0a0c14;
+  --arena: #0e1220;
+  --surface: #141a2b;
+  --surface-2: #1c2439;
+  --fg: #eaeefb;
+  --muted: #9aa4c0;
+  --faint: #6a7391;
+  --line: rgba(234, 238, 251, 0.12);
+
+  --accent: #5ce1b0;
+  --accent-contrast: #052018;
+  --marker: #ffd166;
+
+  --font-body: "Outfit", system-ui, -apple-system, sans-serif;
+  --font-display: "Outfit", system-ui, -apple-system, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+
+  --radius: 1.2rem;
+  --maxw: 112rem;
+  --section-y: 8rem;
+}
+
+body { background-color: var(--bg); }
+h1, h2, h3 { letter-spacing: -0.03em; font-weight: 600; }
+
+.site-header { background-color: color-mix(in srgb, var(--bg) 84%, transparent); }
+.brand-mark { color: var(--accent); }
+
+/* ══ Arena ════════════════════════════════════════════════════════════════ */
+
+.game { max-width: none; padding: 0; }
+
+.arena {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  background-color: var(--arena);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.arena canvas { display: block; width: 100%; height: 100%; }
+
+.hud {
+  position: absolute;
+  top: 8rem;
+  left: max(3vw, 1.6rem);
+  pointer-events: none;
+}
+
+.hud-name { font-size: clamp(2.4rem, 4vw, 4rem); letter-spacing: -0.035em; }
+.hud-role { font-family: var(--font-mono); font-size: 1.2rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-top: 0.4rem; }
+
+.hud-score {
+  margin-top: 1.6rem;
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  color: var(--muted);
+}
+
+.hud-score b { color: var(--marker); font-size: 1.8rem; font-variant-numeric: tabular-nums; }
+
+.controls-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8.5rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  color: var(--faint);
+  pointer-events: none;
+  transition: opacity 0.5s linear;
+}
+
+.controls-hint.gone { opacity: 0; }
+
+/* The escape hatch, and it is deliberately not subtle. */
+.skip-game {
+  position: absolute;
+  left: 50%;
+  bottom: 3rem;
+  transform: translateX(-50%);
+  min-height: 44px;
+  padding: 0 2rem;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 3rem;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: border-color 0.2s linear, background-color 0.2s linear;
+}
+
+.skip-game:hover { border-color: var(--accent); background-color: var(--surface-2); }
+
+/* ── Touch stick ────────────────────────────────────────────────────────
+   Only shown once a touch actually happens, so a mouse user never sees a
+   control they cannot use. */
+
+.stick {
+  position: absolute;
+  display: none;
+  width: 13rem;
+  height: 13rem;
+  margin: -6.5rem 0 0 -6.5rem;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+  background-color: rgba(20, 26, 43, 0.5);
+  pointer-events: none;
+}
+
+.stick.on { display: block; }
+
+.stick-nub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5rem;
+  height: 5rem;
+  margin: -2.5rem 0 0 -2.5rem;
+  border-radius: 50%;
+  background-color: var(--accent);
+  opacity: 0.85;
+  transform: translate(var(--nx, 0px), var(--ny, 0px));
+}
+
+/* ══ The document ═════════════════════════════════════════════════════════ */
+
+.collection { max-width: var(--maxw); margin-inline: auto; padding: var(--section-y) max(3vw, 1.6rem); }
+
+.collection-head { margin-bottom: 5rem; }
+.collection-title { font-size: clamp(3rem, 5.4vw, 5.4rem); margin-bottom: 1.4rem; }
+.collection-lede { font-size: 1.8rem; color: var(--muted); max-width: 58rem; margin-bottom: 3rem; }
+
+/* ── Slots ──────────────────────────────────────────────────────────────
+   The six markers as a rack. Found ones light up; unfound ones are still
+   clickable, because locking content behind play would be the whole mistake
+   this version is trying to avoid. */
+
+.slots { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+
+.slot button {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-height: 44px;
+  padding: 0 1.6rem;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 3rem;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 1.35rem;
+  cursor: pointer;
+  transition: border-color 0.2s linear, color 0.2s linear, background-color 0.2s linear;
+}
+
+.slot button:hover { border-color: var(--accent); color: var(--fg); }
+.slot-no { font-family: var(--font-mono); font-size: 1.15rem; color: var(--faint); }
+
+.slot.found button { border-color: var(--marker); color: var(--fg); background-color: color-mix(in srgb, var(--marker) 12%, var(--surface)); }
+.slot.found .slot-no { color: var(--marker); }
+.slot.found .slot-no::after { content: " ✓"; }
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(34rem, 100%), 1fr)); gap: 2.4rem; }
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  scroll-margin-top: 9rem;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.card:hover { border-color: var(--accent); transform: translateY(-4px); }
+.card-wide { grid-column: 1 / -1; }
+
+/* Marks the card the game just opened. */
+.card.landed { border-color: var(--marker); box-shadow: 0 0 0 2px color-mix(in srgb, var(--marker) 45%, transparent); }
+
+.card-media { display: block; background-color: var(--surface-2); overflow: hidden; }
+.card-media img { width: 100%; height: auto; aspect-ratio: 8 / 5; object-fit: cover; }
+
+.card-body { display: flex; flex-direction: column; flex-grow: 1; padding: 2.4rem 2.2rem; }
+
+.card-kind { font-family: var(--font-mono); font-size: 1.15rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); margin-bottom: 0.9rem; }
+.card-kind b { color: var(--marker); }
+.card-title { font-size: 2.2rem; margin-bottom: 1.1rem; }
+.card-desc { color: var(--muted); font-size: 1.5rem; margin-bottom: 1.4rem; }
+.card-portrait { border-radius: 0.8rem; margin-bottom: 1.6rem; max-width: 30rem; }
+
+.card-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.6rem; }
+.card-tags li { padding: 0.4rem 1rem; background-color: var(--surface-2); border-radius: 2rem; font-family: var(--font-mono); font-size: 1.15rem; color: var(--muted); }
+
+.card-links { display: flex; flex-wrap: wrap; gap: 0.6rem 1.6rem; margin-top: auto; }
+.card-links a { display: inline-flex; align-items: center; min-height: 36px; color: var(--accent); font-weight: 500; font-size: 1.4rem; }
+.card-links a:hover { text-decoration: underline; }
+
+.svc { padding-bottom: 1.6rem; margin-bottom: 1.6rem; border-bottom: 1px solid var(--line); }
+.svc:last-of-type { border-bottom: none; }
+.svc h3 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+.svc p { color: var(--muted); font-size: 1.45rem; }
+
+.contact-grid { gap: 2.4rem; margin-top: 2rem; }
+.contact-form, .contact-direct { background-color: var(--surface-2); border-color: transparent; }
+.field input, .field textarea { background-color: var(--bg); border-radius: 0.6rem; }
+.direct-row { border-radius: 0.6rem; }
+.direct-row svg { color: var(--accent); }
+.footer { margin-top: 3rem; padding: 3rem 0 1rem; }
+.footer-text { font-family: var(--font-mono); font-size: 1.2rem; }
+
+/* ══ Responsive ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 1023px) {
+  .hud { top: 7rem; }
+}
+
+@media (max-width: 767px) {
+  .hud-name { font-size: 2.4rem; }
+  .controls-hint { bottom: 8rem; font-size: 1.1rem; }
+  .skip-game { bottom: 2rem; font-size: 1.3rem; padding-inline: 1.4rem; }
+  .card-portrait { max-width: 100%; }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  /* An arena that fills a 380px-tall screen leaves no room to see where you
+     are going. */
+  .arena { height: 78svh; }
+  .hud { top: 6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+  .card:hover { transform: none; }
+}

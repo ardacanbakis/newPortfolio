@@ -1,1 +1,310 @@
 # newPortfolio
+
+Two design directions for [ardacanbakis.com](https://www.ardacanbakis.com/), sharing the same
+content.
+
+## Live preview
+
+| | |
+| --- | --- |
+| **Version chooser** | <https://ardacanbakis.github.io/newPortfolio/> |
+| **Version 1** — current styling, refreshed | <https://ardacanbakis.github.io/newPortfolio/v1/> |
+| **Version 2** — yin-yang | <https://ardacanbakis.github.io/newPortfolio/v2/> |
+
+Published by `.github/workflows/deploy-pages.yml`, which redeploys on every push to this branch.
+Locally, open `index.html` at the root to preview both side by side.
+
+| | |
+| --- | --- |
+| **`v1/`** | The current site's styling, kept intact and brought up to date. |
+| **`v2/`** | A yin-yang themed redesign. |
+| **`v3/`** | A terminal you drive from the command line. |
+
+Ten designs are planned in total — see [ROADMAP.md](ROADMAP.md) for the full list and order.
+
+All plain HTML, CSS and JavaScript — no build step. v1 and v2 are self-contained and can each be
+uploaded on their own; **v3 and later also need the `shared/` folder**, which holds the
+translations, WhatsApp configuration and contact-form handling that would otherwise be copied
+into every version.
+
+---
+
+## Before this goes live
+
+### 1. Connect the contact form
+
+The form posts to [Web3Forms](https://web3forms.com) (free, no account limits, no server needed).
+
+1. Enter your email at <https://web3forms.com> — they email you an access key.
+2. In `v1/index.html`, find this line and paste the key in:
+
+   ```html
+   <input type="hidden" name="access_key" value="YOUR-WEB3FORMS-ACCESS-KEY" />
+   ```
+
+Until a real key is in place the form tells visitors to email directly instead of silently
+failing.
+
+### 2. Choose the WhatsApp opening message
+
+Set `WHATSAPP_STYLE` near the top of `v1/portfolio.js`. Four are written and translated into
+English, Turkish and Spanish, so the message follows the visitor's chosen language:
+
+| Style | English text |
+| --- | --- |
+| `project` | "Hi Arda! I saw your portfolio and I'd like to talk about a project." |
+| `quote` *(current)* | "Hi Arda! I'd like to get a quote for a website / web app." |
+| `casual` | "Hello Arda 👋 Coming from ardacanbakis.com — I have a question." |
+| `hiring` | "Hi Arda! I'd like to talk to you about a role / collaboration." |
+
+Use `"blank"` to open an empty chat instead. The number itself is `WHATSAPP_NUMBER` on the line
+above.
+
+### 3. Swap in real project screenshots
+
+The five newest projects use generated placeholder art in `v1/assets/projects/`. Replacing them
+needs no code changes — drop in a file with the same basename:
+
+```
+gridsmith.svg  musicvisualizer.svg  budgetsim.svg  stlsmith.svg
+digitalmuseum.svg  hushbar.svg  wedding.svg
+```
+
+If you use `.png` or `.jpg` instead, update the `src` in `v1/index.html` to match. Anything close
+to 8:5 crops cleanly; other ratios are centre-cropped to fit.
+
+### 4. Confirm three URLs
+
+These were inferred from the repositories rather than confirmed, so check them:
+
+- `https://ardacanbakis.github.io/gridSmith/`
+- `https://ardacanbakis.github.io/musicVisualizer/`
+- `https://ardacanbakis.github.io/digitalMuseum/`
+
+Confirmed already: stlSmith and hushBar (from their READMEs), and
+`wedding.ardacanbakis.com/story/`. budgetSim links to its repository — swap in the Vercel URL if
+you'd rather point at the deployment.
+
+---
+
+## What changed in v1
+
+**Projects** — replaced the old three with nine, each with a description, technology tags and
+links:
+
+1. gridSmith · 2. musicVisualizer · 3. budgetSim · 4. stlSmith · 5. digitalMuseum ·
+6. hushBar *(separate macOS and Windows repo links)* · 7. Tansu & Arda Wedding *(links to
+`/story/`)* · 8. VetApp · 9. Theo's Gym
+
+**Contact** — a real form (name, email, subject, message) with inline validation, a honeypot
+field, and status messages in all three languages, alongside direct email, WhatsApp and Linktree
+links.
+
+**WhatsApp** — a floating button, bottom right, with a pulse animation and hover tooltip. Also
+appears in the contact panel and the footer.
+
+**Footer** — ported from gridSmith's welcome screen: a centred row of circular social icons above
+"Created with ♥ by Arda Canbakış". Uses inline SVG like gridSmith does, so it still renders if the
+icon CDN is unavailable. Adds Stack Overflow, Medium, Linktree and WhatsApp to gridSmith's
+original six.
+
+### Fixes
+
+- **Theme toggle was broken.** Two listeners toggled two different class names (`dark` and
+  `dark-theme`) but only `dark-theme` had styles, so the first click did nothing visible. Now one
+  listener, one class.
+- **`section { max-height: 100vh }`** clipped any section taller than the viewport. Removed.
+- **`scroll-behavior: smooth` on `*`** applied to every element instead of the scroll container.
+  Moved to `html`.
+- Spanish translations were missing several keys.
+- Copyright year is generated, not hardcoded.
+
+### Additions
+
+- Theme and language choices persist in `localStorage`; first-time visitors get their system
+  theme and browser language.
+- Meta description, Open Graph and Twitter cards, canonical URL, and Person structured data.
+- Scroll-reveal animations, active-section nav highlighting, a back-to-top button, and a header
+  shadow on scroll.
+- Accessibility: skip link, ARIA labels, visible focus states, and full
+  `prefers-reduced-motion` support.
+- Services expanded from three to four, adding **3D & Parametric Tools** to reflect gridSmith and
+  stlSmith.
+
+---
+
+## What v2 is
+
+Same content, same nine projects, same footer — a different idea about how to present them.
+
+**The page is the symbol.** It opens deep and dark, ends bright and light, and turns over at a
+flowing S-curve seam roughly two-thirds of the way down, with a jade-ringed yin-yang medallion
+sitting in the curve.
+
+**Yin and yang mean something here.** The Craft section splits into a literal light card and dark
+card: *Frontend & Design* against *Backend & Systems*. The concept carries the message that you
+work across the whole stack.
+
+Also: serif headings (Playfair Display) over a sans body (Inter), a jade-leaning blue accent that
+brightens on dark and deepens on light, a fixed side-rail of dot navigation that re-colours as the
+page turns, and a full-screen overlay menu on mobile.
+
+### How the inversion actually works
+
+The obvious approach — interpolating the background from black to white and the text from white to
+black on scroll — does not survive contact with a reader. Both colours pass through mid-grey at the
+same moment. Measured, the midpoint came out as `rgb(163,164,163)` text on `rgb(94,95,95)`: a
+contrast ratio near 1:1, i.e. invisible.
+
+So the tone changes in **full-contrast bands** instead. Each section declares its own palette, the
+bands drift steadily lighter down the page, and the actual dark-to-light flip happens inside a
+divider — at the seam, where a curve is already drawing the eye. It reads as one continuous
+inversion, and measured across the whole page the text/background contrast never drops below
+**15.3:1** (WCAG AA wants 4.5:1).
+
+To configure v2, edit `v2/app.js` and `v2/styles.css`:
+
+- **WhatsApp message** — `WHATSAPP_STYLE`, same four options as v1.
+- **Contact form** — same Web3Forms `access_key` placeholder in `v2/index.html`.
+- **Colours** — the `--band-1` … `--band-6` and `--yin-*` / `--yang-*` variables at the top of
+  `v2/styles.css`. Changing the accent is two values.
+
+---
+
+## Responsive behaviour
+
+Both versions use the same breakpoint ladder:
+
+| Width | Target | Layout |
+| --- | --- | --- |
+| ≥1281px | Desktop | Three project columns; v2 shows its side rail |
+| 1024–1280 | Small laptop, tablet landscape | Three columns, tighter padding |
+| 768–1023 | Tablet portrait | Two columns; v2 switches to the hamburger |
+| 600–767 | Large phone landscape, small tablet | Single column, nav behind the hamburger |
+| 430–599 | Large phones | Single column, full-width buttons |
+| 360–429 | Standard phones | Reduced type scale, condensed footer |
+| ≤359 | Small phones | Smallest scale; v2 drops the wordmark for the controls |
+
+Plus a rule for phones held sideways (`orientation: landscape` under 520px tall), which drops
+the full-height hero so a 380px-tall screen isn't spent entirely on the title.
+
+Verified in a headless browser at eleven widths from 320px to 1440px: no horizontal overflow and
+no unreachable navigation at any of them.
+
+### Bugs this uncovered
+
+- **v2 tablets had no navigation at all.** The side rail was hidden below 1100px but the
+  hamburger only appeared below 760px, so every width in between — every tablet — had neither.
+  Both now switch at the same point.
+- **`minmax(33rem, 1fr)` overflowed small phones.** An auto-fit track still demands its minimum
+  when the container is narrower, so cards pushed past the viewport at 320px. Now
+  `minmax(min(33rem, 100%), 1fr)`.
+- **v1's cycling job title printed on top of "Web Developer".** The space for it was reserved by
+  a fixed `margin-left` tuned for the desktop font size. It is now an inline-grid whose track
+  measures itself against all three words, with the reveal done by `clip-path` so each word keeps
+  its full width.
+- **v1's logo, hamburger and theme toggle were icon-font glyphs.** If the icon CDN is slow or
+  blocked — which happens on mobile connections — the hamburger renders as nothing and there is
+  no way to open the menu. All three are now inline SVG.
+- **`100vh` sections** counted the space the phone's URL bar occupies. Now `100svh`.
+- Touch targets are sized in px rather than rem, since the root font-size shrinks on small
+  screens and rem-based controls would get smaller exactly where fingers need them biggest.
+- v1's mobile drawer inherited `justify-content: space-between` from the desktop bar, spreading
+  four links down the full height, and had no way to dismiss it by tapping outside. Both fixed.
+
+## The themed versions (v16–v18)
+
+Three fandom-flavoured builds, listed in `ROADMAP.md` alongside the rest.
+
+They are **original homages, not reproductions.** There is no copyrighted sprite, character
+likeness, logo or trademarked font anywhere in them — every tile, figure, badge and glyph in the
+three folders was drawn for this repository. The point of reference is the *look* of a handheld
+tile map, a heads-up display and a stop-motion paper cut-out, not any particular character.
+
+Two notes on what these need:
+
+- **v16 draws its overworld itself.** `v16/voxel.js` is a small orthographic renderer on a 2D
+  canvas — no WebGL, no library, nothing to install. It runs the whole page, so it caps its own
+  frame rate once the world has faded back to being wallpaper, drops to a quarter resolution on
+  small screens, and stops entirely when the tab is hidden.
+- **v17 and v18 need `shared/fx.js` and `shared/fx.css`** as well as `shared/site.js`, the same
+  as versions 11–15.
+
+## The sliders (v19–v23)
+
+Five one-page versions with no scrollbar: content advances one full-viewport panel at a time. See
+`ROADMAP.md` for what distinguishes each of the five.
+
+They need **`shared/deck.js` and `shared/deck.css`** uploaded alongside `shared/site.js`; v21 and
+v23 also need `shared/fx.js` and `shared/fx.css`.
+
+Two things worth knowing before you test them:
+
+- **They fall back.** If JavaScript is off or `deck.js` does not load, the same markup is an
+  ordinary scrolling page — every rule that kills the scrollbar is scoped under a class the script
+  adds. Nothing is lost, it just scrolls.
+- **A panel that does not fit keeps its own scrollbar.** On a short laptop screen or a phone in
+  landscape the contact panel needs a little inner scroll, and the deck will not change slide until
+  you have reached the end of it. That is deliberate: the alternative is content you cannot reach.
+
+## Beyond the surface (v24–v35)
+
+Twelve versions that vary what the content *is*, how you operate it, or what medium it imitates —
+rather than how it looks. See `ROADMAP.md` for the full table.
+
+Worth knowing before you test them:
+
+- **v24 downloads a real file.** The bin in the hero is meshed, rendered and exported by
+  `v24/solid.js`; the STL it saves is binary, Z-up and printable. Nothing to install.
+- **v25, v26, v28, v27, v31 and v32 are app shells.** They fill the window and manage their own
+  scrolling, so the page itself does not scroll. Each keeps its content in the markup in reading
+  order, so with JavaScript off they are ordinary documents.
+- **v27 and v31 need `shared/pan.js`** as well as `shared/site.js`.
+- **v30 remembers your choice.** If you turn the lights on, they stay on next visit
+  (`localStorage`). It also opens lit for reduced-motion, high-contrast, or no pointing device.
+- **v32 is skippable and always readable.** The whole portfolio sits below the arena as a normal
+  document; nothing is locked behind playing.
+- **v33 is the one to actually print.** Open it and press Ctrl+P.
+
+## The platform five (v36–v40)
+
+The last five are built on browser features that appear nowhere in versions 1–35. Each one is the
+reason its version exists, rather than a garnish on a design that would have worked anyway.
+
+- **v36 — liquid glass.** Every surface refracts one live backdrop. The whole palette is derived
+  from a single `--hue` through `oklch()`, and the tint slider in the hero changes that one number;
+  `@property` is what lets the specular highlight and the rim light animate, because an untyped
+  custom property cannot be interpolated. Drag the slider, then hover a card and watch where the
+  light lands.
+- **v37 — native scroll.** Every animation on the page is a CSS scroll-driven animation. Reveals,
+  the hero's exit, the reading bar, the image parallax, the active nav link and even the WhatsApp
+  gate — none of them is script. If the browser lacks `animation-timeline`, or if you have reduced
+  motion on, `app.js` quietly hands the work back to the ordinary scripted path.
+- **v38 — morph.** Clicking a project does not navigate: the card's thumbnail grows into the detail
+  image and its title travels into place, because both carry the same `view-transition-name` across
+  the DOM change. The theme toggle rides a transition too, revealing the new theme through a circle
+  that expands from the button you pressed. Back, Escape and deep links (`#p-gridsmith`) all work.
+- **v39 — container.** One card component, three layouts, chosen by how wide its *slot* is rather
+  than how wide the window is. The workbench in the hero makes the point directly: drag the handle
+  and the card re-lays-out while the window holds perfectly still. The "•••" button on each card is
+  a native `popover` tethered with CSS anchor positioning, which flips itself when it would run off
+  the screen.
+- **v40 — zine.** The loud one. Cut paper, overprinted display type, halftone, five parallax planes
+  and stickers at angles. `text-wrap: balance` keeps headlines from ragging at poster size, and the
+  message box uses `field-sizing: content` so it grows as you type instead of making you scroll
+  inside it.
+
+One shared fix came out of building these: the mobile nav drawer in `shared/base.css` was being
+sized to the header rather than to the viewport, because a `backdrop-filter` ancestor becomes the
+containing block for its fixed children. The first link sat eighty pixels above the top of the
+screen. It is anchored and given an explicit `100svh` now, which fixes it in every version from v4
+onward.
+
+## Known limitations
+
+Fonts and icons still load from Google Fonts and cdnjs. Self-hosting them would remove two
+third-party requests and make the site faster and more private — worth doing, but it changes the
+asset pipeline, so it is left as a follow-up.
+
+Every version folder duplicates the `assets/` directory so that any one of them can be uploaded on
+its own. Once you pick a version, the rest can simply be deleted.

@@ -1,0 +1,137 @@
+/* ==========================================================================
+   v15 — Isometric parallax world
+
+   The only light, friendly version in the set. Rounded, soft-shadowed cards
+   sitting on a pale blueprint of isometric blocks, with a rounded sans to
+   match. Deliberately the least severe of the fifteen.
+   ========================================================================== */
+
+:root {
+  --bg: #eef2f7;
+  --surface: #ffffff;
+  --surface-2: #e2e8f0;
+  --fg: #1e293b;
+  --muted: #55637a;
+  --faint: #8695ab;
+  --line: rgba(30, 41, 59, 0.12);
+
+  --accent: #6366f1;
+  --accent-contrast: #ffffff;
+
+  --font-body: "Nunito", system-ui, -apple-system, sans-serif;
+  --font-display: "Nunito", system-ui, sans-serif;
+
+  --radius: 1.8rem;
+  --maxw: 120rem;
+  --section-y: 9rem;
+
+  --fx-cursor: #6366f1;
+
+  --shadow: 0 1.2rem 2.8rem rgba(30, 41, 59, 0.09);
+  --shadow-lift: 0 2rem 4rem rgba(30, 41, 59, 0.15);
+}
+
+h1, h2, h3 { font-weight: 800; letter-spacing: -0.025em; }
+
+.site-header,
+main,
+.footer { position: relative; z-index: 2; }
+
+.site-header {
+  background-color: rgba(238, 242, 247, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.site-header.scrolled { background-color: rgba(238, 242, 247, 0.96); }
+
+.hero-inner {
+  max-width: none;
+  padding: clamp(2.6rem, 5vw, 5rem);
+  background-color: var(--surface);
+  border-radius: calc(var(--radius) * 1.3);
+  box-shadow: var(--shadow);
+}
+
+.hero-name { color: var(--fg); }
+.hero-eyebrow { letter-spacing: 0.2em; font-weight: 700; }
+
+/* ── Soft, lifted cards ─────────────────────────────────────────────────── */
+
+.project,
+.service,
+.contact-form,
+.contact-direct {
+  background-color: var(--surface);
+  border-color: transparent;
+  box-shadow: var(--shadow);
+}
+
+.project:hover,
+.service:hover {
+  border-color: transparent;
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-7px);
+}
+
+.project-media { background-color: var(--surface-2); }
+
+.project-tags li {
+  background-color: var(--surface-2);
+  border-color: transparent;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.service-index {
+  display: grid;
+  place-items: center;
+  width: 3.8rem;
+  height: 3.8rem;
+  border-radius: 1.2rem;
+  background-color: rgba(99, 102, 241, 0.12);
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.btn { border-radius: 100px; font-weight: 700; }
+.btn-solid { box-shadow: 0 0.8rem 1.8rem rgba(99, 102, 241, 0.32); }
+.btn-ghost { border-color: var(--line); background-color: var(--surface); }
+
+.field input,
+.field textarea {
+  background-color: var(--surface-2);
+  border-color: transparent;
+  border-radius: 1.2rem;
+}
+
+.field input:focus,
+.field textarea:focus { background-color: var(--surface); }
+
+.direct-row {
+  background-color: var(--surface-2);
+  border-color: transparent;
+  border-radius: 1.2rem;
+}
+
+.direct-row:hover { background-color: var(--surface); box-shadow: var(--shadow); }
+
+.about-media img { border-color: transparent; box-shadow: var(--shadow); }
+
+.footer-socials a:hover { background-color: var(--surface); box-shadow: var(--shadow); }
+
+.nav { background-color: var(--bg); }
+
+/* ── Motion accent: cards bob very slightly with scroll speed ───────────── */
+
+.project { transform: translateY(calc(var(--fx-vel, 0) * -6px)); }
+.project:hover { transform: translateY(-7px); }
+
+@media (pointer: coarse) {
+  /* Without a pointer the world is driven by scroll alone; a touch more
+     contrast on the cards keeps them distinct from the blueprint behind. */
+  .project,
+  .service,
+  .contact-form,
+  .contact-direct { box-shadow: 0 0.8rem 2rem rgba(30, 41, 59, 0.13); }
+}

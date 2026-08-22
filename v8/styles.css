@@ -1,0 +1,145 @@
+/* ==========================================================================
+   v8 — Timeline / journey
+
+   The projects become stations on a single vertical route rather than a grid.
+   The rail is drawn with a border on the list and a dot pseudo-element per
+   project, so the markup stays the flat list every other version uses.
+   ========================================================================== */
+
+:root {
+  --bg: #faf7f2;
+  --surface: #ffffff;
+  --surface-2: #f1ece3;
+  --fg: #1c1917;
+  --muted: #57534e;
+  --faint: #8c837a;
+  --line: rgba(28, 25, 23, 0.14);
+
+  --accent: #b45309;
+  --accent-contrast: #ffffff;
+
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+
+  --radius: 0.8rem;
+  --maxw: 108rem;
+  --section-y: 10rem;
+
+  --rail: 3.2rem; /* distance from the rail to the content */
+}
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; }
+
+.site-header.scrolled { background-color: rgba(250, 247, 242, 0.94); }
+
+.hero-name { font-family: var(--font-display); font-weight: 600; }
+.hero-eyebrow { font-family: var(--font-body); }
+
+.section-title { font-size: clamp(2.8rem, 4.4vw, 4.4rem); }
+
+/* ── The route ──────────────────────────────────────────────────────────── */
+
+.projects {
+  display: block;
+  position: relative;
+  margin-left: 1rem;
+  padding-left: var(--rail);
+  /* One continuous line down the left; each project hangs a dot on it. */
+  border-left: 2px solid var(--line);
+}
+
+.project {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+  gap: 2.4rem 3rem;
+  align-items: start;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0 0 5rem;
+  overflow: visible;
+}
+
+.project:last-child { padding-bottom: 0; }
+.project:hover { transform: none; }
+
+/* The station marker, centred on the rail. */
+.project::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--rail) * -1 - 1px);
+  top: 0.9rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  background-color: var(--bg);
+  border: 2px solid var(--accent);
+  transform: translateX(-50%);
+  transition: background-color 0.25s ease, transform 0.25s ease;
+}
+
+.project:hover::before { background-color: var(--accent); transform: translateX(-50%) scale(1.25); }
+
+.project-body { padding: 0; }
+
+.project-index {
+  position: static;
+  display: block;
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+}
+
+.project-title { font-size: 2.4rem; padding-right: 0; }
+.project-desc { max-width: 52ch; }
+
+.project-media {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: none;
+}
+
+.project-tags li { background-color: var(--surface-2); border-color: transparent; }
+
+/* ── Services also read as steps ────────────────────────────────────────── */
+
+.services { grid-template-columns: repeat(auto-fit, minmax(min(25rem, 100%), 1fr)); }
+
+.service {
+  background-color: var(--surface);
+  border-radius: var(--radius);
+}
+
+.service-index {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  color: var(--accent);
+}
+
+/* ── About ──────────────────────────────────────────────────────────────── */
+
+.about-media img { border-radius: var(--radius); }
+.about-body p { font-size: 1.65rem; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  :root { --rail: 2.4rem; }
+  .project { grid-template-columns: 1fr; }
+  .project-media { order: -1; max-width: 46rem; }
+}
+
+@media (max-width: 599px) {
+  :root { --rail: 1.8rem; }
+  .projects { margin-left: 0.6rem; }
+  .project { padding-bottom: 3.6rem; }
+}
+
+@media (max-width: 359px) {
+  /* At this width the rail costs more than it communicates. */
+  .projects { border-left: none; padding-left: 0; margin-left: 0; }
+  .project::before { display: none; }
+}

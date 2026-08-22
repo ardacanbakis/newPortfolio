@@ -1,0 +1,153 @@
+/* ==========================================================================
+   v6 — Bento grid dashboard
+
+   A mosaic of tiles at different sizes. The markup is the same flat list of
+   projects as every other version; the mosaic comes from explicit spans on a
+   12-column grid, which collapse to a plain stack on small screens.
+   ========================================================================== */
+
+:root {
+  --bg: #0e1116;
+  --surface: #161b23;
+  --surface-2: #1d232d;
+  --fg: #e8edf5;
+  --muted: #98a3b3;
+  --faint: #6b7688;
+  --line: rgba(232, 237, 245, 0.1);
+
+  --accent: #7c9cff;
+  --accent-contrast: #0e1116;
+
+  --font-body: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+
+  --radius: 1.8rem;
+  --maxw: 128rem;
+  --section-y: 8rem;
+}
+
+h1, h2, h3 { font-weight: 800; letter-spacing: -0.03em; }
+
+.site-header.scrolled { background-color: rgba(14, 17, 22, 0.92); }
+
+.section-title { font-weight: 800; }
+
+/* ── Hero as a tile ─────────────────────────────────────────────────────── */
+
+.hero {
+  min-height: 0;
+  padding-top: 13rem;
+}
+
+.hero-inner {
+  max-width: none;
+  padding: clamp(3rem, 6vw, 6rem);
+  background: linear-gradient(140deg, var(--surface) 0%, #1a2130 100%);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 1.4);
+}
+
+.hero-eyebrow { color: var(--accent); }
+.hero-name { font-size: clamp(3.6rem, 7.5vw, 7rem); }
+.hero-tagline { font-size: clamp(1.6rem, 2vw, 2rem); }
+
+/* ── The mosaic ─────────────────────────────────────────────────────────── */
+
+.projects {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.6rem;
+}
+
+/* Two wide tiles lead, then a row of three, then one wide. Sizes are assigned
+   by position rather than by project, so reordering the list keeps the shape. */
+.project:nth-child(1) { grid-column: span 7; }
+.project:nth-child(2) { grid-column: span 5; }
+.project:nth-child(3) { grid-column: span 4; }
+.project:nth-child(4) { grid-column: span 4; }
+.project:nth-child(5) { grid-column: span 4; }
+.project:nth-child(6) { grid-column: span 12; }
+
+.project {
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, var(--surface) 0%, rgba(29, 35, 45, 0.7) 100%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+.project:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 1.4rem 3rem rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+/* The full-width final tile reads better side by side. */
+.project:nth-child(6) { flex-direction: row; align-items: stretch; }
+.project:nth-child(6) .project-media { flex: 0 0 42%; }
+.project:nth-child(6) .project-media img { height: 100%; aspect-ratio: auto; }
+
+.project-title { font-weight: 800; }
+
+.project-tags li {
+  background-color: rgba(124, 156, 255, 0.1);
+  border-color: rgba(124, 156, 255, 0.22);
+  color: #b9c8ff;
+}
+
+/* ── Services as smaller tiles ──────────────────────────────────────────── */
+
+.services { gap: 1.6rem; }
+
+.service {
+  background: linear-gradient(160deg, var(--surface) 0%, rgba(29, 35, 45, 0.7) 100%);
+  border-radius: var(--radius);
+}
+
+.service-index {
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 1rem;
+  background-color: rgba(124, 156, 255, 0.14);
+  color: var(--accent);
+  font-weight: 800;
+}
+
+/* ── About and contact keep the tile language ───────────────────────────── */
+
+.about-media img { border-radius: var(--radius); }
+
+.contact-form,
+.contact-direct {
+  background: linear-gradient(160deg, var(--surface) 0%, rgba(29, 35, 45, 0.7) 100%);
+  border-radius: var(--radius);
+}
+
+.field input,
+.field textarea { background-color: rgba(0, 0, 0, 0.25); }
+
+/* ── Responsive: the mosaic flattens ────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  .project:nth-child(1),
+  .project:nth-child(2) { grid-column: span 12; }
+  .project:nth-child(3),
+  .project:nth-child(4),
+  .project:nth-child(5) { grid-column: span 6; }
+  .project:nth-child(6) { grid-column: span 12; }
+}
+
+@media (max-width: 767px) {
+  .projects { grid-template-columns: 1fr; }
+
+  .project:nth-child(1),
+  .project:nth-child(2),
+  .project:nth-child(3),
+  .project:nth-child(4),
+  .project:nth-child(5),
+  .project:nth-child(6) { grid-column: span 1; }
+
+  /* The wide tile's side-by-side layout has no room left here. */
+  .project:nth-child(6) { flex-direction: column; }
+  .project:nth-child(6) .project-media { flex: none; }
+  .project:nth-child(6) .project-media img { height: auto; aspect-ratio: 8 / 5; }
+}

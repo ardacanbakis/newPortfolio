@@ -1,0 +1,458 @@
+/* ==========================================================================
+   v39 — Container.
+
+   The premise: a component should not ask how wide the *window* is. It should
+   ask how wide its own slot is. Every card on this page is the same markup
+   and the same rules; the three layouts you will see come entirely from
+   `@container`, and a card does not know or care what the viewport is doing.
+
+   The workbench in the hero is the argument. Drag the handle and the card
+   next to it changes layout while the window stays exactly the size it is.
+   No media query can do that, because there is nothing in the window for a
+   media query to notice.
+
+   Two more platform features finish the idea, and neither appears anywhere in
+   versions 1 to 38:
+
+   **Native popover.** The detail panel on each card is a `popover` attribute
+   and a `popovertarget` button. No script. The browser handles the top layer,
+   light-dismiss, Escape, and putting the focus back where it came from.
+
+   **CSS anchor positioning.** That panel is tethered to the button that opens
+   it with `anchor-name` / `position-anchor`, and `position-try-fallbacks`
+   flips it when it would fall off the screen — which is the entire job that a
+   positioning library used to exist to do. Where it is unsupported the panel
+   centres itself instead, which is a perfectly good popover.
+   ========================================================================== */
+
+:root {
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --surface-2: #eeeeea;
+  --fg: #14140f;
+  --muted: #55554e;
+  --faint: #8a8a82;
+  --line: rgba(20, 20, 15, 0.12);
+
+  --accent: #2f5bff;
+  --accent-contrast: #ffffff;
+
+  --font-body: "Figtree", system-ui, -apple-system, sans-serif;
+  --font-display: "Figtree", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  --radius: 1.2rem;
+  --maxw: 122rem;
+  --section-y: 11rem;
+}
+
+body { letter-spacing: -0.01em; }
+h1, h2, h3 { letter-spacing: -0.035em; font-weight: 800; }
+
+.brand-mark { color: var(--accent); }
+.hero-eyebrow { font-family: var(--font-mono); letter-spacing: 0.16em; text-transform: uppercase; font-size: 1.3rem; }
+.hero-name { font-size: clamp(4.6rem, 9vw, 9rem); }
+.hero-tagline { max-width: 54rem; text-wrap: pretty; }
+.hero-meta { font-family: var(--font-mono); font-size: 1.25rem; }
+.btn { border-radius: 0.8rem; font-weight: 600; }
+.btn-solid { background-color: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+.form-status, .footer-text { font-family: var(--font-mono); }
+.field input, .field textarea { background-color: var(--bg); border-radius: 0.8rem; }
+.direct-row { border-radius: 0.8rem; }
+.direct-row svg { color: var(--accent); }
+.contact-form, .contact-direct { background-color: var(--surface); }
+
+/* ══ The workbench ════════════════════════════════════════════════════════ */
+
+/* The workbench takes the full width rather than sitting in a column beside
+   the copy. It has to be able to get past 720px for the feature layout to be
+   reachable at all, and half a 1440px page is not enough room for that. */
+.hero { min-height: auto; align-content: start; gap: clamp(3.5rem, 5vw, 6rem); padding-top: 11rem; }
+
+.bench {
+  min-width: 0;
+  padding: 2rem;
+  background-color: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 0.6rem);
+}
+
+.bench-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.6rem;
+  margin-bottom: 1.4rem;
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  color: var(--muted);
+}
+
+.bench-label { letter-spacing: 0.1em; text-transform: uppercase; }
+.bench-readout { color: var(--fg); font-variant-numeric: tabular-nums; }
+
+.bench-stage {
+  display: flex;
+  align-items: stretch;
+  gap: 0.8rem;
+}
+
+.bench-frame {
+  /* The frame is the container. Its width is a custom property so the grip
+     can drive it; the card inside reads that width and nothing else. */
+  width: var(--bench-w, 100%);
+  max-width: 100%;
+  min-width: 240px;
+  container-type: inline-size;
+  container-name: card;
+}
+
+.bench-grip {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background-color: var(--surface);
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.bench-grip span {
+  width: 3px;
+  height: 3.2rem;
+  border-radius: 2px;
+  background-color: var(--faint);
+}
+
+.bench-grip:hover { border-color: var(--accent); }
+.bench-grip:hover span { background-color: var(--accent); }
+
+/* The demonstration card is short on purpose. At the full 8:5 crop the
+   workbench is over eight hundred pixels tall and you cannot see the layout
+   change and the handle at the same time, which is the one thing it exists to
+   let you do. */
+.bench-frame .card-media img { aspect-ratio: 24 / 7; }
+.bench-frame .card-desc { -webkit-line-clamp: 3; }
+
+@container card (min-width: 720px) {
+  .bench-frame .card-media img { aspect-ratio: auto; }
+}
+
+.bench-note {
+  margin-top: 1.4rem;
+  font-size: 1.3rem;
+  line-height: 1.6;
+  color: var(--faint);
+  text-wrap: pretty;
+}
+
+/* ══ The bento ════════════════════════════════════════════════════════════ */
+
+.bento {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2rem;
+  /* Cards take their natural height rather than stretching to the tallest in
+     the row. A compact card stretched to match a card with a picture in it is
+     a third of a metre of empty white with the links stranded at the bottom —
+     the layout reads as broken rather than as deliberate. */
+  align-items: start;
+}
+
+/* Slots are the only thing that knows about the page. They hand a width to a
+   card and the card decides what to be. */
+.slot { min-width: 0; container-type: inline-size; container-name: card; }
+.slot-feature { grid-column: span 4; }
+.slot-wide    { grid-column: span 2; }
+.slot-half    { grid-column: span 2; }
+.slot-compact { grid-column: span 1; }
+
+/* ══ The card ═════════════════════════════════════════════════════════════
+   The base state is the narrowest one. Everything below adds. */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: border-color 0.2s linear, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 1.4rem 3.4rem rgba(20, 20, 15, 0.1);
+  transform: translateY(-4px);
+}
+
+.card-media { display: block; overflow: hidden; background-color: var(--surface-2); }
+.card-media img { width: 100%; aspect-ratio: 8 / 5; object-fit: cover; transition: transform 0.4s ease; }
+.card:hover .card-media img { transform: scale(1.04); }
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1rem;
+  padding: 1.8rem;
+}
+
+.card-index { font-family: var(--font-mono); font-size: 1.2rem; color: var(--accent); }
+.card-title { font-size: 2rem; text-wrap: balance; }
+.card-title a:hover { color: var(--accent); }
+
+.card-desc {
+  font-size: 1.45rem;
+  line-height: 1.6;
+  color: var(--muted);
+  text-wrap: pretty;
+  /* Narrow cards get a summary, not an essay. Widened by the queries below. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.card-tags { display: none; flex-wrap: wrap; gap: 0.5rem; }
+
+.card-tags li {
+  padding: 0.3rem 0.9rem;
+  background-color: var(--surface-2);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1.6rem;
+  margin-top: auto;
+  padding-top: 0.4rem;
+}
+
+.card-actions a {
+  position: relative;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.card-actions a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 12px;
+  width: 0;
+  height: 1px;
+  background-color: currentColor;
+  transition: width 0.2s ease;
+}
+
+.card-actions a:hover::after { width: 100%; }
+
+.card-more {
+  margin-left: auto;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background-color: var(--surface);
+  color: var(--muted);
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.card-more:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Container queries ─────────────────────────────────────────────────────
+   In px on purpose. The root font-size shrinks on small screens, so a
+   breakpoint written in rem would move as the page got narrower — which is
+   exactly the coupling this version exists to remove. */
+
+/* Medium: room for the image, the tags and a longer summary. */
+@container card (min-width: 380px) {
+  .card-body { padding: 2.2rem; gap: 1.2rem; }
+  .card-title { font-size: 2.4rem; }
+  .card-desc { -webkit-line-clamp: 4; font-size: 1.5rem; }
+  .card-tags { display: flex; }
+}
+
+/* Feature: the image moves beside the text and the card becomes a banner. */
+@container card (min-width: 720px) {
+  .card { flex-direction: row; align-items: stretch; }
+  .card-media { flex: 0 0 44%; }
+  .card-media img { height: 100%; aspect-ratio: auto; min-height: 100%; }
+  .card-body { padding: 3rem; gap: 1.4rem; }
+  .card-title { font-size: clamp(2.8rem, 4cqi, 4rem); }
+  .card-desc { -webkit-line-clamp: unset; display: block; font-size: 1.6rem; }
+  .card-actions { padding-top: 1.4rem; }
+}
+
+/* Narrowest: the thumbnail is costing more than it earns. */
+@container card (max-width: 279px) {
+  .card-media { display: none; }
+  .card-desc { -webkit-line-clamp: 5; }
+}
+
+/* ══ The popover ══════════════════════════════════════════════════════════ */
+
+.card-pop {
+  width: min(34rem, calc(100vw - 3.2rem));
+  max-height: min(38rem, 70vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: 2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background-color: var(--surface);
+  color: var(--fg);
+  box-shadow: 0 2rem 5rem rgba(20, 20, 15, 0.22);
+
+  /* @starting-style plus allow-discrete is how an element that lives in the
+     top layer gets an entry animation without script: the discrete properties
+     (display, overlay) are told to hold their old value for the duration
+     instead of flipping on frame one. */
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  transition: opacity 0.18s ease, transform 0.18s ease,
+              overlay 0.18s allow-discrete, display 0.18s allow-discrete;
+}
+
+.card-pop:popover-open { opacity: 1; transform: none; }
+
+@starting-style {
+  .card-pop:popover-open { opacity: 0; transform: translateY(-6px) scale(0.98); }
+}
+
+.card-pop::backdrop { background-color: rgba(20, 20, 15, 0.18); }
+
+.pop-title { font-size: 1.9rem; font-weight: 800; margin-bottom: 0.8rem; }
+.pop-desc { font-size: 1.45rem; line-height: 1.65; color: var(--muted); text-wrap: pretty; }
+
+.pop-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.6rem 0; }
+
+.pop-tags li {
+  padding: 0.3rem 0.9rem;
+  background-color: var(--surface-2);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+.pop-links { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+
+.pop-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 1.6rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.8rem;
+  color: var(--accent);
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.pop-links a:hover { background-color: var(--accent); color: var(--accent-contrast); }
+
+/* Anchored to the button that opened it, and allowed to flip when it would
+   otherwise run off the edge of the screen. */
+@supports (anchor-name: --a) {
+  .card-pop {
+    position: absolute;
+    position-area: block-end span-inline-start;
+    margin-block-start: 0.8rem;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    /* No `position-visibility: anchors-visible` here. It sounds like exactly
+       the right thing — hide the panel if its button scrolls away — but in
+       Chromium it suppresses the try-fallbacks, and a popover that would have
+       flipped above its button instead stayed below it and ran off the bottom
+       of the screen. The panel is light-dismissed and only ever opened by a
+       click on a visible button, so there is nothing for it to buy. */
+  }
+}
+
+/* No anchor positioning: a centred dialog, which is what a popover was before
+   any of this existed. */
+@supports not (anchor-name: --a) {
+  .card-pop {
+    position: fixed;
+    inset: auto;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+  }
+}
+
+/* ══ Services ═════════════════════════════════════════════════════════════ */
+
+.cq-services {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(26rem, 100%), 1fr));
+  gap: 2rem;
+}
+
+.cq-service {
+  container-type: inline-size;
+  container-name: svc;
+  display: grid;
+  gap: 0.4rem 1.6rem;
+  padding: 2.6rem 2.2rem;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: border-color 0.2s linear, transform 0.2s ease;
+}
+
+.cq-service:hover { border-color: var(--accent); transform: translateY(-4px); }
+
+.cq-service-index { font-family: var(--font-mono); font-size: 1.25rem; color: var(--accent); }
+.cq-service h3 { font-size: 1.9rem; margin-bottom: 0.4rem; text-wrap: balance; }
+.cq-service p { font-size: 1.45rem; line-height: 1.65; color: var(--muted); text-wrap: pretty; }
+
+/* Four across on a wide screen leaves each service about 280px, so they
+   stack. Two across on a tablet gives them 350px and the number moves out to
+   the side — the same component, decided by its slot rather than by the
+   window it happens to be in. */
+@container svc (min-width: 330px) {
+  .cq-service {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+  .cq-service-index { grid-row: 1 / span 2; padding-top: 0.5rem; }
+}
+
+/* ══ Responsive ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 1023px) {
+  .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .slot-feature, .slot-wide, .slot-half { grid-column: span 2; }
+  .slot-compact { grid-column: span 1; }
+}
+
+@media (max-width: 599px) {
+  .bento { grid-template-columns: 1fr; }
+  .slot-feature, .slot-wide, .slot-half, .slot-compact { grid-column: span 1; }
+  .bench { padding: 1.4rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card, .card-media img, .cq-service, .card-pop { transition: none; }
+}
