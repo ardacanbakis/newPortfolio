@@ -1,0 +1,119 @@
+/* ==========================================================================
+   v47 — Window seat.
+
+   The page is the carriage: warm, still, upholstered, lit from inside. The
+   world outside is the only thing moving, which is what makes a train a
+   train.
+
+   `--tunnel` flips to 1 when the train is underground, and the two things it
+   changes are the two things that actually change on a train: the carriage
+   lights come up, and the window turns into a mirror.
+   ========================================================================== */
+
+:root {
+  --tunnel: 0;
+  --sky: #2e364e;
+
+  --bg: #10161d;
+  --surface: #182028;
+  --surface-2: #212b35;
+  --fg: #f4efe6;
+  --muted: rgba(244, 239, 230, 0.74);
+  --faint: rgba(244, 239, 230, 0.48);
+  --line: rgba(244, 239, 230, 0.14);
+
+  --accent: #e8a33c;
+  --accent-contrast: #1c1204;
+
+  --font-body: "DM Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "DM Serif Display", Georgia, serif;
+
+  --radius: 0.6rem;
+  --maxw: 102rem;
+
+  --scene-fg: #f4efe6;
+  --scene-muted: rgba(232, 163, 60, 0.9);
+
+  /* The carriage interior. Solid, warm, and brighter in the tunnel — the one
+     place where the inside of a train is the brightest thing there is. */
+  --plate: rgba(16, 22, 29, calc(0.82 + 0.14 * var(--tunnel)));
+  --plate-border: rgba(232, 163, 60, calc(0.16 + 0.2 * var(--tunnel)));
+  --plate-blur: blur(4px);
+  --plate-blur-sm: none;
+  --plate-radius: 0.8rem;
+  --plate-shadow: 0 2.4rem 7rem rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --plate-hero: rgba(16, 22, 29, 0.6);
+  --hero-shadow: 0 0.2rem 2.2rem rgba(0, 0, 0, 0.7);
+}
+
+body { color: var(--fg); }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.01em; }
+
+/* ══ The window ═══════════════════════════════════════════════════════════
+   A rounded aperture with a heavy rubber seal, the way a modern carriage
+   window actually looks, plus the reflection of the carriage lights on the
+   glass — which gets much stronger in the tunnel. */
+
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: clamp(1.2rem, 2vw, 2.4rem) solid #0c1116;
+  border-radius: clamp(2rem, 4vw, 4.6rem);
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 255, 255, 0.06),
+    inset 0 6rem 12rem rgba(255, 226, 178, calc(0.04 + 0.1 * var(--tunnel))),
+    0 0 0 100vmax #0c1116;
+  background:
+    linear-gradient(112deg, rgba(255, 240, 220, calc(0.03 + 0.06 * var(--tunnel))) 0 22%, transparent 22.5% 40%,
+                    rgba(255, 240, 220, calc(0.02 + 0.04 * var(--tunnel))) 40.5% 48%, transparent 48.5%);
+}
+
+/* ══ Type ═════════════════════════════════════════════════════════════════ */
+
+.brand-mark { color: var(--accent); font-size: 1.7rem; }
+.brand-name { font-family: var(--font-display); font-size: 2.1rem; }
+
+.hero-eyebrow { letter-spacing: 0.26em; text-transform: uppercase; font-size: 1.25rem; color: var(--accent); }
+.hero-name { font-family: var(--font-display); font-size: clamp(5rem, 11vw, 11rem); line-height: 0.96; }
+.hero-tagline { max-width: 50rem; font-size: 1.75rem; }
+.hero-meta { font-size: 1.2rem; letter-spacing: 0.16em; }
+
+.section-title { font-size: clamp(3rem, 5vw, 5rem); }
+.project-title { font-size: clamp(2.4rem, 3.6vw, 3.6rem); }
+.slide-kicker, .project-index, .service-index { color: var(--accent); }
+
+/* ══ Panels ═══════════════════════════════════════════════════════════════ */
+
+.btn { border-radius: 0.5rem; font-weight: 700; }
+.btn-solid { background-color: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+
+.project,
+.service,
+.contact-form,
+.contact-direct,
+.about-media {
+  background-color: var(--surface);
+  border-color: var(--line);
+  border-radius: 0.7rem;
+}
+
+.project-tags li { background-color: var(--surface-2); border-radius: 0.3rem; }
+.direct-row { border-radius: 0.5rem; background-color: var(--surface-2); }
+.direct-row svg { color: var(--accent); }
+
+.field input, .field textarea {
+  background-color: #0d1318;
+  border-color: var(--line);
+  border-radius: 0.4rem;
+  color: var(--fg);
+}
+
+.field input:focus, .field textarea:focus { border-color: var(--accent); }
+
+/* ══ Chrome ═══════════════════════════════════════════════════════════════ */
+
+.site-header { background-color: rgba(12, 17, 22, 0.88); }
+.scene-place { color: var(--accent); }

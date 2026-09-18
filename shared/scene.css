@@ -1,0 +1,198 @@
+/* ==========================================================================
+   Scene — shared stage for versions 41 to 50.
+
+   These are decks (shared/deck.css does the panels), so this file only adds
+   the two things a *scene* version needs on top of a slider:
+
+   1. A layer behind the deck for the world to be drawn into.
+   2. A way for text to stay readable on top of it.
+
+   The second is the whole problem. A panel of body copy over a sunrise, a
+   snowstorm or a reef is illegible unless something sits between them, and
+   the thing that sits between them cannot be the same in all ten versions or
+   they stop being ten versions. So this file owns the *mechanism* — a plate
+   behind the content, with its colour, blur, radius and border exposed as
+   tokens — and each version decides what the plate is: glass over the sea,
+   a sheet of paper on the workbench, a pane of lit card in the theatre, or
+   nothing at all plus a hard shadow where the scene is quiet enough.
+
+   Tokens a scene version sets:
+     --plate --plate-blur --plate-radius --plate-border --plate-shadow
+     --scene-fg --scene-muted
+   ========================================================================== */
+
+.scene-body {
+  /* Scenes are drawn, not scrolled. Nothing here should ever produce a
+     horizontal scrollbar even for the half-second before deck.js loads. */
+  overflow-x: clip;
+}
+
+/* ── The stage ───────────────────────────────────────────────────────────
+   Fixed behind everything, clipped, and untouchable: a scene is scenery, and
+   a click meant for a button must never land on the weather. */
+
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--bg);
+}
+
+.scene-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Everything the visitor reads or presses sits above the world. The deck is
+   `position: fixed` once deck.js is running; it needs the z-index in both
+   states so the no-JavaScript document is not painted underneath scenery
+   that JavaScript never arrived to draw. */
+.deck,
+.deck-ready .deck { position: relative; z-index: 1; }
+.deck-ready .deck { position: fixed; }
+
+/* ── How a panel arrives ─────────────────────────────────────────────────
+   deck.css lays the panels out on top of one another but deliberately does
+   not say what a non-current one looks like — in versions 19 to 23 that was
+   the whole design, and each supplied its own. Here it is not: the design is
+   the world behind, and ten different panel transitions in front of ten
+   different worlds would be noise. So the transition lives here, once.
+
+   It is a short rise and fade along the direction of travel, keyed to
+   --offset (deck.js publishes the signed distance of each panel from the
+   current one). Quiet on purpose — it has to get out of the way of a sunrise
+   without competing with it.
+
+   `visibility` takes a *delay*, never a duration. A duration flips the
+   property at the halfway point, so a panel would be painted and still
+   `hidden` for the first three hundred milliseconds — which is how a form
+   field that will not take focus gets shipped. */
+
+.deck-ready .slide {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, calc(var(--offset, 0) * 4.5vh), 0) scale(0.985);
+  transition: opacity 0.45s linear, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              visibility 0s linear 0.6s;
+}
+
+.deck-ready .slide[data-state="current"] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.45s linear, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              visibility 0s linear 0s;
+}
+
+/* A panel two steps away is already invisible, so there is nothing to gain
+   from animating it and something to lose: ten simultaneous transitions of a
+   backdrop-filtered box is exactly the frame budget the scene needs. */
+.deck-ready .slide[data-near="2"],
+.deck-ready .slide[data-near="3"] { transition: none; }
+
+.deck-instant .slide { transition: none; }
+
+/* ── The plate ───────────────────────────────────────────────────────────
+   One backing per panel. Padding and radius are on a wrapper rather than on
+   the text so a version can turn the plate off entirely — `--plate:
+   transparent` and a text-shadow — without the layout shifting underneath. */
+
+.deck-ready .slide-inner {
+  position: relative;
+  padding: clamp(2rem, 3.4vw, 4rem);
+  border-radius: var(--plate-radius, 1.6rem);
+  background-color: var(--plate, rgba(8, 10, 14, 0.5));
+  border: 1px solid var(--plate-border, rgba(255, 255, 255, 0.14));
+  box-shadow: var(--plate-shadow, 0 2rem 6rem rgba(0, 0, 0, 0.32));
+  color: var(--scene-fg, var(--fg));
+}
+
+/* The blur is a separate declaration because backdrop-filter is the single
+   most expensive thing on these pages, and a version whose scene is already
+   soft — fog, deep water, night — should be able to set it to none without
+   giving up the plate. */
+.deck-ready .slide-inner {
+  -webkit-backdrop-filter: var(--plate-blur, blur(14px) saturate(140%));
+  backdrop-filter: var(--plate-blur, blur(14px) saturate(140%));
+}
+
+/* The home panel is the one place where the scene is the point, so its plate
+   is quieter by default and its type carries itself. */
+.deck-ready .slide-home .slide-inner {
+  background-color: var(--plate-hero, transparent);
+  border-color: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.deck-ready .slide-home .hero-name,
+.deck-ready .slide-home .hero-tagline,
+.deck-ready .slide-home .hero-eyebrow,
+.deck-ready .slide-home .hero-meta {
+  text-shadow: var(--hero-shadow, 0 0.2rem 2.4rem rgba(0, 0, 0, 0.55));
+}
+
+/* ── The place caption ───────────────────────────────────────────────────
+   Names where in the world you currently are. Top left, because the bottom
+   left is the arrows, the bottom centre is the hint and the right is the rail
+   and the WhatsApp button.
+
+   aria-live, not aria-hidden: for someone who cannot see the scene, "twilight
+   zone — 600 m" is the only report that the background means anything. */
+
+.scene-place {
+  position: fixed;
+  top: 8.8rem;
+  left: max(3vw, 1.8rem);
+  z-index: 44;
+  max-width: min(32rem, 60vw);
+  font-size: 1.2rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--scene-muted, var(--muted));
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-0.4rem);
+  transition: opacity 0.5s linear, transform 0.5s ease;
+}
+
+.deck-ready .scene-place { opacity: 0.85; transform: none; }
+
+.scene-place::before {
+  content: "";
+  display: inline-block;
+  width: 2.2rem;
+  height: 1px;
+  margin-right: 0.9rem;
+  vertical-align: middle;
+  background-color: currentColor;
+  opacity: 0.6;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+  .deck-ready .slide-inner { padding: clamp(1.6rem, 4vw, 2.4rem); }
+  /* Blur over a full-screen canvas is the first thing to go on a phone. */
+  .deck-ready .slide-inner {
+    -webkit-backdrop-filter: var(--plate-blur-sm, blur(8px));
+    backdrop-filter: var(--plate-blur-sm, blur(8px));
+  }
+  .scene-place { top: 7.6rem; font-size: 1.1rem; letter-spacing: 0.16em; }
+}
+
+@media (max-width: 599px) {
+  /* The caption and the rail would meet. The caption yields — the rail is
+     navigation and the caption is commentary. */
+  .scene-place { max-width: 50vw; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-place { transition: none; }
+}

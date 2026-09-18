@@ -1,0 +1,125 @@
+/* ==========================================================================
+   v46 — Orbit.
+
+   Flight instrumentation: a grotesque for headings, a monospace for anything
+   a mission would actually print, and a palette of exactly two colours — the
+   blue of the planet and the amber of a caution lamp — on black.
+
+   `--burn` is 1 while the engines are lit. It is used sparingly, because the
+   place it matters is the reading plate: under acceleration the panel gets a
+   slight warm edge, which is the only cue you need that the page and the
+   scene are the same thing.
+   ========================================================================== */
+
+:root {
+  --burn: 0;
+
+  --bg: #04060f;
+  --surface: rgba(180, 208, 255, 0.06);
+  --surface-2: rgba(180, 208, 255, 0.1);
+  --fg: #e8eefb;
+  --muted: rgba(232, 238, 251, 0.72);
+  --faint: rgba(232, 238, 251, 0.46);
+  --line: rgba(180, 208, 255, 0.16);
+
+  --accent: #ffb454;
+  --sky-blue: #78beff;
+  --accent-contrast: #1a1002;
+
+  --font-body: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+
+  --radius: 0.5rem;
+  --maxw: 104rem;
+
+  --scene-fg: #e8eefb;
+  --scene-muted: rgba(255, 180, 84, 0.9);
+
+  --plate: rgba(4, 8, 18, 0.72);
+  --plate-border: rgba(120, 190, 255, calc(0.14 + 0.3 * var(--burn)));
+  --plate-blur: blur(12px) saturate(120%);
+  --plate-blur-sm: blur(7px);
+  --plate-radius: 0.6rem;
+  --plate-shadow: 0 2.4rem 7rem rgba(0, 0, 0, 0.6),
+                  inset 0 0 0 1px rgba(255, 180, 84, calc(0.08 * var(--burn)));
+  --hero-shadow: 0 0.2rem 2.4rem rgba(0, 0, 0, 0.75);
+}
+
+body { color: var(--fg); }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; }
+
+/* ══ Type ═════════════════════════════════════════════════════════════════ */
+
+.brand-mark { color: var(--accent); font-size: 1.8rem; }
+.brand-name { font-weight: 700; font-size: 1.85rem; letter-spacing: -0.01em; }
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+.hero-name { font-size: clamp(4.8rem, 11vw, 11.5rem); line-height: 0.92; letter-spacing: -0.05em; }
+.hero-tagline { max-width: 50rem; font-size: 1.75rem; }
+.hero-meta { font-family: var(--font-mono); font-size: 1.15rem; letter-spacing: 0.14em; }
+
+.section-title { font-size: clamp(3rem, 5vw, 4.8rem); }
+.project-title { font-size: clamp(2.4rem, 3.8vw, 3.6rem); }
+.slide-kicker, .project-index, .service-index { color: var(--accent); font-family: var(--font-mono); }
+
+/* ══ Panels ═══════════════════════════════════════════════════════════════ */
+
+.btn {
+  border-radius: 0.4rem;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 1.3rem;
+}
+
+.btn-solid { background-color: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+.btn-ghost { border-color: rgba(120, 190, 255, 0.4); color: var(--sky-blue); }
+
+.project,
+.service,
+.contact-form,
+.contact-direct,
+.about-media {
+  background-color: rgba(180, 208, 255, 0.04);
+  border-color: rgba(180, 208, 255, 0.14);
+  border-radius: 0.6rem;
+}
+
+.project-tags li {
+  background-color: rgba(120, 190, 255, 0.1);
+  border: 1px solid rgba(120, 190, 255, 0.2);
+  border-radius: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+}
+
+.direct-row { border-radius: 0.4rem; background-color: rgba(180, 208, 255, 0.05); }
+.direct-row svg { color: var(--accent); }
+
+.field input, .field textarea {
+  background-color: rgba(2, 4, 10, 0.6);
+  border-color: rgba(120, 190, 255, 0.22);
+  border-radius: 0.3rem;
+  color: var(--fg);
+  font-family: var(--font-mono);
+}
+
+.field input:focus, .field textarea:focus { border-color: var(--accent); }
+.field label { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.12em; font-size: 1.15rem; }
+
+/* ══ Chrome ═══════════════════════════════════════════════════════════════ */
+
+.site-header { background-color: rgba(4, 6, 15, 0.7); }
+.nav a { font-family: var(--font-mono); font-size: 1.3rem; letter-spacing: 0.06em; }
+.deck-counter, .deck-hint, .scene-place { font-family: var(--font-mono); }
+.scene-place { color: var(--accent); }

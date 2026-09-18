@@ -1,0 +1,144 @@
+/* ==========================================================================
+   v42 — Descent.
+
+   A survey log, not a website. Condensed grotesque for the headings, a
+   monospace for anything numeric, and a reading plate that behaves like the
+   lit page of a field notebook held up in a dark shaft: it gets *warmer* and
+   more opaque the deeper you go, because that is the only light down there.
+
+   `--dark` (0 at the surface, 1 underground) and `--depth` (metres) are
+   published by app.js every frame and everything below is a function of them.
+   ========================================================================== */
+
+:root {
+  --dark: 0;
+
+  --bg: #1a140f;
+  --surface: rgba(255, 244, 228, 0.06);
+  --surface-2: rgba(255, 244, 228, 0.1);
+  --fg: #f6ead9;
+  --muted: rgba(246, 234, 217, 0.72);
+  --faint: rgba(246, 234, 217, 0.48);
+  --line: rgba(246, 234, 217, 0.16);
+
+  --lamp: #ffcf7a;
+  --accent: var(--lamp);
+  --accent-contrast: #241703;
+
+  --font-body: "IBM Plex Mono", ui-monospace, monospace;
+  --font-display: "Oswald", "Inter", system-ui, sans-serif;
+
+  --radius: 0.3rem;
+  --maxw: 100rem;
+
+  --scene-fg: #f6ead9;
+  --scene-muted: rgba(255, 207, 122, 0.85);
+
+  /* The notebook page. Warmer and more solid as the daylight runs out. */
+  --plate: rgba(24, 17, 11, calc(0.42 + 0.34 * var(--dark)));
+  --plate-border: rgba(255, 207, 122, calc(0.12 + 0.16 * var(--dark)));
+  --plate-blur: blur(10px) saturate(115%);
+  --plate-blur-sm: blur(6px);
+  --plate-radius: 0.4rem;
+  --plate-shadow: 0 2rem 6rem rgba(0, 0, 0, 0.6);
+  --hero-shadow: 0 0.2rem 2rem rgba(0, 0, 0, 0.7);
+}
+
+body { color: var(--fg); letter-spacing: 0.01em; }
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* The head-lamp. A cone of light from the top of the shaft that only exists
+   once you are below ground — before that the sun is doing the work. */
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(70vmax 52vmax at 50% -8%, rgba(255, 207, 122, 0.18), transparent 70%),
+    radial-gradient(120vmax 90vmax at 50% 50%, transparent 38%, rgba(0, 0, 0, 0.72) 100%);
+  opacity: var(--dark);
+}
+
+/* ══ Depth gauge ══════════════════════════════════════════════════════════
+   The place caption gets a running metre count beside it, which is the one
+   number that makes the shaft feel like a measured place rather than a
+   texture. counter-reset takes an integer, so --depth is published as one. */
+
+.scene-place { counter-reset: depth var(--depth, 0); }
+
+.scene-place::after {
+  content: " · " counter(depth) " m";
+  opacity: 0.6;
+}
+
+/* ══ Type ═════════════════════════════════════════════════════════════════ */
+
+.brand-mark { color: var(--lamp); }
+.brand-name { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.hero-eyebrow { letter-spacing: 0.3em; text-transform: uppercase; font-size: 1.25rem; color: var(--lamp); }
+.hero-name { font-size: clamp(4.6rem, 11vw, 11rem); line-height: 0.9; letter-spacing: 0.01em; }
+.hero-tagline { max-width: 50rem; font-size: 1.65rem; }
+.hero-meta { font-size: 1.2rem; letter-spacing: 0.14em; }
+
+.section-title { font-size: clamp(2.8rem, 5vw, 4.6rem); }
+.project-title { font-size: clamp(2.4rem, 3.6vw, 3.4rem); }
+.slide-kicker, .project-index, .service-index { color: var(--lamp); }
+
+/* ══ Panels ═══════════════════════════════════════════════════════════════ */
+
+.btn {
+  border-radius: 0.3rem;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.btn-solid { background-color: var(--lamp); border-color: var(--lamp); color: var(--accent-contrast); }
+.btn-ghost { border-color: rgba(255, 207, 122, 0.4); }
+
+.project,
+.service,
+.contact-form,
+.contact-direct,
+.about-media {
+  background-color: rgba(255, 244, 228, 0.04);
+  border-color: rgba(255, 207, 122, 0.16);
+  border-radius: 0.4rem;
+}
+
+.project-tags li {
+  background-color: rgba(255, 207, 122, 0.1);
+  border: 1px solid rgba(255, 207, 122, 0.2);
+  border-radius: 0.2rem;
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+}
+
+.direct-row { border-radius: 0.3rem; background-color: rgba(255, 244, 228, 0.05); }
+.direct-row svg { color: var(--lamp); }
+
+.field input,
+.field textarea {
+  background-color: rgba(10, 7, 4, 0.55);
+  border-color: rgba(255, 207, 122, 0.22);
+  border-radius: 0.3rem;
+  color: var(--fg);
+  font-family: var(--font-body);
+}
+
+.field input:focus, .field textarea:focus { border-color: var(--lamp); }
+.field label { text-transform: uppercase; letter-spacing: 0.12em; font-size: 1.15rem; }
+
+/* ══ Chrome ═══════════════════════════════════════════════════════════════ */
+
+.site-header { background-color: rgba(18, 12, 8, calc(0.3 + 0.4 * var(--dark))); }
+.nav a { text-transform: uppercase; letter-spacing: 0.1em; font-size: 1.35rem; }
+.deck-counter, .deck-hint { letter-spacing: 0.2em; }

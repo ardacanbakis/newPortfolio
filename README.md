@@ -300,6 +300,47 @@ containing block for its fixed children. The first link sat eighty pixels above 
 screen. It is anchored and given an explicit `100svh` now, which fixes it in every version from v4
 onward.
 
+## The scene decks (v41–v50)
+
+Ten one-screen versions — no scrollbar, a panel at a time — where the background is a **place**, and
+reading moves you through it. Versions 19–23 varied how a panel arrived; these vary where you are.
+
+- **v41 day cycle** — one horizon from dawn to midnight. The sun tracks an arc, the stars come out as
+  it sets, and the sky is a CSS gradient rather than a canvas fill, because a full-screen repaint at
+  sixty frames a second is the most expensive thing you can ask a phone for the least return.
+- **v42 descent** — a shaft, 0 to 620 m. The camera has a depth and every band of rock knows which
+  depths it occupies, so the strata scroll at the right rate with no bookkeeping and the depth gauge
+  is honest.
+- **v43 weather** — you are indoors at a window. Drizzle to downpour to snow to fog, and the glass
+  fogs up: **wipe it with the cursor or a finger**. It very slowly mists back over.
+- **v44 seasons** — one tree, one year, grown once by a recursive generator and then only recoloured.
+  The six projects hang on it as fruit and light as you reach their panel.
+- **v45 depth** — a dive. Light falls off exponentially and red is absorbed first, which is the actual
+  reason deep water is blue. Down in the dark, the plankton answer your pointer.
+- **v46 orbit** — a launch. The stars are real 3D points with a perspective divide, so they streak
+  correctly during the burn and the field converges on a vanishing point.
+- **v47 window seat** — a train that never stops. The regions are stretches of one world coordinate,
+  so you never see a landscape change; you see the city end and the fields begin.
+- **v48 playhouse** — five sets on a flying bar. The flats descend as you approach them and lift as
+  you leave, and the blackout is proportional to how far you jumped.
+- **v49 viewfinder** — a camera on a tripod, with genuine depth of field: four planes at real
+  distances, blurred by circle-of-confusion. Open the aperture and the background goes further out.
+- **v50 service lift** — one floor per chapter. The doors shut, the shaft rushes past, the doors open
+  somewhere else. Doors are DOM on the compositor; the shaft is canvas.
+
+Worth knowing before testing them:
+
+- **They all degrade.** Every rule that removes the scrollbar is scoped under a class `deck.js` adds,
+  and the scene layer is an empty `<div>` filled by script. With JavaScript off all ten are ordinary
+  scrolling documents with six projects, four services and a working form.
+- **They need `shared/scene.js` and `shared/scene.css`** as well as `site.js`, `deck.js` and
+  `deck.css`.
+- **Reduced motion is respected properly.** The world snaps instead of easing and the ambient loops
+  never start, so the place still changes as you move through the content — it just does not move on
+  its own.
+- **The loops stop.** A scene only animates while the spring is settling, or continuously if it has
+  weather in it. v49 never animates at all between shots, because a camera on a tripod does not.
+
 ## Known limitations
 
 Fonts and icons still load from Google Fonts and cdnjs. Self-hosting them would remove two

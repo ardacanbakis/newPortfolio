@@ -1,0 +1,117 @@
+/* ==========================================================================
+   v44 — Seasons.
+
+   The only light version in this set. The scene is a pale sky, so the reading
+   plate inverts: cream paper with dark ink, sitting in front of the tree
+   rather than behind smoked glass.
+
+   That inversion is why this file sets `--scene-fg` dark and leaves the
+   hero's text shadow off — a drop shadow under dark type on a pale sky reads
+   as a printing fault, not as depth.
+   ========================================================================== */
+
+:root {
+  --sky: #d2dce2;
+  --haze: #ece8de;
+  --leaf: #3a7a3e;
+
+  --bg: #f3efe4;
+  --surface: #ffffff;
+  --surface-2: #ebe5d6;
+  --fg: #221e18;
+  --muted: #564f43;
+  --faint: #8b8272;
+  --line: rgba(34, 30, 24, 0.14);
+
+  --accent: #b8412c;
+  --accent-contrast: #fffdf7;
+
+  --font-body: "Karla", system-ui, -apple-system, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+
+  --radius: 0.9rem;
+  /* Narrower than the other versions on purpose: the tree is the design, and
+     a full-width plate would leave nothing of it visible but two hedges at
+     the edges of the screen. */
+  --maxw: 88rem;
+
+  --scene-fg: #221e18;
+  --scene-muted: #6b6250;
+
+  /* Paper. Opaque enough to read on, warm enough to sit against a winter sky
+     without looking like a dialog box. */
+  --plate: rgba(253, 250, 243, 0.94);
+  --plate-border: rgba(34, 30, 24, 0.12);
+  --plate-blur: blur(6px);
+  --plate-blur-sm: none;
+  --plate-radius: 1.2rem;
+  --plate-shadow: 0 2.4rem 6rem rgba(46, 38, 26, 0.18);
+  --plate-hero: rgba(253, 250, 243, 0.72);
+  /* No shadow under dark type on a pale sky. */
+  --hero-shadow: none;
+}
+
+body { color: var(--fg); }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
+
+.stage { background-color: var(--sky); }
+
+/* ══ Type ═════════════════════════════════════════════════════════════════ */
+
+.brand-mark { color: var(--accent); font-size: 1.9rem; }
+.brand-name { font-family: var(--font-display); font-weight: 700; font-size: 2rem; }
+
+.hero-eyebrow { letter-spacing: 0.26em; text-transform: uppercase; font-size: 1.25rem; color: var(--accent); }
+.hero-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(4.8rem, 11vw, 11.5rem);
+  line-height: 0.94;
+  font-variation-settings: "SOFT" 40, "WONK" 1;
+}
+.hero-tagline { max-width: 50rem; font-size: 1.8rem; color: var(--muted); }
+.hero-meta { font-size: 1.2rem; letter-spacing: 0.16em; color: var(--faint); }
+
+.section-title { font-size: clamp(3rem, 5vw, 5rem); }
+.project-title { font-size: clamp(2.4rem, 3.6vw, 3.6rem); }
+.slide-kicker, .project-index, .service-index { color: var(--accent); }
+
+/* ══ Panels ═══════════════════════════════════════════════════════════════ */
+
+.btn { border-radius: 999px; font-weight: 700; }
+.btn-solid { background-color: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+.btn-ghost { border-color: rgba(34, 30, 24, 0.3); }
+
+.project,
+.service,
+.contact-form,
+.contact-direct,
+.about-media {
+  background-color: rgba(255, 255, 255, 0.72);
+  border-color: var(--line);
+  border-radius: 1rem;
+}
+
+.project-tags li { background-color: var(--surface-2); border-radius: 999px; color: var(--muted); }
+.direct-row { border-radius: 0.8rem; background-color: var(--surface-2); }
+.direct-row svg { color: var(--accent); }
+
+.field input, .field textarea {
+  background-color: #ffffff;
+  border-color: var(--line);
+  border-radius: 0.7rem;
+  color: var(--fg);
+}
+
+.field input:focus, .field textarea:focus { border-color: var(--accent); }
+
+/* ══ Chrome ═══════════════════════════════════════════════════════════════ */
+
+.site-header { background-color: rgba(243, 239, 228, 0.82); }
+.scene-place { color: var(--accent); }
+.deck-progress { opacity: 0.2; }
+
+/* The rail and arrows inherit currentColor, which on a pale scene has to be
+   ink rather than the light default the darker versions rely on. */
+.deck-rail button, .deck-arrow, .deck-counter, .deck-hint { color: var(--fg); }

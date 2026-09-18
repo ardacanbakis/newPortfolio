@@ -1,0 +1,183 @@
+/* ==========================================================================
+   v50 — Service lift.
+
+   Brushed steel, a floor indicator and two doors. The car is the page: the
+   reading plate is the panel you are standing in front of, and the doors are
+   two real elements that slide apart over the canvas when you arrive.
+
+   `--doors` runs 0 (shut) to 1 (open) and `--travel` is how fast the car is
+   going; app.js writes both every frame. The doors are a CSS transform on a
+   custom property, so all the sliding happens on the compositor — a lift with
+   a repainting door would be the one thing on this page that stuttered.
+   ========================================================================== */
+
+:root {
+  --doors: 1;
+  --travel: 0;
+  --floor: 1;
+  --light: #ffce8c;
+
+  --bg: #14161a;
+  --surface: #1d2126;
+  --surface-2: #272c33;
+  --fg: #eef1f4;
+  --muted: rgba(238, 241, 244, 0.72);
+  --faint: rgba(238, 241, 244, 0.46);
+  --line: rgba(238, 241, 244, 0.14);
+
+  --accent: #7fd4c1;
+  --accent-contrast: #05201a;
+
+  --font-body: "Manrope", system-ui, -apple-system, sans-serif;
+  --font-display: "Manrope", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --radius: 0.5rem;
+  --maxw: 100rem;
+
+  --scene-fg: #eef1f4;
+  --scene-muted: rgba(127, 212, 193, 0.92);
+
+  --plate: rgba(20, 22, 26, 0.86);
+  --plate-border: rgba(238, 241, 244, 0.14);
+  --plate-blur: blur(8px);
+  --plate-blur-sm: none;
+  --plate-radius: 0.6rem;
+  --plate-shadow: 0 2.4rem 7rem rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --hero-shadow: 0 0.2rem 2rem rgba(0, 0, 0, 0.7);
+}
+
+body { color: var(--fg); }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.035em; }
+
+/* ══ The doors ════════════════════════════════════════════════════════════
+   Two brushed panels that part. `translate` on a custom property only — no
+   width or left animation — so this stays on the compositor. */
+
+.door {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 50.5%;
+  background-image:
+    repeating-linear-gradient(90deg,
+      rgba(255, 255, 255, 0.035) 0 2px,
+      rgba(0, 0, 0, 0.05) 2px 5px),
+    linear-gradient(100deg, #3a4149 0%, #525c66 38%, #39404a 62%, #4a535d 100%);
+  box-shadow: inset 0 0 6rem rgba(0, 0, 0, 0.45);
+  transition: none;
+}
+
+.door-l {
+  left: 0;
+  transform: translate3d(calc(var(--doors) * -100%), 0, 0);
+  border-right: 1px solid rgba(0, 0, 0, 0.6);
+}
+
+.door-r {
+  right: 0;
+  transform: translate3d(calc(var(--doors) * 100%), 0, 0);
+  border-left: 1px solid rgba(0, 0, 0, 0.6);
+}
+
+/* The lift car itself: a frame around the doorway with a lit ceiling. */
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  border: clamp(1.6rem, 3vw, 3.4rem) solid #22262c;
+  border-top-width: clamp(2.4rem, 4vw, 5rem);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.07),
+    inset 0 3rem 8rem rgba(255, 255, 255, 0.04),
+    0 0 0 100vmax #1a1e23;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 18%);
+}
+
+/* ══ The indicator ════════════════════════════════════════════════════════
+   The floor number, counted out of --floor, with a direction arrow that only
+   appears while the car is moving. */
+
+.scene-place {
+  counter-reset: floor var(--floor, 1);
+  font-family: var(--font-mono);
+  letter-spacing: 0.22em;
+}
+
+.scene-place::after {
+  content: " · " counter(floor);
+  padding-inline: 0.7rem;
+  margin-left: 0.7rem;
+  border: 1px solid currentColor;
+  border-radius: 0.3rem;
+  opacity: calc(0.55 + 0.45 * var(--travel));
+}
+
+/* ══ Type ═════════════════════════════════════════════════════════════════ */
+
+.brand-mark { color: var(--accent); font-size: 1.8rem; }
+.brand-name { font-weight: 800; font-size: 1.85rem; letter-spacing: -0.02em; }
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+.hero-name { font-size: clamp(4.8rem, 11vw, 11rem); line-height: 0.9; letter-spacing: -0.05em; }
+.hero-tagline { max-width: 48rem; font-size: 1.75rem; }
+.hero-meta { font-family: var(--font-mono); font-size: 1.15rem; letter-spacing: 0.12em; }
+
+.section-title { font-size: clamp(3rem, 5vw, 4.8rem); }
+.project-title { font-size: clamp(2.4rem, 3.6vw, 3.4rem); }
+.slide-kicker, .project-index, .service-index { color: var(--accent); font-family: var(--font-mono); }
+
+/* ══ Panels ═══════════════════════════════════════════════════════════════ */
+
+.btn { border-radius: 0.4rem; font-weight: 800; }
+.btn-solid { background-color: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+
+.project,
+.service,
+.contact-form,
+.contact-direct,
+.about-media {
+  background-color: var(--surface);
+  border-color: var(--line);
+  border-radius: 0.5rem;
+}
+
+.project-tags li { background-color: var(--surface-2); border-radius: 0.3rem; font-family: var(--font-mono); font-size: 1.1rem; }
+.direct-row { border-radius: 0.4rem; background-color: var(--surface-2); }
+.direct-row svg { color: var(--accent); }
+
+.field input, .field textarea {
+  background-color: #12151a;
+  border-color: var(--line);
+  border-radius: 0.3rem;
+  color: var(--fg);
+}
+
+.field input:focus, .field textarea:focus { border-color: var(--accent); }
+
+/* ══ Chrome ═══════════════════════════════════════════════════════════════ */
+
+/* The rail is the car's button panel: one per floor, down the right-hand
+   side, which is where the buttons in a lift actually are. */
+.deck-rail button { font-family: var(--font-mono); }
+
+.site-header { background-color: rgba(26, 30, 35, 0.9); }
+.deck-counter, .deck-hint { font-family: var(--font-mono); }
+.scene-place { color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  /* The doors stay open: with no motion to watch, a shut door is just a wall
+     in front of the content. */
+  .door { display: none; }
+}

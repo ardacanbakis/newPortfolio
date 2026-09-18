@@ -1,6 +1,6 @@
 # Portfolio versions — roadmap
 
-Forty designs over the same content. Every version carries the same six projects, the same four
+Fifty designs over the same content. Every version carries the same six projects, the same four
 services, the same contact options and the same gridSmith-derived footer. Only the design
 changes, so they can be compared like for like.
 
@@ -51,6 +51,16 @@ Preview them all from `index.html` at the repo root, or live at
 | 38 | `v38/` | **Platform** — view transitions, shared-element morph | **Done** |
 | 39 | `v39/` | **Platform** — container queries, anchor positioning, popover | **Done** |
 | 40 | `v40/` | **Maximalist** — collage zine | **Done** |
+| 41 | `v41/` | **Scene** — day cycle over one horizon | **Done** |
+| 42 | `v42/` | **Scene** — descent through rock | **Done** |
+| 43 | `v43/` | **Scene** — weather seen from indoors | **Done** |
+| 44 | `v44/` | **Scene** — one tree through a year | **Done** |
+| 45 | `v45/` | **Scene** — a dive | **Done** |
+| 46 | `v46/` | **Scene** — a launch | **Done** |
+| 47 | `v47/` | **Scene** — a train window | **Done** |
+| 48 | `v48/` | **Scene** — a stage, with scene changes | **Done** |
+| 49 | `v49/` | **Scene** — a camera, with real depth of field | **Done** |
+| 50 | `v50/` | **Scene** — a lift, one floor per chapter | **Done** |
 
 Versions 11–15 add a motion layer: an animated background, a custom cursor, magnetic buttons,
 scroll-velocity effects and section transitions, each with a different engine so none reads as a
@@ -81,7 +91,30 @@ Each of the five feature-detects and degrades: 37 hands the work back to script 
 animation is missing, 38 swaps views instantly without `startViewTransition`, 39 centres its popover
 where anchor positioning is unsupported, and 36 and 40 lose only polish.
 
-All forty are built and deployed. Compare them from the root `index.html`, then say which
+Versions 41–50 are one-screen decks — no scrollbar, content advancing a panel at a time — whose
+background is not a backdrop but a **place you travel through**. Versions 19–23 shared one engine and
+differed only in how a panel *arrived*; these differ in where you *are*, and moving through the
+content moves you through the world: down a shaft, along a railway, from dawn to midnight, from the
+surface of the sea to the bottom of it.
+
+| Version | The place | What draws it |
+| --- | --- | --- |
+| 41 | One horizon, dawn to midnight | A CSS gradient sky driven by one number; canvas only for stars, cloud and the ridge |
+| 42 | A mineshaft, 0–620 m | Strata addressed by depth, with procedural inclusions and cracks in world coordinates |
+| 43 | A window, clear to fog | Two canvases: one weather, one pane of glass you can wipe |
+| 44 | One tree, one year | A recursive branch generator grown once; six projects hang on it as fruit |
+| 45 | A dive to 1,100 m | Exponential light falloff per colour channel, caustics, marine snow, bioluminescence |
+| 46 | A launch to deep space | Real 3D star projection with z-recycling; the planet is one circle |
+| 47 | A railway, city to coast | Regions are stretches of one world coordinate; scenery hashed per slot, not generated in sequence |
+| 48 | A stage, five sets | Flats fly in and out by distance; the blackout is the speed of the move |
+| 49 | A camera on a tripod | Four planes at real distances, blurred by an honest circle-of-confusion |
+| 50 | A building, one floor per chapter | DOM doors on the compositor, canvas shaft behind them |
+
+They share two new files: `shared/scene.js` (a critically damped spring that turns the deck's discrete
+index into a continuous world position, plus one canvas helper) and `shared/scene.css` (the stage
+layer and the reading plate). Everything else is per-version.
+
+All fifty are built and deployed. Compare them from the root `index.html`, then say which
 one should become the live site and I will promote it to the root and remove the rest.
 
 ## What every version must have
