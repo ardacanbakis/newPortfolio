@@ -1,0 +1,99 @@
+/* ==========================================================================
+   v11 — Particle constellation
+
+   Deep space blue. The canvas sits behind everything, so panels are kept
+   semi-transparent and blurred: fully opaque cards would hide the field the
+   version exists to show.
+   ========================================================================== */
+
+:root {
+  --bg: #04060f;
+  --surface: rgba(255, 255, 255, 0.045);
+  --surface-2: rgba(255, 255, 255, 0.08);
+  --fg: #e8eeff;
+  --muted: #9aa9c8;
+  --faint: #64728f;
+  --line: rgba(140, 175, 255, 0.2);
+
+  --accent: #7db0ff;
+  --accent-contrast: #04060f;
+
+  --font-body: "Sora", system-ui, -apple-system, sans-serif;
+  --font-display: "Sora", system-ui, sans-serif;
+
+  --radius: 1.4rem;
+  --maxw: 122rem;
+  --section-y: 10rem;
+
+  --fx-cursor: #7db0ff;
+}
+
+h1, h2, h3 { font-weight: 600; letter-spacing: -0.025em; }
+
+/* Content rides above the canvas. */
+.site-header,
+main,
+.footer { position: relative; z-index: 2; }
+
+.site-header {
+  background-color: rgba(4, 6, 15, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.site-header.scrolled { background-color: rgba(4, 6, 15, 0.86); }
+
+.hero-name {
+  text-shadow: 0 0 6rem rgba(125, 176, 255, 0.4);
+}
+
+.hero-eyebrow { letter-spacing: 0.28em; }
+
+/* ── Panels stay translucent so the field shows through ─────────────────── */
+
+.project,
+.service,
+.contact-form,
+.contact-direct {
+  background-color: var(--surface);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.project:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(125, 176, 255, 0.28), 0 1.6rem 3.6rem rgba(0, 0, 0, 0.55);
+}
+
+.project-media { background-color: rgba(0, 0, 0, 0.3); }
+.project-tags li { color: #a9c4ee; }
+
+.service:hover { box-shadow: 0 0 2.4rem rgba(125, 176, 255, 0.2); }
+.service-index { letter-spacing: 0.16em; }
+
+.field input,
+.field textarea { background-color: rgba(0, 0, 0, 0.35); }
+
+.btn-solid { box-shadow: 0 0 2.6rem rgba(125, 176, 255, 0.4); }
+
+.about-media img { box-shadow: 0 1.6rem 4rem rgba(0, 0, 0, 0.6); }
+
+/* ── Motion accents ─────────────────────────────────────────────────────
+   Scroll velocity is applied only to the project grid; applying it to the
+   whole page makes everything feel loose and unanchored. */
+
+.projects { transform: skewY(calc(var(--fx-vel, 0) * 0.9deg)); transition: transform 0.25s ease-out; }
+
+.nav { background-color: rgba(4, 6, 15, 0.96); backdrop-filter: blur(18px); }
+
+/* ── Touch alternative ────────────────────────────────────────────────────
+   No cursor to react to, so panels get a touch of their own presence and the
+   field is left to drift on its own. */
+@media (pointer: coarse) {
+  .project,
+  .service,
+  .contact-form,
+  .contact-direct { background-color: rgba(10, 16, 34, 0.72); }
+
+  .project:active { transform: scale(0.985); }
+}

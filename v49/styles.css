@@ -1,0 +1,174 @@
+/* ==========================================================================
+   v49 — Viewfinder.
+
+   The chrome is the camera: frame lines in the corners, a centre mark, and a
+   strip along the bottom reading out what the lens is currently set to. All
+   of it is drawn in CSS over the scene, because a viewfinder overlay is
+   exactly the kind of thing that should not cost a canvas repaint.
+
+   app.js publishes `--fstop`, `--iso` and `--ev`; the readout is counters, so
+   the numbers are live without a single DOM write per frame.
+   ========================================================================== */
+
+:root {
+  --ev: 0;
+  --fstop: 8;
+  --iso: 100;
+
+  --bg: #0d0f10;
+  --surface: rgba(240, 244, 246, 0.06);
+  --surface-2: rgba(240, 244, 246, 0.1);
+  --fg: #f0f3f5;
+  --muted: rgba(240, 243, 245, 0.72);
+  --faint: rgba(240, 243, 245, 0.46);
+  --line: rgba(240, 244, 246, 0.16);
+
+  --accent: #ff5a3c;
+  --accent-contrast: #140503;
+
+  --font-body: "Archivo", system-ui, -apple-system, sans-serif;
+  --font-display: "Archivo", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  --radius: 0.2rem;
+  --maxw: 100rem;
+
+  --scene-fg: #f0f3f5;
+  --scene-muted: rgba(255, 90, 60, 0.92);
+
+  --plate: rgba(8, 10, 11, 0.7);
+  --plate-border: rgba(240, 244, 246, 0.16);
+  --plate-blur: blur(12px) saturate(115%);
+  --plate-blur-sm: blur(7px);
+  --plate-radius: 0.2rem;
+  --plate-shadow: 0 2.4rem 7rem rgba(0, 0, 0, 0.55);
+  --hero-shadow: 0 0.2rem 2rem rgba(0, 0, 0, 0.7);
+}
+
+body { color: var(--fg); }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.035em; }
+
+/* ══ Viewfinder overlay ══════════════════════════════════════════════════
+   Corner frame lines and a centre mark. Four gradients rather than eight
+   elements — a corner is two thin bars, and a bar is a gradient with two hard
+   stops. */
+
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: clamp(1.4rem, 2.6vw, 3rem);
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(currentColor, currentColor) 0 0 / 3.4rem 2px no-repeat,
+    linear-gradient(currentColor, currentColor) 0 0 / 2px 3.4rem no-repeat,
+    linear-gradient(currentColor, currentColor) 100% 0 / 3.4rem 2px no-repeat,
+    linear-gradient(currentColor, currentColor) 100% 0 / 2px 3.4rem no-repeat,
+    linear-gradient(currentColor, currentColor) 0 100% / 3.4rem 2px no-repeat,
+    linear-gradient(currentColor, currentColor) 0 100% / 2px 3.4rem no-repeat,
+    linear-gradient(currentColor, currentColor) 100% 100% / 3.4rem 2px no-repeat,
+    linear-gradient(currentColor, currentColor) 100% 100% / 2px 3.4rem no-repeat,
+    /* centre mark */
+    linear-gradient(currentColor, currentColor) 50% 50% / 1.6rem 1px no-repeat,
+    linear-gradient(currentColor, currentColor) 50% 50% / 1px 1.6rem no-repeat;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Under-exposure closes the frame down, which is what a viewfinder actually
+   looks like as the light goes. */
+.stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(120vmax 90vmax at 50% 50%, transparent 32%, rgba(0, 0, 0, 0.55) 100%);
+  opacity: calc(0.35 - 0.45 * var(--ev));
+}
+
+/* ══ The readout ══════════════════════════════════════════════════════════
+   Bottom right, clear of the arrows on the left and the hint in the middle.
+   Counters, so the figures track the lens without any per-frame DOM work. */
+
+.scene-place {
+  counter-reset: iso var(--iso, 100);
+  font-family: var(--font-mono);
+}
+
+.scene-place::after {
+  content: " · ISO " counter(iso);
+  opacity: 0.62;
+}
+
+/* ══ Type ═════════════════════════════════════════════════════════════════ */
+
+.brand-mark { color: var(--accent); font-size: 1.7rem; }
+.brand-name { font-weight: 800; font-size: 1.8rem; letter-spacing: -0.02em; }
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+.hero-name { font-size: clamp(4.8rem, 11vw, 11.5rem); line-height: 0.88; letter-spacing: -0.055em; text-transform: uppercase; }
+.hero-tagline { max-width: 48rem; font-size: 1.7rem; }
+.hero-meta { font-family: var(--font-mono); font-size: 1.15rem; letter-spacing: 0.12em; }
+
+.section-title { font-size: clamp(3rem, 5vw, 4.8rem); text-transform: uppercase; }
+.project-title { font-size: clamp(2.4rem, 3.6vw, 3.4rem); }
+.slide-kicker, .project-index, .service-index { color: var(--accent); font-family: var(--font-mono); }
+
+/* ══ Panels ═══════════════════════════════════════════════════════════════ */
+
+.btn {
+  border-radius: 0.2rem;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1.3rem;
+}
+
+.btn-solid { background-color: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+
+.project,
+.service,
+.contact-form,
+.contact-direct,
+.about-media {
+  background-color: rgba(240, 244, 246, 0.04);
+  border-color: var(--line);
+  border-radius: 0.2rem;
+}
+
+.project-tags li {
+  background-color: rgba(240, 244, 246, 0.07);
+  border: 1px solid var(--line);
+  border-radius: 0.1rem;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+}
+
+.direct-row { border-radius: 0.2rem; background-color: rgba(240, 244, 246, 0.05); }
+.direct-row svg { color: var(--accent); }
+
+.field input, .field textarea {
+  background-color: rgba(4, 6, 7, 0.6);
+  border-color: var(--line);
+  border-radius: 0.1rem;
+  color: var(--fg);
+  font-family: var(--font-mono);
+}
+
+.field input:focus, .field textarea:focus { border-color: var(--accent); }
+.field label { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; font-size: 1.15rem; }
+
+/* ══ Chrome ═══════════════════════════════════════════════════════════════ */
+
+.site-header { background-color: rgba(8, 10, 11, 0.8); }
+.nav a { font-family: var(--font-mono); font-size: 1.3rem; }
+.deck-counter, .deck-hint { font-family: var(--font-mono); }
+.scene-place { color: var(--accent); }

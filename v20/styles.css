@@ -1,0 +1,155 @@
+/* ==========================================================================
+   v20 — Card stack.
+
+   The deck is a literal stack. The current panel is a card floating clear of
+   the page; the next three sit behind it, each a little smaller and a little
+   lower, so you can see how much is left without counting dots. Advancing
+   throws the top card up and away.
+
+   The signature is the drag. deck.js publishes --drag — the live gesture as a
+   fraction of the viewport width — and the top card follows your finger and
+   tilts before it commits, so the throw is something you do rather than
+   something that happens to you.
+   ========================================================================== */
+
+:root {
+  --bg: #101014;
+  --surface: #1a1a21;
+  --surface-2: #23232c;
+  --fg: #f2f1ee;
+  --muted: #a8a6a0;
+  --faint: #75736d;
+  --line: rgba(242, 241, 238, 0.12);
+
+  --accent: #e5b769;
+  --accent-contrast: #17140c;
+
+  --font-body: "Manrope", system-ui, -apple-system, sans-serif;
+  --font-display: "Manrope", system-ui, -apple-system, sans-serif;
+
+  --radius: 2rem;
+  --maxw: 100rem;
+
+  /* How far in from the window edge a card sits. */
+  --gutter-x: max(4vw, 1.6rem);
+  --gutter-y: clamp(7rem, 11vh, 11rem);
+}
+
+body {
+  background:
+    radial-gradient(70rem 50rem at 78% -14%, rgba(229, 183, 105, 0.09), transparent 62%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+.site-header { background-color: color-mix(in srgb, var(--bg) 86%, transparent); }
+.brand { font-weight: 800; letter-spacing: -0.02em; }
+h1, h2, h3 { font-weight: 800; letter-spacing: -0.03em; }
+.hero-eyebrow { letter-spacing: 0.22em; }
+.btn { border-radius: 3rem; font-weight: 700; }
+
+/* ══ The stack ════════════════════════════════════════════════════════════ */
+
+.deck-ready .deck {
+  perspective: 1500px;
+  perspective-origin: 50% 30%;
+}
+
+.deck-ready .slide {
+  /* Inset rather than full-bleed: a card you can see the edges of. */
+  inset: var(--gutter-y) var(--gutter-x) calc(var(--gutter-y) - 1rem);
+  padding: clamp(2.4rem, 4vw, 4.6rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 3rem 7rem rgba(0, 0, 0, 0.55);
+  transform-origin: 50% 120%;
+  transition:
+    transform 0.62s cubic-bezier(0.34, 1.2, 0.44, 1),
+    opacity 0.42s linear;
+}
+
+/* Thrown: up, back and out of the way. */
+.deck-ready .slide[data-state="past"] {
+  transform: translate3d(0, -18%, 12rem) rotateX(22deg) scale(1.04);
+  opacity: 0;
+}
+
+/* Waiting: stepped back, and only the first three are worth drawing. */
+.deck-ready .slide[data-state="future"] {
+  transform:
+    translate3d(0, calc(var(--offset) * 1.5rem), calc(var(--offset) * -7rem))
+    scale(calc(1 - var(--offset) * 0.012));
+  opacity: 0;
+}
+
+.deck-ready .slide[data-state="future"][data-near="1"] { opacity: 0.55; }
+.deck-ready .slide[data-state="future"][data-near="2"] { opacity: 0.24; }
+
+.deck-ready .slide[data-state="current"] {
+  transform: translate3d(calc(var(--drag, 0) * 42vw), 0, 0)
+    rotate(calc(var(--drag, 0) * 5deg));
+  opacity: 1;
+  z-index: 3;
+}
+
+/* While a finger is down the card is the gesture, not an animation of it. */
+.deck-ready [data-dragging] .slide[data-state="current"] { transition: none; }
+
+.deck-instant .slide { transition: none; }
+
+/* The two cards behind are decoration; they must not eat the swipe. */
+.deck-ready .slide[data-state="future"] { pointer-events: none; }
+
+/* ── Chrome ─────────────────────────────────────────────────────────────── */
+
+.deck-rail { right: max(1.4vw, 0.8rem); }
+.deck-dot-mark { border-color: var(--faint); }
+.deck-dot.active .deck-dot-mark { background-color: var(--accent); border-color: var(--accent); }
+.deck-dot.active .deck-dot-label { color: var(--accent); }
+
+.deck-arrow { border-color: var(--line); }
+.deck-arrow:hover { background-color: var(--surface-2); }
+.deck-progress { color: var(--accent); }
+
+/* ── Content ────────────────────────────────────────────────────────────── */
+
+.slide-kicker b { color: var(--accent); }
+
+.deck-ready .slide-work .project-media {
+  border-radius: 1.2rem;
+  box-shadow: 0 1.6rem 4rem rgba(0, 0, 0, 0.45);
+}
+
+.deck-ready .about-media img { border-radius: 1.2rem; border-color: var(--line); }
+
+.deck-ready .slide-services .service,
+.deck-ready .slide-contact .contact-form,
+.deck-ready .slide-contact .contact-direct {
+  background-color: var(--surface-2);
+  border-color: var(--line);
+  border-radius: 1.2rem;
+}
+
+.field input,
+.field textarea { background-color: var(--bg); border-radius: 0.9rem; }
+
+.direct-row { border-radius: 0.9rem; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  :root { --gutter-y: clamp(6.4rem, 10vh, 9rem); --radius: 1.6rem; }
+  /* The rail sits along the bottom on small screens; the cards need to clear
+     it rather than sit under it. */
+  .deck-ready .slide { inset: var(--gutter-y) var(--gutter-x) calc(var(--gutter-y) + 1rem); }
+}
+
+@media (max-width: 599px) {
+  :root { --gutter-y: clamp(5.6rem, 9vh, 7.4rem); --gutter-x: 1.2rem; --radius: 1.4rem; }
+  .deck-ready .slide { padding: 1.8rem 1.6rem; }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  :root { --gutter-y: 5.4rem; }
+}

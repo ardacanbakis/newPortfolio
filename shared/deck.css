@@ -1,0 +1,414 @@
+/* ==========================================================================
+   Deck — shared structure and chrome for versions 19 to 23.
+
+   This file owns the frame: killing the scroll, stacking the panels, and the
+   rail, arrows and counter that every version shares. It owns no transition.
+   How a panel arrives is each version's own stylesheet, written against the
+   two things deck.js publishes:
+
+     [data-state]  current | past | future, on every slide
+     --offset      that slide's distance from the current one, signed
+
+   Everything that removes the scrollbar is scoped under `.deck-ready`, which
+   deck.js adds to <html>. Without JavaScript the same markup is an ordinary
+   scrolling page and none of this applies.
+   ========================================================================== */
+
+.deck-ready,
+.deck-ready body {
+  height: 100%;
+  overflow: hidden;
+  /* iOS still rubber-bands a fixed layout without this. */
+  overscroll-behavior: none;
+}
+
+.deck {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+.deck-ready .deck {
+  position: fixed;
+  inset: 0;
+  height: 100%;
+  /* The panels are absolutely positioned on top of one another; a swipe must
+     not be intercepted by the browser's own gesture handling. */
+  touch-action: pan-y;
+}
+
+/* ── A panel ────────────────────────────────────────────────────────────── */
+
+.slide {
+  position: relative;
+  width: 100%;
+  padding: 12rem max(4vw, 2rem) 10rem;
+}
+
+.deck-ready .slide {
+  position: absolute;
+  inset: 0;
+  /* The static rule above sets width: 100% for the no-JavaScript layout. On
+     an absolutely positioned box an explicit width beats `right`, so a
+     version that insets its panels — v20's card stack — would get a
+     full-width box starting at the left inset and hanging off the screen. */
+  width: auto;
+  height: auto;
+  display: grid;
+  align-content: center;
+  padding: 11rem max(4vw, 2rem) 9rem;
+  /* A panel taller than the viewport keeps its own scrollbar rather than
+     being cut off. deck.js will not change slide until that inner region has
+     reached its end, so the content is always reachable — on a short laptop
+     screen, on a phone in landscape, and at 200% browser zoom. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  will-change: transform, opacity;
+}
+
+/* Panels that are not current take no clicks and no space in the reading
+   order. deck.js also marks them inert; this is the visual half. */
+.deck-ready .slide[data-state="past"],
+.deck-ready .slide[data-state="future"] {
+  pointer-events: none;
+}
+
+.slide-inner {
+  width: 100%;
+  max-width: var(--maxw, 112rem);
+  margin-inline: auto;
+}
+
+/* ── Rail ───────────────────────────────────────────────────────────────
+   Built by deck.js from the chapters, so six project panels are one dot.
+   Labels are real text, revealed on hover and focus — a column of unlabelled
+   circles is a puzzle, not navigation. */
+
+.deck-rail {
+  position: fixed;
+  right: max(2vw, 1.6rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 46;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.deck-dot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  /* px, not rem: the root font-size shrinks on small screens and a rem-sized
+     control would get smaller exactly where fingers need it biggest. */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0.4rem;
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.deck-dot-mark {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.5;
+  transition: opacity 0.25s linear, transform 0.25s ease, background-color 0.25s linear;
+}
+
+.deck-dot.active .deck-dot-mark {
+  opacity: 1;
+  background-color: currentColor;
+  transform: scale(1.25);
+}
+
+.deck-dot-label {
+  font-size: 1.15rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.25s linear, transform 0.25s ease;
+}
+
+.deck-dot:hover .deck-dot-label,
+.deck-dot:focus-visible .deck-dot-label,
+.deck-dot.active .deck-dot-label { opacity: 1; transform: none; }
+
+/* ── Arrows and counter ─────────────────────────────────────────────────── */
+
+.deck-controls {
+  position: fixed;
+  left: max(3vw, 1.8rem);
+  bottom: max(3vh, 1.8rem);
+  z-index: 46;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.deck-arrow {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  background: none;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s linear, transform 0.2s ease, background-color 0.2s linear;
+}
+
+.deck-arrow:hover { opacity: 1; transform: scale(1.06); }
+.deck-arrow svg { width: 1.8rem; height: 1.8rem; }
+
+.deck-counter {
+  font-size: 1.3rem;
+  letter-spacing: 0.16em;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
+.deck-counter b { font-weight: inherit; }
+
+/* A hairline of travel across the top of the window. */
+.deck-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 47;
+  height: 2px;
+  background-color: currentColor;
+  opacity: 0.14;
+}
+
+.deck-progress::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 100%;
+  background-color: currentColor;
+  opacity: 1;
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Hint ───────────────────────────────────────────────────────────────
+   Shown until the visitor moves for the first time. A deck with no scrollbar
+   gives no clue that there is more, which is the one real cost of the form. */
+
+.deck-hint {
+  position: fixed;
+  left: 50%;
+  bottom: max(3vh, 1.8rem);
+  z-index: 45;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.72;
+  pointer-events: none;
+  transition: opacity 0.4s linear;
+}
+
+.deck-moved .deck-hint { opacity: 0; }
+
+.deck-hint i {
+  display: block;
+  width: 2.6rem;
+  height: 1px;
+  background-color: currentColor;
+  transform-origin: left center;
+  animation: deck-hint 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@keyframes deck-hint {
+  0%, 100% { transform: scaleX(0.35); opacity: 0.4; }
+  50% { transform: scaleX(1); opacity: 1; }
+}
+
+/* ── One project per panel ─────────────────────────────────────────────
+   Structure, not theme, so all five versions share it. A card layout that
+   works in a scrolling grid does not survive being given a whole viewport:
+   the image has to be capped against the viewport height rather than the
+   column width, or a landscape screenshot alone is taller than the panel. */
+
+.deck-ready .slide-work .project {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(2rem, 4vw, 5rem);
+  background: none;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  transform: none;
+}
+
+.deck-ready .slide-work .project:hover { transform: none; }
+
+.deck-ready .slide-work .project-media {
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: none;
+}
+
+.deck-ready .slide-work .project-media img {
+  width: 100%;
+  height: auto;
+  max-height: min(52vh, 44rem);
+  object-fit: cover;
+}
+
+.deck-ready .slide-work .project-body { padding: 0; }
+.deck-ready .slide-work .project-index { display: none; }
+
+.deck-ready .slide-work .project-title {
+  font-size: clamp(2.6rem, 4.2vw, 4.6rem);
+  padding-right: 0;
+  margin-bottom: 1.6rem;
+}
+
+.deck-ready .slide-work .project-desc { font-size: clamp(1.5rem, 1.5vw, 1.8rem); }
+
+/* The counter that replaces the missing scrollbar inside the work chapter. */
+.slide-kicker {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.6rem;
+  margin-bottom: clamp(1.6rem, 3vh, 3.4rem);
+  font-size: 1.3rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.slide-kicker b { font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+.slide-kicker i { font-style: normal; color: var(--faint); }
+
+/* ── About and services in one panel each ───────────────────────────────── */
+
+.about-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr);
+  gap: clamp(2rem, 4vw, 5rem);
+  align-items: center;
+}
+
+.deck-ready .about-media img { max-height: min(56vh, 48rem); object-fit: cover; }
+.deck-ready .about-body p { margin-bottom: 1.4rem; }
+
+.deck-ready .slide-services .services {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.4rem, 2vw, 2.4rem);
+}
+
+.deck-ready .slide-services .service { padding: clamp(1.8rem, 2.4vw, 3rem) clamp(1.6rem, 2vw, 2.6rem); }
+.deck-ready .slide-services .section-head { margin-bottom: clamp(1.6rem, 3vh, 3.4rem); }
+
+.deck-ready .slide-contact .section-head { margin-bottom: clamp(1.6rem, 3vh, 3rem); }
+.deck-ready .slide-contact .contact-form,
+.deck-ready .slide-contact .contact-direct { padding: clamp(1.8rem, 2.4vw, 3rem) clamp(1.6rem, 2vw, 2.6rem); }
+.deck-ready .slide-contact .field { margin-bottom: 1.2rem; }
+.deck-ready .slide-contact .qr { display: none; }
+
+/* ── Footer ─────────────────────────────────────────────────────────────
+   There is no bottom of the page to put a footer at, so it becomes a strip
+   the last panel carries. Laid out as one row rather than the usual stack:
+   the contact panel has a form in it and a full-height footer underneath
+   pushes the whole thing past the viewport. */
+
+.deck-ready .footer {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem 2rem;
+  padding: 1.8rem 0 0;
+  margin-top: 2.4rem;
+  border-top: 1px solid var(--line);
+}
+
+.deck-ready .footer-socials { justify-content: flex-start; gap: 0.2rem; }
+.deck-ready .footer-socials a { width: 3.4rem; height: 3.4rem; min-width: 34px; min-height: 34px; }
+.deck-ready .footer-socials a svg { width: 1.7rem; height: 1.7rem; }
+.deck-ready .footer-text { text-align: left; }
+
+@media (max-width: 599px) {
+  .deck-ready .footer { justify-content: center; }
+  .deck-ready .footer-socials { justify-content: center; }
+  .deck-ready .footer-text { text-align: center; }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 899px) {
+  /* One column: an image and a paragraph side by side at 700px leaves about
+     thirty characters per line. */
+  .deck-ready .slide-work .project,
+  .about-grid { grid-template-columns: 1fr; }
+
+  .deck-ready .slide-work .project-media img { max-height: 26vh; }
+  .deck-ready .about-media { max-width: 28rem; }
+  .deck-ready .about-media img { max-height: 24vh; }
+  .deck-ready .slide-services .services { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 1023px) {
+  .deck-ready .slide { padding: 10rem max(4vw, 1.6rem) 9rem; }
+
+  /* The rail becomes a row along the bottom: a vertical rail on a phone sits
+     exactly where a thumb rests on the screen edge. */
+  .deck-rail {
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: max(1.4vh, 0.8rem);
+    transform: translateX(-50%);
+    flex-direction: row;
+    gap: 0;
+  }
+
+  .deck-dot { justify-content: center; }
+  .deck-dot-label { display: none; }
+
+  .deck-controls { bottom: max(1.4vh, 0.8rem); left: max(3vw, 1.2rem); gap: 0.8rem; }
+  .deck-arrow { width: 44px; height: 44px; }
+  .deck-counter { display: none; }
+  .deck-hint { display: none; }
+}
+
+@media (max-width: 599px) {
+  .deck-ready .slide { padding: 9rem 1.6rem 8.5rem; }
+  .deck-controls .deck-arrow:first-child { display: none; }
+}
+
+/* Landscape on a phone is about 380px tall: a full-height panel with the
+   standard padding leaves almost nothing for the content. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .deck-ready .slide { padding: 7.5rem max(4vw, 1.6rem) 6rem; align-content: start; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────
+   The deck still works; it simply cuts between panels instead of animating.
+   deck.js adds .deck-instant, and each version's transition rules are
+   written to collapse when it is present. */
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-hint i { animation: none; }
+  .deck-progress::after { transition: none; }
+}

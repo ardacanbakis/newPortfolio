@@ -1,0 +1,117 @@
+/* ==========================================================================
+   Shared motion styles for versions 11 onward — the CSS half of fx.js.
+
+   Kept separate from base.css because v13 (the art piece) uses the motion
+   layer without the standard page structure.
+   ========================================================================== */
+
+/* ── Custom cursor ─────────────────────────────────────────────────────
+   Only applied once fx.js has confirmed a real pointer and added the class,
+   so touch devices never lose their native behaviour. */
+
+.fx-has-cursor,
+.fx-has-cursor a,
+.fx-has-cursor button,
+.fx-has-cursor [data-magnetic] {
+  cursor: none;
+}
+
+/* Text inputs keep a real caret — replacing it helps nobody. */
+.fx-has-cursor input,
+.fx-has-cursor textarea,
+.fx-has-cursor select {
+  cursor: auto;
+}
+
+.fx-cursor-dot,
+.fx-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.fx-cursor-dot {
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  background-color: var(--fx-cursor, currentColor);
+}
+
+.fx-cursor-ring {
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border: 1px solid var(--fx-cursor, currentColor);
+  opacity: 0.55;
+  transition: width 0.25s ease, height 0.25s ease, margin 0.25s ease, opacity 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.fx-cursor-hot .fx-cursor-ring {
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  opacity: 0.9;
+  background-color: color-mix(in srgb, var(--fx-cursor, currentColor) 14%, transparent);
+}
+
+/* ── Magnetic elements ─────────────────────────────────────────────────── */
+
+[data-magnetic] {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* ── Section transitions ───────────────────────────────────────────────── */
+
+.fx-section {
+  opacity: 0;
+  transform: translateY(34px);
+  transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fx-section.fx-in { opacity: 1; transform: none; }
+
+/* Children stagger in behind their parent when a version opts in. */
+.fx-stagger > * {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--fx-delay, 0ms),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--fx-delay, 0ms);
+}
+
+.fx-in .fx-stagger > *,
+.fx-stagger.fx-in > * { opacity: 1; transform: none; }
+
+/* ── Scroll velocity ───────────────────────────────────────────────────
+   fx.js publishes --fx-vel on <html>; opt an element in with .fx-skew or
+   .fx-stretch rather than applying it globally, which would make the whole
+   page feel unstable. */
+
+.fx-skew {
+  transform: skewY(calc(var(--fx-vel, 0) * 1.6deg));
+  transition: transform 0.2s ease-out;
+}
+
+.fx-stretch {
+  transform: scaleY(calc(1 + var(--fx-vel, 0) * 0.045));
+  transform-origin: center;
+}
+
+/* ── Canvas backing ────────────────────────────────────────────────────── */
+
+.fx-canvas { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-section,
+  .fx-stagger > * { opacity: 1; transform: none; transition: none; }
+  .fx-skew,
+  .fx-stretch { transform: none; }
+  .fx-cursor-dot,
+  .fx-cursor-ring { display: none; }
+}

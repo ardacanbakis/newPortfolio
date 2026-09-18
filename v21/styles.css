@@ -1,0 +1,149 @@
+/* ==========================================================================
+   v21 — Prism.
+
+   Every panel is a face. Advancing swings the current one away about its
+   vertical axis and brings the next one round, so the deck reads as a solid
+   object being turned rather than a set of pages being replaced.
+
+   The direction matters: forward turns one way, back turns the other. deck.js
+   writes data-dir on the deck for exactly this — without it, going back
+   would look like going forward again and the object would have no
+   handedness.
+   ========================================================================== */
+
+:root {
+  --bg: #0a0e1a;
+  --surface: #111828;
+  --surface-2: #182135;
+  --fg: #e6ecf7;
+  --muted: #9aa8c2;
+  --faint: #6a7896;
+  --line: rgba(110, 231, 240, 0.16);
+
+  --accent: #6ee7f0;
+  --accent-contrast: #041418;
+
+  --font-body: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --font-display: "Space Grotesk", system-ui, -apple-system, sans-serif;
+
+  --radius: 0.8rem;
+  --maxw: 108rem;
+}
+
+body {
+  background:
+    radial-gradient(90rem 60rem at 50% -18%, rgba(110, 231, 240, 0.1), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* fx.js prepends its canvas at z-index 0; the document needs an order of its
+   own or the grid would be drawn over the text. */
+main,
+.site-header,
+.footer { position: relative; z-index: 1; }
+.site-header { z-index: 40; }
+
+.site-header { background-color: color-mix(in srgb, var(--bg) 84%, transparent); }
+.brand { letter-spacing: -0.01em; }
+.nav a { letter-spacing: 0.04em; }
+h1, h2, h3 { letter-spacing: -0.025em; }
+.hero-eyebrow { letter-spacing: 0.26em; }
+.btn { border-radius: 0.6rem; }
+
+.fx-cursor-dot,
+.fx-cursor-ring { --fx-cursor: var(--accent); }
+
+/* ══ The prism ════════════════════════════════════════════════════════════ */
+
+.deck-ready .deck {
+  perspective: 1700px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+}
+
+.deck-ready .slide {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transform-origin: 50% 50%;
+  background: linear-gradient(170deg, var(--surface), var(--bg));
+  transition:
+    transform 0.78s cubic-bezier(0.62, 0, 0.28, 1),
+    opacity 0.5s linear;
+}
+
+/* A face that has turned away, and one that has not yet come round. Which is
+   which depends on the direction of travel, so both sides are declared and
+   data-dir picks. */
+.deck-ready .slide[data-state="past"] {
+  transform: rotateY(-96deg) translateZ(-6rem) scale(0.94);
+  opacity: 0;
+}
+
+.deck-ready .slide[data-state="future"] {
+  transform: rotateY(96deg) translateZ(-6rem) scale(0.94);
+  opacity: 0;
+}
+
+.deck-ready .slide[data-state="current"] {
+  transform: rotateY(0deg) translateZ(0) scale(1);
+  opacity: 1;
+  z-index: 2;
+}
+
+/* Turning back: the faces swap sides so the object rotates the other way
+   rather than appearing to jump. */
+.deck-ready [data-dir="back"] .slide[data-state="past"] { transform: rotateY(96deg) translateZ(-6rem) scale(0.94); }
+.deck-ready [data-dir="back"] .slide[data-state="future"] { transform: rotateY(-96deg) translateZ(-6rem) scale(0.94); }
+
+.deck-instant .slide { transition: none; }
+
+/* An edge of light down the leading side, so the face reads as a surface
+   catching the light rather than a rectangle that fades. */
+.deck-ready .slide[data-state="current"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--accent), transparent);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────────── */
+
+.deck-dot.active .deck-dot-mark { background-color: var(--accent); border-color: var(--accent); }
+.deck-dot.active .deck-dot-label { color: var(--accent); }
+.deck-arrow { border-color: var(--line); }
+.deck-arrow:hover { background-color: var(--surface-2); }
+.deck-progress { color: var(--accent); }
+
+/* ── Content ────────────────────────────────────────────────────────────── */
+
+.slide-kicker b { color: var(--accent); }
+
+.deck-ready .slide-work .project-media {
+  border: 1px solid var(--line);
+  box-shadow: 0 2rem 6rem rgba(0, 0, 0, 0.5);
+}
+
+.deck-ready .about-media img { border-color: var(--line); }
+
+.deck-ready .slide-services .service,
+.deck-ready .slide-contact .contact-form,
+.deck-ready .slide-contact .contact-direct {
+  background-color: color-mix(in srgb, var(--surface-2) 70%, transparent);
+  border-color: var(--line);
+}
+
+.field input,
+.field textarea { background-color: rgba(4, 8, 18, 0.6); }
+
+@media (max-width: 767px) {
+  /* A ninety-degree swing is a lot of movement on a small screen, and the
+     face is edge-on for most of it. */
+  .deck-ready .slide[data-state="past"],
+  .deck-ready [data-dir="back"] .slide[data-state="future"] { transform: rotateY(-62deg) translateZ(-4rem) scale(0.96); }
+  .deck-ready .slide[data-state="future"],
+  .deck-ready [data-dir="back"] .slide[data-state="past"] { transform: rotateY(62deg) translateZ(-4rem) scale(0.96); }
+}

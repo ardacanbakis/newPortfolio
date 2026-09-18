@@ -1,0 +1,224 @@
+/* ==========================================================================
+   v35 — Kinetic type.
+
+   One variable font doing what a variable font is for. Roboto Flex carries a
+   weight axis from 100 to 1000 and a width axis from 25 to 151, and app.js
+   drives both per letter from how close the cursor is — so a headline is a
+   surface you can push into rather than a picture of one.
+
+   v13 choreographs typography with scroll. This is different in kind: the
+   letterforms themselves change shape, continuously, under the pointer.
+   Nothing moves position, so nothing reflows.
+
+   Everything else on the page is deliberately quiet. A page where the type
+   is the event cannot also have a busy background.
+   ========================================================================== */
+
+:root {
+  --bg: #faf9f7;
+  --surface: #ffffff;
+  --surface-2: #f1efec;
+  --fg: #101010;
+  --muted: #4d4a46;
+  --faint: #8a857e;
+  --line: rgba(16, 16, 16, 0.14);
+
+  --accent: #ff4d17;
+  --accent-contrast: #ffffff;
+
+  --font-body: "Roboto Flex", system-ui, -apple-system, sans-serif;
+  --font-display: "Roboto Flex", system-ui, -apple-system, sans-serif;
+  --font-mono: "Roboto Mono", ui-monospace, monospace;
+
+  --radius: 0.4rem;
+  --maxw: 116rem;
+  --section-y: 12rem;
+}
+
+body {
+  font-variation-settings: "wght" 380, "wdth" 100, "opsz" 14;
+  letter-spacing: -0.005em;
+}
+
+/* ══ The kinetic headline ═════════════════════════════════════════════════
+   app.js splits the text into per-letter spans and writes --w (weight) and
+   --x (width) on each. The fallbacks matter: with no script the headline is
+   a perfectly ordinary, well-set piece of type. */
+
+.kinetic { display: block; }
+
+.kinetic .ch {
+  display: inline-block;
+  font-variation-settings: "wght" var(--w, 700), "wdth" var(--x, 100), "opsz" 100;
+  /* No transition. The values arrive every frame from the pointer, and a
+     transition on top of that lags behind the cursor by exactly its own
+     duration — which reads as the page being slow, not smooth. */
+  will-change: font-variation-settings;
+}
+
+/* A space has no glyph to weight, but it still has to hold its width. */
+.kinetic .sp { display: inline-block; white-space: pre; }
+
+.hero { padding-top: 16rem; }
+.hero-inner { max-width: 92rem; }
+
+.hero-name {
+  font-size: clamp(4.6rem, 12vw, 13rem);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  font-variation-settings: "wght" 700, "wdth" 100, "opsz" 100;
+  margin-bottom: 3rem;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  font-weight: 300;
+  letter-spacing: 0.28em;
+  color: var(--accent);
+}
+
+.hero-tagline {
+  font-size: clamp(1.8rem, 2.2vw, 2.4rem);
+  font-variation-settings: "wght" 340, "wdth" 100, "opsz" 32;
+  max-width: 58rem;
+}
+
+.hero-meta { font-family: var(--font-mono); font-size: 1.2rem; letter-spacing: 0.16em; }
+
+/* A quiet instruction, because the effect is invisible until you move. */
+.kinetic-hint {
+  margin-top: 3.4rem;
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+  opacity: var(--hint, 1);
+  transition: opacity 0.5s linear;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.section-title {
+  font-size: clamp(3.2rem, 6vw, 6.4rem);
+  letter-spacing: -0.03em;
+  font-variation-settings: "wght" 640, "wdth" 100, "opsz" 100;
+}
+
+.section-lede { font-variation-settings: "wght" 340, "wdth" 100; }
+
+.site-header { background-color: color-mix(in srgb, var(--bg) 90%, transparent); }
+.brand { font-variation-settings: "wght" 620, "wdth" 96; letter-spacing: -0.01em; }
+.nav a { font-family: var(--font-mono); font-size: 1.3rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.nav a.active { color: var(--accent); }
+.nav a.active::after { background-color: var(--accent); }
+#language-switcher { font-family: var(--font-mono); }
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.btn {
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 3rem;
+}
+
+.btn-solid { background-color: var(--fg); border-color: var(--fg); color: var(--bg); }
+.btn-ghost:hover { border-color: var(--fg); color: var(--fg); }
+
+/* ── Work ───────────────────────────────────────────────────────────────── */
+
+.project {
+  background-color: transparent;
+  border: none;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  overflow: visible;
+  padding-top: 2.4rem;
+}
+
+.project:hover { transform: none; border-color: transparent; border-top-color: var(--fg); }
+
+.project-media { border-radius: var(--radius); overflow: hidden; background-color: var(--surface-2); }
+.project-body { padding: 2rem 0 0; }
+
+.project-title {
+  font-size: 2.8rem;
+  letter-spacing: -0.025em;
+  font-variation-settings: "wght" 620, "wdth" 100, "opsz" 40;
+  transition: font-variation-settings 0.3s ease;
+}
+
+/* The card headings answer the pointer too, but as a whole rather than per
+   letter — six headlines each splitting into forty spans would be a lot of
+   DOM for an effect nobody is looking directly at. */
+.project:hover .project-title { font-variation-settings: "wght" 880, "wdth" 118, "opsz" 40; }
+
+.project-index { font-family: var(--font-mono); color: var(--accent); }
+.project-desc { font-variation-settings: "wght" 340, "wdth" 100; }
+
+.project-tags li {
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+  border-radius: 2rem;
+}
+
+.project-links a { font-family: var(--font-mono); font-size: 1.25rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* ── About and services ─────────────────────────────────────────────────── */
+
+.about-media img { border-radius: var(--radius); }
+.about-body p { font-variation-settings: "wght" 340, "wdth" 100; }
+
+.service {
+  background-color: transparent;
+  border: none;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  padding: 2.4rem 0 0;
+}
+
+.service:hover { transform: none; border-color: transparent; border-top-color: var(--fg); }
+.service-index { font-family: var(--font-mono); letter-spacing: 0.14em; }
+
+.service h3 {
+  font-size: 2.2rem;
+  letter-spacing: -0.02em;
+  font-variation-settings: "wght" 620, "wdth" 100;
+  transition: font-variation-settings 0.3s ease;
+}
+
+.service:hover h3 { font-variation-settings: "wght" 860, "wdth" 116; }
+.service p { font-variation-settings: "wght" 340, "wdth" 100; }
+
+/* ── Contact ────────────────────────────────────────────────────────────── */
+
+.contact-form,
+.contact-direct { background-color: var(--surface); border-color: var(--line); }
+.field label { font-family: var(--font-mono); font-size: 1.2rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.field input, .field textarea { border-radius: 0.4rem; background-color: var(--bg); }
+.direct-row { border-radius: 0.4rem; }
+.direct-row svg { color: var(--accent); }
+.form-status { font-family: var(--font-mono); }
+
+.footer-text { font-family: var(--font-mono); font-size: 1.2rem; letter-spacing: 0.06em; }
+
+/* ── Motion layer ───────────────────────────────────────────────────────── */
+
+.fx-cursor-dot { background-color: var(--accent); }
+.fx-cursor-ring { border-color: var(--accent); }
+
+/* ── Reduced motion ─────────────────────────────────────────────────────
+   The axes stop answering the pointer and settle at a set of optical values
+   chosen to look deliberate rather than defaulted — a headline stuck at
+   whatever weight the cursor last left it would look like a bug. */
+
+@media (prefers-reduced-motion: reduce) {
+  .kinetic .ch { font-variation-settings: "wght" 760, "wdth" 108, "opsz" 100 !important; }
+  .project-title,
+  .service h3 { transition: none; }
+  .kinetic-hint { display: none; }
+}

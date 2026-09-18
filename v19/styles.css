@@ -1,0 +1,198 @@
+/* ==========================================================================
+   v19 — Filmstrip.
+
+   Panels travel sideways, one per flick, and a strip of frames along the
+   bottom shows the whole reel at once. The strip replaces the dot rail
+   entirely: with ten panels, a thumbnail you recognise is a better address
+   than a circle you have to count.
+
+   The transition is two lines. deck.js publishes --offset — how far a panel
+   is from the current one, signed — and that is the whole horizontal layout.
+   ========================================================================== */
+
+:root {
+  --bg: #f7f5f0;
+  --surface: #fffefb;
+  --surface-2: #efece4;
+  --fg: #16150f;
+  --muted: #55524a;
+  --faint: #8a857a;
+  --line: rgba(22, 21, 15, 0.14);
+
+  --accent: #b4552f;
+  --accent-contrast: #fffefb;
+
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+
+  --radius: 0.4rem;
+  --maxw: 112rem;
+
+  --strip: 10.5rem; /* room the filmstrip takes at the bottom */
+}
+
+body { letter-spacing: -0.005em; }
+
+.site-header { background-color: color-mix(in srgb, var(--bg) 92%, transparent); }
+
+.brand { font-family: var(--font-display); font-size: 1.9rem; font-weight: 600; }
+.nav a { font-size: 1.45rem; }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; }
+
+.hero-eyebrow { letter-spacing: 0.24em; }
+.hero-name { font-weight: 600; letter-spacing: -0.02em; }
+.hero-tagline { font-size: clamp(1.8rem, 2.3vw, 2.4rem); }
+
+.btn { border-radius: 3rem; }
+.section-title { font-weight: 600; letter-spacing: -0.015em; }
+
+/* ══ The transition ═══════════════════════════════════════════════════════
+   Each panel parks in its own lane. A little over 100% so neighbours are
+   properly clear of the edge rather than resting against it. */
+
+.deck-ready .slide {
+  transform: translate3d(calc(var(--offset) * 104%), 0, 0);
+  opacity: 0;
+  transition:
+    transform 0.72s cubic-bezier(0.76, 0, 0.24, 1),
+    opacity 0.45s linear;
+}
+
+.deck-ready .slide[data-state="current"] { opacity: 1; }
+
+/* Panels leave a little space at the bottom for the strip. */
+.deck-ready .slide { padding-bottom: calc(var(--strip) + 2rem); }
+
+.deck-instant .slide { transition: none; }
+
+/* ══ The filmstrip ════════════════════════════════════════════════════════
+   Built by app.js from the panels themselves, so it can never fall out of
+   step with the deck. */
+
+.filmstrip {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 46;
+  height: var(--strip);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0 max(3vw, 1.4rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg) 96%, transparent) 38%);
+  /* The strip is the one thing on the page that does scroll, sideways. */
+  overscroll-behavior-x: contain;
+}
+
+.filmstrip::-webkit-scrollbar { display: none; }
+
+.frame {
+  position: relative;
+  flex: 0 0 auto;
+  width: 8.4rem;
+  /* px floor: the root font-size shrinks on small screens and this is a tap
+     target before it is a thumbnail. */
+  min-width: 62px;
+  min-height: 46px;
+  padding: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.25s linear, transform 0.25s ease, border-color 0.25s linear;
+}
+
+.frame:hover { opacity: 0.85; transform: translateY(-3px); }
+
+.frame.active {
+  opacity: 1;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.frame img {
+  width: 100%;
+  height: 5.2rem;
+  object-fit: cover;
+  display: block;
+}
+
+/* Panels with no picture get a labelled tile instead of an empty box. */
+.frame-label {
+  display: grid;
+  place-items: center;
+  height: 5.2rem;
+  padding: 0 0.6rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.frame-no {
+  position: absolute;
+  top: 0.2rem;
+  left: 0.4rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.frame.active .frame-no { color: var(--accent-contrast); }
+.frame.active .frame-no::before {
+  content: "";
+  position: absolute;
+  inset: -0.2rem -0.4rem;
+  z-index: -1;
+  background: var(--accent);
+}
+
+/* The strip is the navigation here, so the dots would be a second copy of
+   the same control. */
+.deck-rail { display: none; }
+
+.deck-controls { bottom: calc(var(--strip) + 1.4rem); }
+.deck-hint { bottom: calc(var(--strip) + 1.6rem); left: auto; right: max(3vw, 1.8rem); transform: none; }
+
+/* ── Work panels ────────────────────────────────────────────────────────── */
+
+.deck-ready .slide-work .project-media {
+  border: 1px solid var(--line);
+  box-shadow: 0 2.4rem 5rem rgba(22, 21, 15, 0.1);
+}
+
+.slide-kicker b { font-family: var(--font-display); }
+
+.deck-ready .about-media img { border-radius: var(--radius); }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  :root { --strip: 8.6rem; }
+  .frame { width: 7rem; }
+  .frame img, .frame-label { height: 4.4rem; }
+  .deck-controls { bottom: calc(var(--strip) + 1rem); }
+}
+
+@media (max-width: 599px) {
+  :root { --strip: 7.4rem; }
+  .frame { width: 6.2rem; }
+  .frame img, .frame-label { height: 3.8rem; }
+  .frame-label { font-size: 1rem; letter-spacing: 0.06em; }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  :root { --strip: 6.2rem; }
+  .frame img, .frame-label { height: 3.2rem; }
+}

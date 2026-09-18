@@ -1,0 +1,717 @@
+/* ==========================================================================
+   v18 — construction paper.
+
+   Everything on this page is meant to be a piece of card someone cut out
+   with scissors and laid down. That means four things, applied consistently:
+
+     · every sheet carries the same fibre grain (--grain, inlined below)
+     · edges are torn, not straight — irregular clip-paths, never a radius
+     · every sheet casts a hard offset shadow, because paper sits on paper
+     · cut-out pieces wobble on a three-frame loop, the way stop-motion does
+
+   The wobble is the part that has to be used with restraint. It is applied
+   to the cut-out figures and the scenery only, never to a block of body
+   copy: text that will not hold still is unreadable, and there is no version
+   of that which counts as charm.
+   ========================================================================== */
+
+:root {
+  --grain: url("data:image/png;base64,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");
+
+  --bg: #7ec8e3;
+  --surface: #fdfaf2;
+  --surface-2: #f0e9d8;
+  --fg: #2b2118;
+  --muted: #56483a;
+  --faint: #7d6d5c;
+  --line: rgba(43, 33, 24, 0.22);
+
+  /* Flat poster colours. Nothing here has a gradient in it. */
+  --red: #d94b3a;
+  --yellow: #f0c419;
+  --blue: #3c7dc4;
+  --orange: #e07a2e;
+  --green: #4a9d5f;
+  --purple: #8c5bb0;
+  --snow: #f4f7f9;
+  --pine: #2f6b3f;
+  --rock: #b4c4d0;
+
+  --accent: var(--red);
+  --accent-contrast: #fffdf6;
+
+  --font-body: "Nunito", system-ui, -apple-system, sans-serif;
+  --font-display: "Lilita One", "Arial Black", system-ui, sans-serif;
+
+  --radius: 0;
+  --maxw: 116rem;
+  --section-y: 10rem;
+
+  /* The offset every sheet casts onto whatever is under it. */
+  --paper-shadow: 4px 6px 0 rgba(30, 22, 14, 0.2);
+}
+
+/* The sky. A flat wash with a paper grain over it — no gradient, because
+   sugar paper does not have one.
+
+   Painted on the body itself rather than on a pseudo-element behind it: an
+   element's own background is painted after its negative z-index children,
+   so a ::before at z-index -2 under an opaque body is simply invisible. Same
+   reason the town and the snow below sit at positive z-indices with the
+   document stacked above them. */
+body {
+  background-color: var(--bg);
+  background-image: var(--grain);
+  background-size: 96px 96px;
+  background-attachment: fixed;
+  font-weight: 600;
+}
+
+/* The document, above the scenery and the weather. */
+main,
+.footer,
+.whatsapp-float { position: relative; z-index: 2; }
+
+h1, h2, h3 { letter-spacing: 0.01em; }
+
+/* ── The sheet ──────────────────────────────────────────────────────────
+   One rule that makes anything look like it was cut out and put down. */
+
+.paper,
+.project,
+.service,
+.contact-form,
+.contact-direct,
+.trainer,
+.gb-box {
+  position: relative;
+  background-color: var(--surface);
+  background-image: var(--grain);
+  background-size: 96px 96px;
+  border: none;
+  border-radius: 0;
+  box-shadow: var(--paper-shadow);
+  /* Torn on all four edges. The points are irregular on purpose: a repeating
+     zigzag reads as a decorative border, not as a tear. */
+  clip-path: polygon(
+    0.4% 1.2%, 12% 0.2%, 26% 1.6%, 41% 0.3%, 58% 1.4%, 73% 0.2%, 88% 1.5%, 99.6% 0.6%,
+    99% 14%, 99.8% 31%, 98.8% 48%, 99.7% 66%, 98.9% 82%, 99.5% 98.8%,
+    86% 99.7%, 70% 98.6%, 54% 99.8%, 38% 98.7%, 22% 99.8%, 8% 98.9%, 0.5% 99.4%,
+    1.2% 82%, 0.3% 65%, 1.4% 47%, 0.2% 30%, 1.1% 15%
+  );
+}
+
+/* ── Scenery ────────────────────────────────────────────────────────────
+   Three layers of the town, parallaxed by app.js through --shift. */
+
+.town {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 0;
+  height: 62vh;
+  pointer-events: none;
+}
+
+.town svg {
+  position: absolute;
+  left: -4%;
+  bottom: 0;
+  width: 108%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(3px 4px 0 rgba(30, 22, 14, 0.16));
+}
+
+.town-far { transform: translateX(calc(var(--shift, 0) * -14px)); }
+.town-mid { transform: translateX(calc(var(--shift, 0) * -30px)); }
+.town-near { transform: translateX(calc(var(--shift, 0) * -52px)); }
+
+.town .ridge { fill: var(--rock); }
+.town .cap { fill: var(--snow); }
+.town .hill { fill: #9fb9a4; }
+.town .pines path { fill: var(--pine); }
+.town .snow { fill: var(--snow); }
+.town .stop rect { fill: #6a5a4a; }
+.town .stop rect + rect { fill: var(--yellow); }
+.town .houses rect { fill: #e6d7bd; }
+.town .houses path { fill: var(--red); }
+.town .houses .door { fill: #6a4a30; }
+
+/* ── The wobble ─────────────────────────────────────────────────────────
+   Three frames, held. steps(1) is what makes it stop-motion rather than a
+   smooth drift — the piece jumps between positions, it does not glide. */
+
+@keyframes wobble {
+  0%, 33% { transform: translate(0, 0) rotate(0deg); }
+  34%, 66% { transform: translate(0.7px, -0.6px) rotate(0.22deg); }
+  67%, 100% { transform: translate(-0.6px, 0.5px) rotate(-0.2deg); }
+}
+
+.wobble,
+.kid,
+.tape,
+.badge-cut { animation: wobble 0.3s steps(1, end) infinite; }
+
+/* Offset the loops so the whole page does not twitch in unison. */
+.kid-b { animation-delay: 0.1s; }
+.kid-c { animation-delay: 0.2s; }
+.kid-d { animation-delay: 0.15s; }
+
+/* ── Tape ───────────────────────────────────────────────────────────────
+   A strip of masking tape holding each sheet down. Translucent, slightly
+   crooked, with torn ends. */
+
+.tape {
+  position: absolute;
+  z-index: 3;
+  width: 8.4rem;
+  height: 2.2rem;
+  background-color: rgba(240, 226, 178, 0.86);
+  background-image: var(--grain);
+  background-size: 96px 96px;
+  box-shadow: 1px 2px 0 rgba(30, 22, 14, 0.14);
+  clip-path: polygon(4% 0, 96% 6%, 100% 88%, 92% 100%, 8% 96%, 0 12%);
+}
+
+.tape-tl { top: 0.7rem; left: 1rem; transform: rotate(-7deg); }
+.tape-tr { top: 0.8rem; right: 1rem; transform: rotate(6deg); }
+
+/* rotate() in the class above and rotate() in the keyframes cannot both
+   apply, so a taped corner gets its angle from a wrapper instead. */
+.tape-tl { animation-name: wobble-left; }
+.tape-tr { animation-name: wobble-right; }
+
+@keyframes wobble-left {
+  0%, 33% { transform: rotate(-7deg) translate(0, 0); }
+  34%, 66% { transform: rotate(-6.6deg) translate(0.6px, -0.5px); }
+  67%, 100% { transform: rotate(-7.4deg) translate(-0.5px, 0.4px); }
+}
+
+@keyframes wobble-right {
+  0%, 33% { transform: rotate(6deg) translate(0, 0); }
+  34%, 66% { transform: rotate(6.5deg) translate(-0.5px, 0.5px); }
+  67%, 100% { transform: rotate(5.6deg) translate(0.6px, -0.4px); }
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.site-header {
+  background-color: var(--surface);
+  background-image: var(--grain);
+  background-size: 96px 96px;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 4px solid var(--fg);
+  box-shadow: 0 5px 0 rgba(30, 22, 14, 0.18);
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.brand-mark { color: var(--pine); display: grid; place-items: center; }
+
+.nav a {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.nav a.active { color: var(--red); }
+
+.nav a.active::after {
+  height: 4px;
+  background-color: var(--red);
+  /* A crayon underline: not a rule, a scribble. */
+  clip-path: polygon(0 40%, 12% 0, 30% 70%, 48% 10%, 66% 80%, 84% 20%, 100% 60%, 100% 100%, 0 100%);
+}
+
+#language-switcher {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  border: 3px solid var(--fg);
+  border-radius: 0;
+  background-color: var(--yellow);
+  color: var(--fg);
+  box-shadow: 2px 3px 0 rgba(30, 22, 14, 0.24);
+}
+
+#menu-toggle span { height: 4px; background-color: var(--fg); }
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.hero-inner { max-width: 76rem; }
+
+.hero-eyebrow {
+  display: inline-block;
+  padding: 0.5rem 1.4rem;
+  color: #fffdf6;
+  background-color: var(--red);
+  background-image: var(--grain);
+  background-size: 96px 96px;
+  font-family: var(--font-display);
+  letter-spacing: 0.14em;
+  transform: rotate(-1.6deg);
+  box-shadow: 3px 4px 0 rgba(30, 22, 14, 0.24);
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--surface);
+  /* Cut from white card and laid on the sky: a hard outline, then a hard
+     drop shadow. No blur anywhere. */
+  -webkit-text-stroke: 6px var(--fg);
+  paint-order: stroke fill;
+  text-shadow: 7px 8px 0 rgba(30, 22, 14, 0.26);
+}
+
+.hero-tagline {
+  display: inline-block;
+  padding: 1.6rem 2rem;
+  background-color: var(--surface);
+  background-image: var(--grain);
+  background-size: 96px 96px;
+  color: var(--fg);
+  box-shadow: var(--paper-shadow);
+  transform: rotate(0.5deg);
+  clip-path: polygon(
+    0.6% 3%, 18% 0, 42% 3%, 66% 0.4%, 88% 3%, 99.4% 1%,
+    99% 34%, 99.6% 68%, 98.8% 97%, 74% 99.6%, 48% 97%, 22% 99.8%, 0.4% 98%,
+    1.2% 66%, 0.4% 34%
+  );
+}
+
+.hero-meta {
+  font-family: var(--font-display);
+  letter-spacing: 0.1em;
+  color: var(--fg);
+}
+
+/* ── Buttons: cut-out tabs ──────────────────────────────────────────────── */
+
+.btn {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 0;
+  border: 4px solid var(--fg);
+  background-image: var(--grain);
+  background-size: 96px 96px;
+  box-shadow: 4px 5px 0 var(--fg);
+  transition: transform 0.09s steps(1), box-shadow 0.09s steps(1);
+}
+
+.btn-solid { background-color: var(--red); color: #fffdf6; }
+.btn-ghost { background-color: var(--yellow); color: var(--fg); }
+
+/* Pressed flat against the page. */
+.btn:hover,
+.btn:focus-visible {
+  transform: translate(4px, 5px);
+  box-shadow: 0 0 0 var(--fg);
+}
+
+.btn-ghost:hover { border-color: var(--fg); color: var(--fg); }
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.kicker {
+  display: inline-block;
+  margin-bottom: 1.6rem;
+  padding: 0.6rem 1.6rem;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: 0.2em;
+  color: var(--fg);
+  background-color: var(--yellow);
+  background-image: var(--grain);
+  background-size: 96px 96px;
+  transform: rotate(-1.2deg);
+  box-shadow: 3px 4px 0 rgba(30, 22, 14, 0.24);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--surface);
+  -webkit-text-stroke: 5px var(--fg);
+  paint-order: stroke fill;
+  text-shadow: 5px 6px 0 rgba(30, 22, 14, 0.24);
+}
+
+.section-lede {
+  display: inline-block;
+  padding: 1.2rem 1.6rem;
+  background-color: var(--surface);
+  background-image: var(--grain);
+  background-size: 96px 96px;
+  color: var(--fg);
+  box-shadow: var(--paper-shadow);
+}
+
+/* ── Projects ───────────────────────────────────────────────────────────── */
+
+.projects { gap: 3.6rem 3rem; }
+
+.project { overflow: visible; }
+
+/* Each card is pinned down at a very slightly different angle. */
+.project:nth-child(3n + 1) { --tilt: -0.55deg; }
+.project:nth-child(3n + 2) { --tilt: 0.4deg; }
+.project:nth-child(3n + 3) { --tilt: -0.25deg; }
+
+.project,
+.service { transform: rotate(var(--tilt, 0deg)); }
+
+.project:hover,
+.service:hover { transform: translateY(-6px) rotate(0deg); border-color: transparent; }
+
+/* Laid down: the piece drops the last few degrees and the last few pixels
+   onto the page, then holds at its crooked resting angle. */
+.to-lay {
+  opacity: 0;
+  transform: rotate(calc(var(--tilt, 0deg) + 2.6deg)) translateY(26px) scale(0.985);
+}
+
+.to-lay.laid {
+  opacity: 1;
+  transform: rotate(var(--tilt, 0deg));
+  transition: opacity 0.5s ease var(--lay-delay, 0ms),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--lay-delay, 0ms);
+}
+
+.project-media {
+  margin: 1.6rem 1.6rem 0;
+  border: 4px solid var(--fg);
+  background-color: var(--surface-2);
+  box-shadow: 3px 4px 0 rgba(30, 22, 14, 0.2);
+}
+
+.project:hover .project-media img { transform: none; }
+
+.project-body { padding: 2.4rem 2.2rem 2.6rem; }
+
+.project-index {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--fg);
+  background-color: var(--yellow);
+  padding: 0.2rem 0.8rem;
+  transform: rotate(3deg);
+}
+
+.project-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 2.6rem;
+  text-transform: uppercase;
+}
+
+.project-desc { font-weight: 600; }
+
+.project-tags li {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 3px solid var(--fg);
+  border-radius: 0;
+  color: var(--fg);
+  background-color: var(--surface-2);
+  box-shadow: 2px 2px 0 rgba(30, 22, 14, 0.2);
+}
+
+/* Every fourth chip picks up a colour, so the row is not a grey wall. */
+.project-tags li:nth-child(4n + 1) { background-color: #ffd9d3; }
+.project-tags li:nth-child(4n + 2) { background-color: #d7e9ff; }
+.project-tags li:nth-child(4n + 3) { background-color: #fdf0bd; }
+.project-tags li:nth-child(4n + 4) { background-color: #d8f0dc; }
+
+.project-links a {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.project-links a::after { height: 4px; background-color: var(--red); }
+
+.more-link { margin-top: 5rem; }
+
+/* ── About ──────────────────────────────────────────────────────────────── */
+
+.about-media { position: relative; }
+
+.about-media img {
+  border: 5px solid var(--surface);
+  border-radius: 0;
+  box-shadow: var(--paper-shadow);
+  transform: rotate(-1.4deg);
+}
+
+/* The cast. Four cut-out figures, built from primitives — original
+   characters, standing in a row in the snow. */
+.cast {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(0.6rem, 2vw, 2.4rem);
+  margin-top: 2.6rem;
+  padding-bottom: 1.4rem;
+  /* The ground they stand on. */
+  border-bottom: 1rem solid var(--snow);
+}
+
+.kid {
+  width: clamp(6rem, 15vw, 9.4rem);
+  height: auto;
+  filter: drop-shadow(3px 4px 0 rgba(30, 22, 14, 0.2));
+  transform-origin: 50% 100%;
+}
+
+.kid .head { fill: #f2c9a0; }
+.kid .eye { fill: #fffdf6; stroke: var(--fg); stroke-width: 2.4; }
+.kid .pupil { fill: var(--fg); }
+.kid .leg { fill: #3f5a7a; }
+.kid .boot { fill: #4a3524; }
+.kid .hand,
+.kid .body { stroke: var(--fg); stroke-width: 2.4; }
+
+.kid-a .body, .kid-a .hand { fill: var(--red); }
+.kid-a .hat { fill: #f0e9d8; }
+.kid-a .pom { fill: #f0e9d8; }
+
+.kid-b .body, .kid-b .hand { fill: var(--blue); }
+.kid-b .hat, .kid-b .brim { fill: var(--green); }
+
+.kid-c .body, .kid-c .hand { fill: var(--orange); }
+.kid-c .muff { fill: #6a4a30; }
+.kid-c .band { stroke: #6a4a30; }
+
+.kid-d .body, .kid-d .hand { fill: var(--purple); }
+.kid-d .hat { fill: #4a3524; }
+.kid-d .scarf { fill: var(--yellow); }
+
+/* The about copy arrives as speech, since there are people to say it. */
+.about-body p {
+  position: relative;
+  padding: 1.8rem 2rem;
+  margin-bottom: 2.6rem;
+  max-width: 56rem;
+  color: var(--fg);
+  background-color: var(--surface);
+  background-image: var(--grain);
+  background-size: 96px 96px;
+  box-shadow: var(--paper-shadow);
+  clip-path: polygon(
+    0.6% 2%, 24% 0.4%, 52% 2%, 78% 0.3%, 99.4% 1.6%,
+    98.8% 30%, 99.6% 58%, 98.9% 86%, 76% 88%, 66% 100%, 62% 88%,
+    32% 87%, 0.6% 88%, 1.4% 58%, 0.4% 30%
+  );
+  padding-bottom: 3.6rem;
+}
+
+/* ── Services: badges ───────────────────────────────────────────────────── */
+
+.services { gap: 3.4rem 2.8rem; }
+
+.service { overflow: visible; padding: 4.4rem 2.4rem 2.8rem; }
+
+.service:nth-child(odd) { --tilt: -0.5deg; }
+.service:nth-child(even) { --tilt: 0.45deg; }
+
+/* A cut-out star badge in the corner of each one. */
+.badge-cut {
+  position: absolute;
+  top: 1rem;
+  right: 1.4rem;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 5.6rem;
+  height: 5.6rem;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--fg);
+  background-image: var(--grain);
+  background-size: 96px 96px;
+  filter: drop-shadow(3px 4px 0 rgba(30, 22, 14, 0.22));
+  clip-path: polygon(
+    50% 0, 62% 34%, 98% 36%, 69% 58%, 80% 96%, 50% 74%, 20% 96%, 31% 58%, 2% 36%, 38% 34%
+  );
+}
+
+.service:nth-child(1) .badge-cut { background-color: var(--yellow); }
+.service:nth-child(2) .badge-cut { background-color: var(--blue); color: #fffdf6; }
+.service:nth-child(3) .badge-cut { background-color: var(--green); color: #fffdf6; }
+.service:nth-child(4) .badge-cut { background-color: var(--orange); }
+
+.service-index {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: 0.16em;
+  color: var(--faint);
+}
+
+.service h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 2.2rem;
+  text-transform: uppercase;
+  padding-right: 5rem;
+}
+
+.service p { font-weight: 600; }
+
+/* ── Contact ────────────────────────────────────────────────────────────── */
+
+.contact-form,
+.contact-direct { overflow: visible; padding: 4.2rem 2.6rem 3rem; }
+
+.field label {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.field input,
+.field textarea {
+  font-family: var(--font-body);
+  font-weight: 600;
+  background-color: #fffdf6;
+  border: 3px solid var(--fg);
+  border-radius: 0;
+  box-shadow: inset 2px 2px 0 rgba(30, 22, 14, 0.08);
+}
+
+.field input:focus,
+.field textarea:focus { border-color: var(--red); }
+
+.field-error { font-family: var(--font-display); letter-spacing: 0.04em; }
+.form-status { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 0.03em; }
+
+.contact-direct h3 { font-family: var(--font-display); font-weight: 400; text-transform: uppercase; }
+
+.direct-row {
+  border: 3px solid var(--fg);
+  border-radius: 0;
+  color: var(--fg);
+  background-color: #fffdf6;
+  box-shadow: 3px 3px 0 rgba(30, 22, 14, 0.16);
+  font-weight: 700;
+}
+
+.direct-row svg { color: var(--red); }
+.direct-row:hover { background-color: var(--yellow); transform: translate(3px, 3px); box-shadow: none; }
+
+.qr { border: 4px solid var(--fg); }
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+
+.footer {
+  position: relative;
+  margin-top: 8rem;
+  border-top: none;
+  background-color: var(--surface);
+  background-image: var(--grain);
+  background-size: 96px 96px;
+  box-shadow: 0 -5px 0 rgba(30, 22, 14, 0.16);
+  /* Torn along the top edge only — the page ends, it is not cut off. */
+  clip-path: polygon(
+    0 2.4rem, 6% 0.6rem, 14% 2.2rem, 23% 0.4rem, 33% 2rem, 44% 0.5rem, 55% 2.2rem,
+    66% 0.4rem, 77% 2rem, 88% 0.6rem, 96% 2.2rem, 100% 0.8rem, 100% 100%, 0 100%
+  );
+  padding-top: 6rem;
+}
+
+.footer-socials a {
+  border: 3px solid var(--fg);
+  border-radius: 50%;
+  color: var(--fg);
+  background-color: #fffdf6;
+  box-shadow: 2px 3px 0 rgba(30, 22, 14, 0.2);
+}
+
+.footer-socials a:hover {
+  background-color: var(--yellow);
+  color: var(--fg);
+  transform: translate(2px, 3px);
+  box-shadow: none;
+}
+
+.footer-text { font-family: var(--font-display); font-size: 1.5rem; color: var(--muted); }
+
+/* ── WhatsApp ───────────────────────────────────────────────────────────── */
+
+.whatsapp-float {
+  border: 4px solid var(--fg);
+  box-shadow: 4px 5px 0 var(--fg);
+}
+
+.whatsapp-float.revealed:hover { transform: translate(4px, 5px); box-shadow: none; }
+
+/* ── Snow ───────────────────────────────────────────────────────────────
+   Drawn on a canvas by app.js: in front of the town, behind everything you
+   read. */
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  .nav {
+    background-color: var(--surface);
+    background-image: var(--grain);
+    background-size: 96px 96px;
+    border-left: 4px solid var(--fg);
+  }
+
+  .nav a { font-size: 2.4rem; }
+  .town { height: 46vh; }
+}
+
+@media (max-width: 767px) {
+  .hero-name { -webkit-text-stroke-width: 4px; text-shadow: 5px 6px 0 rgba(30, 22, 14, 0.26); }
+  .section-title { -webkit-text-stroke-width: 4px; }
+  .cast { gap: 0.4rem; }
+  .town { height: 38vh; }
+}
+
+@media (max-width: 599px) {
+  .hero-name { -webkit-text-stroke-width: 3px; }
+  .section-title { -webkit-text-stroke-width: 3px; }
+  .tape { width: 7rem; height: 2.2rem; }
+  .badge-cut { width: 4.6rem; height: 4.6rem; font-size: 1.3rem; }
+  .service h3 { padding-right: 4rem; }
+}
+
+@media (max-width: 359px) {
+  .cast { display: none; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────
+   The wobble is the first thing to go: a page of pieces jittering three
+   times a second is exactly what this setting exists to stop. */
+
+@media (prefers-reduced-motion: reduce) {
+  .to-lay { opacity: 1; transform: rotate(var(--tilt, 0deg)); }
+
+  .wobble,
+  .kid,
+  .tape,
+  .badge-cut { animation: none; }
+
+  .tape-tl { transform: rotate(-7deg); }
+  .tape-tr { transform: rotate(6deg); }
+}

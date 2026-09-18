@@ -1,0 +1,349 @@
+/* ==========================================================================
+   v37 — Native scroll.
+
+   Every animation on this page is driven by the browser's compositor from
+   the scroll position, using CSS scroll-driven animations. There is no
+   IntersectionObserver, no scroll listener, no requestAnimationFrame loop,
+   no library. The script that loads with this page handles language, the
+   contact form and the menu drawer, and reads the scroll position exactly
+   never — unless the browser turns out not to support the native path, in
+   which case it steps in (see app.js).
+
+   Two timelines do the work:
+
+     `animation-timeline: view()` — progress of *this element* through the
+     scrollport. Used for every reveal, so each card animates against its own
+     position rather than against a shared observer threshold.
+
+     `animation-timeline: scroll()` — progress of the *document*. Used for
+     the reading bar at the top.
+
+   And one property ties the navigation to it: `timeline-scope`. A timeline
+   normally only reaches descendants of the element that declares it, which
+   would make it useless for a header that is a sibling of the sections.
+   Declaring the names in `timeline-scope` on :root lifts them to where the
+   nav can see them, so the active link is a CSS effect too.
+
+   Everything is inside @supports. A browser without scroll-driven animations
+   gets a page where the content is simply *there* — the safe direction to
+   fail, and the reason none of the reveal rules set an opacity outside the
+   guard.
+   ========================================================================== */
+
+:root {
+  --bg: #0f0f10;
+  --surface: #17171a;
+  --surface-2: #202025;
+  --fg: #f4f4f5;
+  --muted: #a3a3ab;
+  --faint: #6f6f78;
+  --line: rgba(244, 244, 245, 0.12);
+
+  --accent: #c9f24a;
+  --accent-contrast: #14140f;
+
+  --font-body: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --radius: 0.4rem;
+  --maxw: 118rem;
+  --section-y: 14rem;
+}
+
+body {
+  letter-spacing: -0.01em;
+
+  /* This one line is what makes the rest of the file work.
+
+     base.css sets `overflow-x: hidden` on the body to stop a stray wide child
+     producing a horizontal scrollbar. But `hidden` in one axis forces the
+     other axis to `auto`, which makes the body a scroll *container* — and a
+     view timeline is measured against the nearest scroll container, not
+     against the window. Every `view()` on this page was therefore reporting
+     progress against a box that never scrolls: reveals fired at the top of
+     the document, the nav lit the wrong link, and the WhatsApp gate never
+     opened. Nothing errors; it is simply all wrong.
+
+     `clip` does the same clipping without creating a scroll container, which
+     is precisely why it exists. */
+  overflow-x: clip;
+}
+
+h1, h2, h3 { letter-spacing: -0.035em; }
+
+.brand-mark { font-family: var(--font-mono); color: var(--accent); }
+.hero-eyebrow { font-family: var(--font-mono); letter-spacing: 0.18em; text-transform: uppercase; font-size: 1.3rem; }
+.hero-name { font-size: clamp(5.6rem, 13vw, 15rem); font-weight: 700; }
+.hero-meta { font-family: var(--font-mono); font-size: 1.25rem; }
+
+.hero-note {
+  margin-top: 3.2rem;
+  max-width: 46rem;
+  padding-left: 1.6rem;
+  border-left: 2px solid var(--accent);
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.btn { border-radius: 999px; font-weight: 500; }
+.btn-solid { background-color: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+
+.section-title { font-size: clamp(3.4rem, 6vw, 6.4rem); font-weight: 700; }
+.project-index, .service-index { font-family: var(--font-mono); color: var(--accent); }
+.project-tags li { font-family: var(--font-mono); font-size: 1.15rem; border-radius: 999px; }
+.form-status, .footer-text { font-family: var(--font-mono); }
+
+.project, .service, .contact-form, .contact-direct {
+  background-color: var(--surface);
+  border-color: var(--line);
+}
+
+.field input, .field textarea { background-color: var(--bg); border-radius: 0.4rem; }
+.direct-row { border-radius: 0.4rem; }
+.direct-row svg { color: var(--accent); }
+
+/* The reading bar. Markup is one span in one div; the width comes from the
+   document's own scroll progress with no script involved. */
+
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 41;
+  background-color: rgba(244, 244, 245, 0.08);
+  /* Hidden until the guard below turns it on: a bar that cannot move is
+     worse than no bar, because it reads as a page stuck at zero percent. */
+  display: none;
+}
+
+.scroll-progress span {
+  display: block;
+  height: 100%;
+  background-color: var(--accent);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Everything below is native scroll-driven animation.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@supports (animation-timeline: view()) {
+  /* ── The reading bar ──────────────────────────────────────────────────── */
+
+  .scroll-progress { display: block; }
+
+  .scroll-progress span {
+    animation: bar-fill linear forwards;
+    animation-timeline: scroll(root block);
+  }
+
+  @keyframes bar-fill {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+
+  /* ── Reveals ──────────────────────────────────────────────────────────── */
+
+  /* `view()` gives each element its own timeline, so a card measures its own
+     travel through the scrollport. `animation-range` is where the interesting
+     control is: `entry 5% cover 32%` means the animation runs from just after
+     the element's leading edge appears to well before it is centred, which
+     lands the card fully settled a good deal earlier than a naive 0%–100%
+     range would. `fill-mode: both` holds the end state afterwards. */
+  .section-head,
+  .project,
+  .service,
+  .about-media,
+  .about-body > *,
+  .contact-form,
+  .contact-direct,
+  .more-link {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: entry 5% cover 32%;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(3.6rem); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* A card lower down a row starts a touch later, which reads as the row
+     dealing itself out. Ranges, not delays — a delay would be time-based and
+     would fight the scroll. */
+  .projects .project:nth-child(3n + 2) { animation-range: entry 9% cover 36%; }
+  .projects .project:nth-child(3n + 3) { animation-range: entry 13% cover 40%; }
+  .services .service:nth-child(even)   { animation-range: entry 9% cover 36%; }
+
+  /* ── The hero leaving ─────────────────────────────────────────────────── */
+
+  /* Scale, fade and blur as it goes, keyed to the hero's own exit. Because it
+     is `view()` and not a scroll offset, it behaves the same on a phone in
+     landscape as on a desktop, with no breakpoint. */
+  .hero-inner {
+    animation: hero-exit linear both;
+    animation-timeline: view();
+    animation-range: exit 0% exit 100%;
+  }
+
+  @keyframes hero-exit {
+    from { opacity: 1; transform: scale(1); filter: blur(0); }
+    to   { opacity: 0.05; transform: scale(0.92) translateY(-4rem); filter: blur(6px); }
+  }
+
+  /* ── Section titles that track their section ──────────────────────────── */
+
+  .section-title {
+    /* Letter-spacing tightens as the section arrives. A small thing, but it
+       is the kind of thing that used to need a scroll handler per heading. */
+    animation: title-set linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 30%;
+  }
+
+  @keyframes title-set {
+    from { letter-spacing: 0.06em; opacity: 0; }
+    to   { letter-spacing: -0.035em; opacity: 1; }
+  }
+
+  /* ── The project image parallax ───────────────────────────────────────── */
+
+  .project-media img {
+    animation: media-pan linear both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 100%;
+  }
+
+  @keyframes media-pan {
+    from { transform: scale(1.14) translateY(-2%); }
+    to   { transform: scale(1.14) translateY(2%); }
+  }
+
+  /* The hover zoom in base.css and this pan would be two animations on one
+     transform, and the animation always wins. The hover cue moves to the
+     card's border instead. */
+  .project:hover .project-media img { transform: none; }
+  .project { transition: border-color 0.25s linear, transform 0.25s ease; }
+  .project:hover { border-color: var(--accent); }
+
+  /* ── The navigation ───────────────────────────────────────────────────── */
+
+  /* A view timeline is only visible to the element that declares it and its
+     descendants. The header is a sibling of every section, so without this
+     the nav could not see any of them. timeline-scope raises the five names
+     to the root, where everything can. */
+  :root {
+    timeline-scope: --sec-home, --sec-projects, --sec-about, --sec-services, --sec-contact;
+  }
+
+  #home     { view-timeline-name: --sec-home; }
+  #projects { view-timeline-name: --sec-projects; }
+  #about    { view-timeline-name: --sec-about; }
+  #services { view-timeline-name: --sec-services; }
+  #contact  { view-timeline-name: --sec-contact; }
+
+  .nav a::after { width: 0; }
+
+  .nav a {
+    animation: nav-lit linear;
+    /* This range took three tries, and the reason is worth writing down.
+
+       `contain` is degenerate for a subject taller than the scrollport — and
+       the projects section is taller than most windows — so the projects link
+       never lit at all.
+
+       `exit` alone is not it either: the named ranges are *redefined* for an
+       oversized subject. For a short one, `exit` runs from its top edge
+       crossing the top of the screen; for a tall one it runs from its bottom
+       edge entering the *bottom* of the screen. Same keyword, different
+       anchor, so the link lit only over the last screenful of a long section.
+
+       `entry 100% exit 100%` is the pair that means the same thing at either
+       size: from the section being as far in as it is going to get, to its
+       bottom edge leaving the top of the screen. Sections are contiguous, so
+       for anything taller than the window the ranges tile exactly and one
+       link is lit at a time. A section shorter than the window lights a
+       little early and can briefly share the highlight with the one above it
+       — the honest cost of doing this without a scroll handler.
+
+       No fill-mode, deliberately: outside its range the animation applies
+       nothing and the link falls back to the colour in the stylesheet. */
+    animation-range: entry 100% exit 100%;
+  }
+
+  .nav a[data-nav="home"]     { animation-timeline: --sec-home; }
+  .nav a[data-nav="projects"] { animation-timeline: --sec-projects; }
+  .nav a[data-nav="about"]    { animation-timeline: --sec-about; }
+  .nav a[data-nav="services"] { animation-timeline: --sec-services; }
+  .nav a[data-nav="contact"]  { animation-timeline: --sec-contact; }
+
+  @keyframes nav-lit {
+    from, to { color: var(--fg); }
+  }
+
+  /* ── The WhatsApp button ──────────────────────────────────────────────── */
+
+  /* The rule everywhere else on this site is "reveal it once the visitor has
+     read the work". Here it is literally that and nothing more: the button is
+     tied to the projects section's own exit, so it is present for as long as
+     the work is behind you and gone again if you scroll back to the top. */
+  .whatsapp-float {
+    animation: wa-in linear both;
+    animation-timeline: --sec-projects;
+    animation-range: exit 30% exit 90%;
+  }
+
+  @keyframes wa-in {
+    from { opacity: 0; visibility: hidden; transform: translateY(1.6rem) scale(0.85); }
+    /* visibility is not interpolable, so it steps at the first keyframe that
+       sets it — which is exactly the behaviour wanted here. */
+    1%   { visibility: visible; }
+    to   { opacity: 1; visibility: visible; transform: none; }
+  }
+
+  .whatsapp-float:hover { transform: scale(1.08); }
+}
+
+/* ══ Reduced motion ═══════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  /* base.css collapses every animation to 0.001ms. For a time-based animation
+     that means "jump to the end", which is the right answer for a reveal. For
+     a scroll-driven one it means the animation covers a hair of the timeline
+     and then sits at its end state for the rest — so the reading bar would
+     read one hundred percent at the top of the page. Better to say so
+     explicitly than to rely on a coincidence. */
+  .scroll-progress { display: none; }
+
+  /* Cancelling a `both`-filled animation returns the element to its natural
+     state, which for every reveal here means visible and untransformed. That
+     is safer than trusting what a 0.001ms duration does to a timeline that is
+     measured in scroll distance rather than seconds. */
+  .hero-inner,
+  .section-title,
+  .project-media img,
+  .nav a,
+  .section-head,
+  .project,
+  .service,
+  .about-media,
+  .about-body > *,
+  .contact-form,
+  .contact-direct,
+  .more-link {
+    animation: none;
+  }
+
+  .nav a.active { color: var(--fg); }
+
+  .whatsapp-float {
+    animation: none;
+    /* Back to the scripted gate, which app.js wires up in this case. */
+  }
+}

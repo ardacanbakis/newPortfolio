@@ -1,0 +1,356 @@
+/* ==========================================================================
+   v33 — Print-first CV.
+
+   The only version designed for paper first and a screen second. On screen it
+   is an A4 sheet lying on a desk, with the page boundaries drawn where the
+   printer will actually break. Ctrl+P produces a document you would hand
+   someone: no navigation, no floating buttons, link URLs printed after their
+   text, and nothing split across a page break mid-card.
+
+   None of the other twenty-two versions have a print stylesheet at all, which
+   is worth saying out loud — a developer portfolio that cannot be printed is
+   a portfolio that cannot be attached to an application.
+   ========================================================================== */
+
+:root {
+  --bg: #e9e7e2;          /* the desk */
+  --paper: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f5f4f1;
+  --fg: #14130f;
+  --muted: #4a4740;
+  --faint: #7c786f;
+  --line: rgba(20, 19, 15, 0.16);
+  --rule: rgba(20, 19, 15, 0.9);
+
+  --accent: #1a3d7c;
+  --accent-contrast: #ffffff;
+
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Newsreader", Georgia, serif;
+
+  --radius: 0;
+  --maxw: 76rem;          /* ≈ A4 content width */
+  --section-y: 3.4rem;
+
+  /* A4 at 96dpi is 794 × 1123px. The sheet is sized in those terms so the
+     boundaries drawn on screen match where the paper actually ends. */
+  --sheet-w: 79.4rem;
+  --page-h: 112.3rem;
+}
+
+body { background-color: var(--bg); font-size: 1.5rem; line-height: 1.55; }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; }
+
+/* ── The sheet ──────────────────────────────────────────────────────────── */
+
+.sheet {
+  position: relative;
+  width: min(100%, var(--sheet-w));
+  margin: 10rem auto 6rem;
+  padding: 0;
+  background-color: var(--paper);
+  box-shadow: 0 1.4rem 4rem rgba(20, 19, 15, 0.18);
+}
+
+/* The page breaks, drawn where the printer will make them. Repeating rather
+   than one per page: the sheet is one continuous element and the browser
+   paginates it, so the boundaries are a background, not markup. */
+.sheet::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--page-h) - 1px),
+    rgba(20, 19, 15, 0.16) calc(var(--page-h) - 1px),
+    rgba(20, 19, 15, 0.16) var(--page-h)
+  );
+}
+
+.section {
+  max-width: none;
+  padding: var(--section-y) clamp(2.4rem, 5vw, 5.6rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.section:last-of-type { border-bottom: none; }
+
+.section-head { margin-bottom: 2rem; }
+
+.section-title {
+  font-size: 1.5rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding-bottom: 0.7rem;
+  border-bottom: 2px solid var(--accent);
+  margin-bottom: 0;
+}
+
+.section-lede { font-size: 1.5rem; margin-top: 1.4rem; }
+
+/* ── Masthead ───────────────────────────────────────────────────────────── */
+
+.hero {
+  min-height: 0;
+  padding-top: 4.4rem;
+  padding-bottom: 3rem;
+  display: block;
+  border-bottom: 3px solid var(--rule);
+}
+
+.hero-inner { max-width: none; }
+
+.hero-name {
+  font-size: clamp(3.4rem, 6vw, 5rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.6rem;
+}
+
+.hero-eyebrow {
+  order: 2;
+  font-size: 1.4rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  margin-bottom: 1.6rem;
+}
+
+.hero-tagline { font-size: 1.6rem; max-width: 54rem; margin-bottom: 2rem; }
+
+.hero-meta {
+  gap: 0.6rem 2rem;
+  font-size: 1.3rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.hero-meta li:not(:last-child)::after { content: " ·"; color: var(--faint); }
+
+.cv-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.4rem; margin-top: 2.4rem; }
+
+.cv-pages {
+  font-size: 1.3rem;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.hero-cta { display: none; }  /* the CV has its own actions */
+
+.btn {
+  border-radius: 0.3rem;
+  font-size: 1.4rem;
+  padding: 1.1rem 2rem;
+  border-width: 1px;
+}
+
+/* ── Work: a list, not a gallery ────────────────────────────────────────── */
+
+.projects { display: block; }
+
+.project {
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1fr);
+  gap: 0 2.4rem;
+  padding: 1.8rem 0;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  overflow: visible;
+  /* Never split an entry across two sheets of paper. */
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.project:first-child { border-top: none; padding-top: 0.6rem; }
+.project:hover { transform: none; border-color: transparent; border-top-color: var(--line); }
+
+.project-media { border: 1px solid var(--line); align-self: start; }
+.project-media img { aspect-ratio: 4 / 3; }
+.project:hover .project-media img { transform: none; }
+
+.project-body { padding: 0; }
+.project-index { display: none; }
+
+.project-title {
+  font-size: 1.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  padding-right: 0;
+}
+
+.project-desc { font-size: 1.45rem; color: var(--muted); }
+
+.project-tags { margin: 0.9rem 0 0.7rem; gap: 0.4rem; }
+
+.project-tags li {
+  font-size: 1.15rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 0.2rem;
+  border-color: var(--line);
+  color: var(--muted);
+  background-color: var(--surface-2);
+}
+
+.project-links { gap: 0.4rem 1.4rem; }
+.project-links a { font-size: 1.3rem; min-height: 30px; }
+
+.more-link { margin-top: 2.4rem; }
+
+/* ── About ──────────────────────────────────────────────────────────────── */
+
+.section-about {
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1fr);
+  gap: 2.4rem;
+  align-items: start;
+}
+
+.about-media img { border: 1px solid var(--line); border-radius: 0; }
+.about-body p { font-size: 1.45rem; margin-bottom: 1.1rem; }
+.about-body .section-title { margin-bottom: 1.6rem; }
+
+/* ── Services ───────────────────────────────────────────────────────────── */
+
+.services { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.6rem 2.8rem; }
+
+.service {
+  padding: 0 0 0 1.6rem;
+  border: none;
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.service:hover { transform: none; border-color: var(--accent); }
+.service-index { font-size: 1.15rem; letter-spacing: 0.14em; margin-bottom: 0.5rem; }
+.service h3 { font-size: 1.6rem; margin-bottom: 0.5rem; }
+.service p { font-size: 1.4rem; }
+
+/* ── Contact ────────────────────────────────────────────────────────────── */
+
+.contact-grid { gap: 2.4rem; }
+
+.contact-form,
+.contact-direct {
+  padding: 2rem;
+  background-color: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+}
+
+.field input,
+.field textarea { border-radius: 0.2rem; background-color: var(--paper); }
+.direct-row { border-radius: 0.2rem; background-color: var(--paper); font-size: 1.35rem; }
+.qr { width: 13rem; }
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+
+.footer { background-color: var(--paper); padding-top: 3rem; }
+.footer-socials a { color: var(--muted); }
+
+/* ── Chrome that only exists on screen ──────────────────────────────────── */
+
+.site-header {
+  background-color: color-mix(in srgb, var(--bg) 92%, transparent);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand { font-family: var(--font-display); font-size: 1.8rem; }
+.nav a { font-size: 1.4rem; }
+
+@media (max-width: 767px) {
+  .sheet { margin-top: 8rem; }
+  .project,
+  .section-about { grid-template-columns: 1fr; gap: 1.4rem; }
+  .project-media { max-width: 26rem; }
+  .about-media { max-width: 18rem; }
+  .services { grid-template-columns: 1fr; }
+}
+
+/* ══ Print ════════════════════════════════════════════════════════════════
+   The whole point of the version. Everything that exists to navigate a
+   website is removed, because paper has no navigation. */
+
+@page {
+  size: A4;
+  margin: 14mm 12mm;
+}
+
+@media print {
+  :root { --bg: #fff; --section-y: 7mm; }
+
+  html { font-size: 58%; }
+
+  body {
+    background: #fff;
+    color: #000;
+    /* Let the printer decide about backgrounds rather than forcing a solid
+       fill the visitor pays for in toner. */
+    -webkit-print-color-adjust: economy;
+    print-color-adjust: economy;
+  }
+
+  .site-header,
+  .whatsapp-float,
+  .cv-actions,
+  .hero-cta,
+  .more-link,
+  .contact-form,
+  .qr,
+  .skip-link,
+  .sheet::after { display: none !important; }
+
+  .sheet {
+    width: auto;
+    margin: 0;
+    box-shadow: none;
+    background: none;
+  }
+
+  .section {
+    padding-inline: 0;
+    /* Keep a heading with at least the start of what it introduces. */
+    break-inside: auto;
+  }
+
+  .section-title { break-after: avoid; page-break-after: avoid; }
+  .hero { padding-top: 0; }
+
+  .project-media,
+  .about-media { display: none; }
+
+  .project,
+  .section-about { grid-template-columns: 1fr; }
+
+  .contact-grid { grid-template-columns: 1fr; }
+  .contact-direct { border: none; background: none; padding: 0; }
+  .direct-row { border: none; padding: 0.2rem 0; background: none; }
+
+  /* Paper cannot be clicked, so the address has to be on it. */
+  .project-links a::after,
+  .direct-row::after { content: none; }
+
+  .project-links a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    color: #444;
+    word-break: break-all;
+  }
+
+  .footer-socials { display: none; }
+  .footer { border-top: 1px solid #999; padding-top: 4mm; }
+  .footer-text { font-size: 1.2rem; }
+
+  a { color: #000; text-decoration: none; }
+}

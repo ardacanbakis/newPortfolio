@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img">
+  <defs>
+    <linearGradient id="bg-dm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b0a2e"/>
+      <stop offset="100%" stop-color="#241f6b"/>
+    </linearGradient>
+    <linearGradient id="sheen-dm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" rx="24" fill="url(#bg-dm)"/>
+  <rect width="800" height="500" rx="24" fill="url(#sheen-dm)"/><path d="M92 300 v-110 a68 68 0 0 1 136 0 v110 z" fill="#1e1b4b" stroke="#a5b4fc" stroke-width="3" stroke-opacity="0.75"/><rect x="122" y="150" width="76" height="96" rx="4" fill="#312e81" stroke="#c7d2fe" stroke-width="3"/><circle cx="144" cy="178" r="11" fill="#fbbf24" fill-opacity="0.85"/><path d="M126 242 l26 -34 l22 26 l14 -16 l20 24 z" fill="#818cf8"/><path d="M308 300 v-110 a68 68 0 0 1 136 0 v110 z" fill="#1e1b4b" stroke="#a5b4fc" stroke-width="3" stroke-opacity="0.75"/><rect x="338" y="150" width="76" height="96" rx="4" fill="#312e81" stroke="#c7d2fe" stroke-width="3"/><circle cx="360" cy="178" r="11" fill="#fbbf24" fill-opacity="0.85"/><path d="M342 242 l26 -34 l22 26 l14 -16 l20 24 z" fill="#818cf8"/><path d="M524 300 v-110 a68 68 0 0 1 136 0 v110 z" fill="#1e1b4b" stroke="#a5b4fc" stroke-width="3" stroke-opacity="0.75"/><rect x="554" y="150" width="76" height="96" rx="4" fill="#312e81" stroke="#c7d2fe" stroke-width="3"/><circle cx="576" cy="178" r="11" fill="#fbbf24" fill-opacity="0.85"/><path d="M558 242 l26 -34 l22 26 l14 -16 l20 24 z" fill="#818cf8"/><path d="M40 300 h720 v20 h-720 z" fill="#a5b4fc" fill-opacity="0.18"/><path d="M40 320 l60 -20 h600 l60 20 z" fill="#a5b4fc" fill-opacity="0.10"/>
+  <text x="56" y="330" font-family="Exo 2, Segoe UI, sans-serif" font-size="46" font-weight="700"
+        fill="#ffffff">digitalMuseum</text>
+  <text x="56" y="366" font-family="Exo 2, Segoe UI, sans-serif" font-size="19"
+        fill="#c7d2fe" fill-opacity="0.85">Walkable 3D gallery — artworks from Wikimedia Commons</text>
+  <g><rect x="56" y="404" width="176" height="30" rx="15" fill="#000000" fill-opacity="0.28" stroke="#ffffff" stroke-opacity="0.30"/><text x="144" y="424" font-family="Exo 2, Segoe UI, sans-serif" font-size="14" fill="#ffffff" fill-opacity="0.92" text-anchor="middle">React Three Fiber</text></g><g><rect x="244" y="404" width="66" height="30" rx="15" fill="#000000" fill-opacity="0.28" stroke="#ffffff" stroke-opacity="0.30"/><text x="277" y="424" font-family="Exo 2, Segoe UI, sans-serif" font-size="14" fill="#ffffff" fill-opacity="0.92" text-anchor="middle">WebGL</text></g><g><rect x="322" y="404" width="140" height="30" rx="15" fill="#000000" fill-opacity="0.28" stroke="#ffffff" stroke-opacity="0.30"/><text x="392" y="424" font-family="Exo 2, Segoe UI, sans-serif" font-size="14" fill="#ffffff" fill-opacity="0.92" text-anchor="middle">Wikipedia API</text></g>
+</svg>

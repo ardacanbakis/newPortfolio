@@ -1,0 +1,121 @@
+/* ==========================================================================
+   v45 — Depth.
+
+   Everything reads off `--light`, the fraction of daylight still reaching the
+   current depth, which app.js computes with an exponential falloff. Near the
+   surface it changes fast; down in the twilight zone it barely moves. The
+   page dims with it: the reading plate goes from a pane of lit glass to
+   something with its own small lamp, the accent cools from turquoise toward
+   the green of bioluminescence, and the vignette closes in.
+   ========================================================================== */
+
+:root {
+  --light: 1;
+  --water: #0d5a86;
+
+  --bg: #01131f;
+  --surface: rgba(180, 236, 255, 0.07);
+  --surface-2: rgba(180, 236, 255, 0.12);
+  --fg: #eaf7fb;
+  --muted: rgba(234, 247, 251, 0.74);
+  --faint: rgba(234, 247, 251, 0.48);
+  --line: rgba(180, 236, 255, 0.18);
+
+  --accent: #57f0c8;
+  --accent-contrast: #012019;
+
+  --font-body: "Outfit", system-ui, -apple-system, sans-serif;
+  --font-display: "Outfit", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+
+  --radius: 1.2rem;
+  --maxw: 104rem;
+
+  --scene-fg: #eaf7fb;
+  --scene-muted: rgba(87, 240, 200, 0.9);
+
+  /* Denser the deeper you are — at the surface the water is bright enough to
+     read against, at nine hundred metres the plate is the only light. */
+  --plate: rgba(2, 16, 26, calc(0.46 + 0.32 * (1 - var(--light))));
+  --plate-border: rgba(87, 240, 200, calc(0.10 + 0.14 * (1 - var(--light))));
+  --plate-blur: blur(14px) saturate(130%);
+  --plate-blur-sm: blur(8px);
+  --plate-radius: 1.6rem;
+  --plate-shadow: 0 2.6rem 8rem rgba(0, 0, 0, 0.5);
+  --hero-shadow: 0 0.2rem 2.4rem rgba(0, 12, 20, 0.7);
+}
+
+body { color: var(--fg); }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; }
+
+/* Pressure closes the frame in as the light goes. */
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120vmax 90vmax at 50% 42%, transparent 30%, rgba(0, 6, 12, 0.8) 100%);
+  opacity: calc(0.35 + 0.5 * (1 - var(--light)));
+}
+
+/* ══ The depth gauge ═════════════════════════════════════════════════════ */
+
+.scene-place { counter-reset: metres var(--metres, 0); font-family: var(--font-mono); }
+.scene-place::after { content: " · " counter(metres) " m"; opacity: 0.65; }
+
+/* ══ Type ═════════════════════════════════════════════════════════════════ */
+
+.brand-mark { color: var(--accent); font-size: 2.1rem; }
+.brand-name { font-weight: 700; font-size: 1.9rem; }
+
+.hero-eyebrow { letter-spacing: 0.28em; text-transform: uppercase; font-size: 1.25rem; color: var(--accent); }
+.hero-name { font-size: clamp(5rem, 12vw, 12rem); line-height: 0.9; letter-spacing: -0.05em; }
+.hero-tagline { max-width: 50rem; font-size: 1.8rem; }
+.hero-meta { font-family: var(--font-mono); font-size: 1.15rem; letter-spacing: 0.12em; }
+
+.section-title { font-size: clamp(3rem, 5vw, 5rem); }
+.project-title { font-size: clamp(2.4rem, 3.8vw, 3.8rem); }
+.slide-kicker, .project-index, .service-index { color: var(--accent); font-family: var(--font-mono); }
+
+/* ══ Panels ═══════════════════════════════════════════════════════════════ */
+
+.btn { border-radius: 999px; font-weight: 600; }
+.btn-solid { background-color: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+.btn-ghost { border-color: rgba(180, 236, 255, 0.34); }
+
+.project,
+.service,
+.contact-form,
+.contact-direct,
+.about-media {
+  background-color: rgba(180, 236, 255, 0.05);
+  border-color: rgba(180, 236, 255, 0.14);
+  border-radius: 1.2rem;
+}
+
+.project-tags li {
+  background-color: rgba(87, 240, 200, 0.1);
+  border: 1px solid rgba(87, 240, 200, 0.2);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+}
+
+.direct-row { border-radius: 1rem; background-color: rgba(180, 236, 255, 0.06); }
+.direct-row svg { color: var(--accent); }
+
+.field input, .field textarea {
+  background-color: rgba(0, 10, 18, 0.55);
+  border-color: rgba(180, 236, 255, 0.2);
+  border-radius: 0.9rem;
+  color: var(--fg);
+}
+
+.field input:focus, .field textarea:focus { border-color: var(--accent); }
+
+/* ══ Chrome ═══════════════════════════════════════════════════════════════ */
+
+.site-header { background-color: rgba(1, 14, 24, calc(0.3 + 0.4 * (1 - var(--light)))); }
+.deck-counter, .deck-hint { font-family: var(--font-mono); }
+.scene-place { color: var(--accent); }

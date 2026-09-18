@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Arda Canbakış — Full-Stack Web Developer</title>
+    <meta name="description" content="Arda Canbakış — full-stack web developer. Web apps, parametric 3D tools and native desktop utilities." />
+    <meta name="author" content="Arda Canbakış" />
+    <link rel="canonical" href="https://www.ardacanbakis.com/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.ardacanbakis.com/" />
+    <meta property="og:title" content="Arda Canbakış — Full-Stack Web Developer" />
+    <meta property="og:description" content="Arda Canbakış — full-stack web developer. Web apps, parametric 3D tools and native desktop utilities." />
+    <meta property="og:image" content="https://www.ardacanbakis.com/assets/ardaCanbakis.jpeg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#0a0d18" />
+
+    <link rel="shortcut icon" href="./assets/icons/huskyMeh.png" />
+    <link rel="stylesheet" href="../shared/base.css" />
+    <link rel="stylesheet" href="styles.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Arda Canbakış",
+        "url": "https://www.ardacanbakis.com/",
+        "jobTitle": "Full-Stack Web Developer",
+        "email": "mailto:dev.ardacanbakis@gmail.com",
+        "sameAs": [
+          "https://github.com/ardacanbakis",
+          "https://tr.linkedin.com/in/ardacanbakis",
+          "https://www.instagram.com/arda.canbakiss/",
+          "https://www.youtube.com/@arda.canbakis",
+          "https://medium.com/@dev.ardacanbakis"
+        ]
+      }
+    </script>
+  </head>
+
+  <body>
+    <div class="backdrop" aria-hidden="true">
+      <span class="blob blob-1"></span>
+      <span class="blob blob-2"></span>
+      <span class="blob blob-3"></span>
+      <span class="blob blob-4"></span>
+    </div>
+
+    <a class="skip-link" href="#home" data-i18n="skipLink">Skip to content</a>
+
+    <header class="site-header">
+      <a class="brand" href="#home" aria-label="Home">
+        <span class="brand-mark" aria-hidden="true">◈</span>
+        <span class="brand-name">Arda Canbakış</span>
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Main navigation">
+        <a href="#home" data-nav="home" data-i18n="navHome">Home</a>
+        <a href="#projects" data-nav="projects" data-i18n="navProjects">Projects</a>
+        <a href="#about" data-nav="about" data-i18n="navAbout">About</a>
+        <a href="#services" data-nav="services" data-i18n="navServices">Services</a>
+        <a href="#contact" data-nav="contact" data-i18n="navContact">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <select id="language-switcher" aria-label="Change language">
+          <option value="en">EN</option>
+          <option value="tr">TR</option>
+          <option value="es">ES</option>
+        </select>
+        <button id="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="section hero" id="home">
+        <div class="hero-inner">
+          <p class="hero-eyebrow" data-i18n="role">Full-Stack Web Developer</p>
+          <h1 class="hero-name">Arda Canbakış</h1>
+          <p class="hero-tagline" data-i18n="tagline">A full-stack developer who builds both halves — the surface people touch and the system underneath it.</p>
+          <div class="hero-cta">
+            <a class="btn btn-solid" href="#projects" data-i18n="navProjects">Projects</a>
+            <a class="btn btn-ghost" href="#contact" data-i18n="navContact">Contact</a>
+          </div>
+          <ul class="hero-meta">
+            <li>İstanbul</li>
+            <li>Remote</li>
+            <li>EN · TR · ES</li>
+          </ul>
+
+          <div class="hue-control">
+            <label for="hue" data-i18n="hueLabel">Tint</label>
+            <input type="range" id="hue" min="0" max="360" value="255" step="1" aria-label="Tint hue" />
+            <output for="hue" id="hue-out">255</output>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-projects" id="projects">
+        <div class="section-head">
+          <h2 class="section-title" data-i18n="projectsTitle">Selected work</h2>
+        </div>
+        <div class="projects">
+
+        <article class="project" data-project="gridsmith">
+          <a class="project-media" href="https://ardacanbakis.github.io/gridSmith/" target="_blank" rel="noopener" aria-label="Open gridSmith">
+            <img src="./assets/projects/gridsmith.svg" alt="gridSmith preview" loading="lazy" />
+          </a>
+          <div class="project-body">
+            <span class="project-index">01</span>
+            <h3 class="project-title">gridSmith</h3>
+            <p class="project-desc" data-i18n="projGridsmith">A parametric Gridfinity studio that runs entirely in the browser. Design bins, baseplates, drill-bit and screw organizers with a live 3D preview powered by Manifold CSG, then export STL, 3MF or STEP.</p>
+            <ul class="project-tags"><li>React</li><li>TypeScript</li><li>Three.js</li><li>WebAssembly</li></ul>
+            <div class="project-links">
+              <a href="https://ardacanbakis.github.io/gridSmith/" target="_blank" rel="noopener" data-i18n="liveDemo">Live demo</a>
+              <a href="https://github.com/ardacanbakis/gridSmith" target="_blank" rel="noopener" data-i18n="sourceCode">Code</a>
+            </div>
+          </div>
+        </article>
+        <article class="project" data-project="musicvisualizer">
+          <a class="project-media" href="https://ardacanbakis.github.io/musicVisualizer/" target="_blank" rel="noopener" aria-label="Open musicVisualizer">
+            <img src="./assets/projects/musicvisualizer.svg" alt="musicVisualizer preview" loading="lazy" />
+          </a>
+          <div class="project-body">
+            <span class="project-index">02</span>
+            <h3 class="project-title">musicVisualizer</h3>
+            <p class="project-desc" data-i18n="projMusicvisualizer">An ambient audio-reactive visualiser driven by live microphone input. A custom DSP pipeline — log-spaced bands, spectral-flux onset detection and tempo estimation — feeds WebGL shader modes, with optional Spotify album-art palette extraction.</p>
+            <ul class="project-tags"><li>WebGL</li><li>Web Audio</li><li>GLSL</li><li>Spotify API</li></ul>
+            <div class="project-links">
+              <a href="https://ardacanbakis.github.io/musicVisualizer/" target="_blank" rel="noopener" data-i18n="liveDemo">Live demo</a>
+              <a href="https://github.com/ardacanbakis/musicVisualizer" target="_blank" rel="noopener" data-i18n="sourceCode">Code</a>
+            </div>
+          </div>
+        </article>
+        <article class="project" data-project="hushbar">
+          <a class="project-media" href="https://ardacanbakis.github.io/hushBar/" target="_blank" rel="noopener" aria-label="Open hushBar">
+            <img src="./assets/projects/hushbar.svg" alt="hushBar preview" loading="lazy" />
+          </a>
+          <div class="project-body">
+            <span class="project-index">03</span>
+            <h3 class="project-title">hushBar</h3>
+            <p class="project-desc" data-i18n="projHushbar">A menu-bar microphone mute that flips the actual hardware mute flag, so every app sees it at once. Customisable badge shapes, twelve presets and a global shortcut. Built natively twice — Swift and CoreAudio on macOS, C# on Windows.</p>
+            <ul class="project-tags"><li>Swift</li><li>AppKit</li><li>CoreAudio</li><li>C#</li></ul>
+            <div class="project-links">
+              <a href="https://ardacanbakis.github.io/hushBar/" target="_blank" rel="noopener" data-i18n="liveDemo">Live demo</a>
+              <a href="https://github.com/ardacanbakis/hushBar" target="_blank" rel="noopener" data-i18n="codeMacos">macOS code</a>
+              <a href="https://github.com/ardacanbakis/hushBar-windows" target="_blank" rel="noopener" data-i18n="codeWindows">Windows code</a>
+            </div>
+          </div>
+        </article>
+        <article class="project" data-project="wedding">
+          <a class="project-media" href="https://wedding.ardacanbakis.com/story/" target="_blank" rel="noopener" aria-label="Open Tansu &amp; Arda — Wedding">
+            <img src="./assets/projects/wedding.svg" alt="Tansu &amp; Arda — Wedding preview" loading="lazy" />
+          </a>
+          <div class="project-body">
+            <span class="project-index">04</span>
+            <h3 class="project-title">Tansu &amp; Arda — Wedding</h3>
+            <p class="project-desc" data-i18n="projWedding">A bilingual wedding platform: unguessable per-guest invitation links with RSVP, a login-protected admin dashboard with WhatsApp templates and headcount tracking, and an animated scroll-through story and timeline site. Static export, with Postgres row-level security doing the enforcing.</p>
+            <ul class="project-tags"><li>Next.js</li><li>Supabase</li><li>PostgreSQL RLS</li><li>i18n</li></ul>
+            <div class="project-links">
+              <a href="https://wedding.ardacanbakis.com/story/" target="_blank" rel="noopener" data-i18n="viewStory">Our story</a>
+              <a href="https://github.com/ardacanbakis/t-t-wedding" target="_blank" rel="noopener" data-i18n="sourceCode">Code</a>
+            </div>
+          </div>
+        </article>
+        <article class="project" data-project="vetapp">
+          <a class="project-media" href="https://vetapp-ardacanbakis.vercel.app/" target="_blank" rel="noopener" aria-label="Open VetApp">
+            <img src="./assets/projectVetApp.png" alt="VetApp preview" loading="lazy" />
+          </a>
+          <div class="project-body">
+            <span class="project-index">05</span>
+            <h3 class="project-title">VetApp</h3>
+            <p class="project-desc" data-i18n="projVetapp">A comprehensive web application with a React frontend and a Spring Boot backend, providing a complete management solution for any veterinary clinic.</p>
+            <ul class="project-tags"><li>React</li><li>Spring Boot</li><li>Java</li><li>PostgreSQL</li></ul>
+            <div class="project-links">
+              <a href="https://vetapp-ardacanbakis.vercel.app/" target="_blank" rel="noopener" data-i18n="liveDemo">Live demo</a>
+              <a href="https://github.com/ardacanbakis/vetApp" target="_blank" rel="noopener" data-i18n="sourceCode">Code</a>
+            </div>
+          </div>
+        </article>
+        <article class="project" data-project="gym">
+          <a class="project-media" href="https://www.ardacanbakis.com/gym/gym.html" target="_blank" rel="noopener" aria-label="Open Theo's Gym">
+            <img src="./assets/projectGYM.png" alt="Theo's Gym preview" loading="lazy" />
+          </a>
+          <div class="project-body">
+            <span class="project-index">06</span>
+            <h3 class="project-title">Theo's Gym</h3>
+            <p class="project-desc" data-i18n="projGym">A responsive gym website with features like a BMI calculator, dynamic class schedules, and e-commerce functionality.</p>
+            <ul class="project-tags"><li>JavaScript</li><li>CSS</li><li>Bootstrap</li></ul>
+            <div class="project-links">
+              <a href="https://www.ardacanbakis.com/gym/gym.html" target="_blank" rel="noopener" data-i18n="liveDemo">Live demo</a>
+            </div>
+          </div>
+        </article>
+        </div>
+        <a class="btn btn-ghost more-link" href="https://github.com/ardacanbakis?tab=repositories" target="_blank" rel="noopener" data-i18n="moreOnGithub">
+          See all repositories on GitHub
+        </a>
+      </section>
+
+      <section class="section section-about" id="about">
+        <div class="about-media">
+        <img src="./assets/aboutPhoto.jpg" alt="Arda Canbakış outdoors" loading="lazy" />
+        </div>
+        <div class="about-body">
+        <h2 class="section-title" data-i18n="aboutTitle">About me</h2>
+        <p data-i18n="aboutBody1">I am a versatile developer proficient in both front-end and back-end technologies. My passion for coding is matched only by my desire to learn and adapt to new challenges. I thrive in dynamic environments and am always ready to tackle complex problems with innovative solutions.</p>
+        <p data-i18n="aboutBody2">Away from the keyboard I am learning new languages, chasing extreme sports, building things by hand and spending as much time outdoors as I can.</p>
+        <a class="btn btn-ghost" href="assets/ArdaCanbakisCv.pdf" target="_blank" rel="noopener" data-i18n="downloadCv">Download my CV</a>
+        </div>
+
+      </section>
+
+      <section class="section section-services" id="services">
+        <div class="section-head">
+          <h2 class="section-title" data-i18n="servicesTitle">What I can build for you</h2>
+        </div>
+        <div class="services">
+        <article class="service">
+        <span class="service-index">01</span>
+        <h3 data-i18n="serviceWebTitle">Web Development</h3>
+        <p data-i18n="serviceWebBody">From concept to deployment, I offer comprehensive web development services to bring your vision to life. Whether you need a simple website or a complex web application, I have the skills and experience to deliver high-quality solutions.</p>
+        </article>
+        <article class="service">
+        <span class="service-index">02</span>
+        <h3 data-i18n="serviceUiTitle">UI/UX Design</h3>
+        <p data-i18n="serviceUiBody">Creating user-friendly and aesthetically pleasing interfaces is my specialty. I focus on crafting designs that provide a seamless user experience, ensuring that your users can navigate your site with ease and enjoy the process.</p>
+        </article>
+        <article class="service">
+        <span class="service-index">03</span>
+        <h3 data-i18n="service3dTitle">3D &amp; Parametric Tools</h3>
+        <p data-i18n="service3dBody">Browser-based 3D configurators and print-ready model generators — the kind of thing behind gridSmith and stlSmith. Real-time geometry, live preview and STL, 3MF or STEP export, with no software for your customers to install.</p>
+        </article>
+        <article class="service">
+        <span class="service-index">04</span>
+        <h3 data-i18n="serviceAppTitle">App &amp; Desktop Development</h3>
+        <p data-i18n="serviceAppBody">Responsive mobile experiences and native desktop utilities alike. From progressive web apps to menu-bar tools written in Swift and C#, I build software that feels at home on whatever device it runs on.</p>
+        </article>
+        </div>
+
+      </section>
+
+      <section class="section section-contact" id="contact">
+        <div class="section-head">
+          <h2 class="section-title" data-i18n="contactTitle">Start a conversation</h2>
+          <p class="section-lede" data-i18n="contactLede">Have a project in mind, or just want to say hello? Send a message and I'll get back to you.</p>
+        </div>
+
+        <div class="contact-grid">
+        <form id="contact-form" class="contact-form" novalidate>
+        <!-- Web3Forms: replace with your own access key from https://web3forms.com -->
+        <input type="hidden" name="access_key" value="YOUR-WEB3FORMS-ACCESS-KEY" />
+        <input type="hidden" name="subject" value="New message from ardacanbakis.com" />
+        <input type="hidden" name="from_name" value="ardacanbakis.com" />
+        <input type="checkbox" name="botcheck" class="hp-field" tabindex="-1" autocomplete="off" />
+
+        <div class="two-up">
+        <div class="field">
+        <label for="cf-name" data-i18n="formName">Your name</label>
+        <input id="cf-name" name="name" type="text" autocomplete="name" required />
+        <small class="field-error" data-i18n="errName">Please enter your name.</small>
+        </div>
+        <div class="field">
+        <label for="cf-email" data-i18n="formEmail">Email address</label>
+        <input id="cf-email" name="email" type="email" autocomplete="email" required />
+        <small class="field-error" data-i18n="errEmail">Please enter a valid email address.</small>
+        </div>
+        </div>
+        <div class="field">
+        <label for="cf-subject" data-i18n="formSubject">Subject</label>
+        <input id="cf-subject" name="user_subject" type="text" />
+        </div>
+        <div class="field">
+        <label for="cf-message" data-i18n="formMessage">Message</label>
+        <textarea id="cf-message" name="message" rows="6" required></textarea>
+        <small class="field-error" data-i18n="errMessage">Please write a message.</small>
+        </div>
+
+        <button type="submit" class="btn btn-solid" data-i18n="formSend">Send message</button>
+        <p class="form-status" role="status" aria-live="polite"></p>
+        </form>
+
+        <aside class="contact-direct">
+        <h3 data-i18n="directTitle">Or reach me directly</h3>
+        <a class="direct-row" href="mailto:dev.ardacanbakis@gmail.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+        <span>dev.ardacanbakis@gmail.com</span>
+        </a>
+        <a class="direct-row" href="#" data-whatsapp target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        <span data-i18n="whatsappRow">Chat on WhatsApp</span>
+        </a>
+        <a class="direct-row" href="https://linktr.ee/arda.canbakis" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 13v8"/><path d="M4.5 6.5 12 13l7.5-6.5"/><path d="M4.5 12.5 12 19"/><path d="M19.5 12.5 12 19"/><path d="M12 3v6"/></svg>
+        <span data-i18n="allLinks">All my links</span>
+        </a>
+        <img class="qr" src="assets/linkTreeQR.svg" alt="QR code to my Linktree" width="170" height="170" loading="lazy" />
+        </aside>
+        </div>
+
+      </section>
+    </main>
+
+    <footer class="footer">
+    <div class="footer-socials">
+    <a href="https://ardacanbakis.com" target="_blank" rel="noopener" title="Website" aria-label="Website"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></a>
+    <a href="https://github.com/ardacanbakis" target="_blank" rel="noopener" title="GitHub" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+    <a href="https://www.instagram.com/arda.canbakiss/" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></a>
+    <a href="https://www.youtube.com/@arda.canbakis" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+    <a href="https://open.spotify.com/user/11146430303" target="_blank" rel="noopener" title="Spotify" aria-label="Spotify"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.601.301.98zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.56 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg></a>
+    <a href="https://linkedin.com/in/ardacanbakis" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+    <a href="https://medium.com/@dev.ardacanbakis" target="_blank" rel="noopener" title="Medium" aria-label="Medium"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.54 12a6.8 6.8 0 0 1-6.77 6.82A6.8 6.8 0 0 1 0 12a6.8 6.8 0 0 1 6.77-6.82A6.8 6.8 0 0 1 13.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"/></svg></a>
+    <a href="https://linktr.ee/arda.canbakis" target="_blank" rel="noopener" title="Linktree" aria-label="Linktree"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 13v8"/><path d="M4.5 6.5 12 13l7.5-6.5"/><path d="M4.5 12.5 12 19"/><path d="M19.5 12.5 12 19"/><path d="M12 3v6"/></svg></a>
+    <a href="#" data-whatsapp target="_blank" rel="noopener" title="WhatsApp" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg></a>
+    </div>
+    <p class="footer-text">
+    <span data-i18n="createdWith">Created with</span>
+    <svg class="footer-heart" viewBox="0 0 24 24" fill="#ef4444" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    <span data-i18n="by">by</span>
+    <a class="created" href="https://ardacanbakis.com" target="_blank" rel="noopener">Arda Canbakış</a>
+    &copy; <span id="footer-year">2026</span>
+    </p>
+    </footer>
+
+    <a class="whatsapp-float" data-whatsapp href="#" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+    </a>
+
+    <script src="../shared/site.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,191 @@
+/* ==========================================================================
+   v41 — Day cycle.
+
+   The sky is this stylesheet. app.js publishes five numbers — three sky
+   stops, the sun's colour and position, and one `--daylight` figure between
+   0 and 1 — and everything below is a function of them: the gradient, the
+   disc, its glow, how opaque the reading plate has to be, how hard the
+   shadows under the display type are.
+
+   One decision worth defending: the plate stays dark and the text stays light
+   all day, rather than flipping to a light plate at noon. A page whose
+   foreground inverts halfway through is disorienting, and smoked glass over a
+   bright sky is a real thing that reads correctly. The plate only gets
+   *denser* as the sky brightens, which is the same thing a real tinted window
+   does.
+   ========================================================================== */
+
+:root {
+  --daylight: 0;
+
+  --sky-zenith: #1a1e3e;
+  --sky-mid: #5c4a76;
+  --sky-horizon: #e88e60;
+  --sun: #ffc482;
+  --land: #161222;
+
+  --bg: #0b1020;
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-2: rgba(255, 255, 255, 0.1);
+  --fg: #f6f4ef;
+  --muted: rgba(246, 244, 239, 0.74);
+  --faint: rgba(246, 244, 239, 0.5);
+  --line: rgba(246, 244, 239, 0.18);
+
+  --accent: var(--sun);
+  --accent-contrast: #1a1205;
+
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+
+  --radius: 1rem;
+  --maxw: 104rem;
+
+  /* Scene tokens (shared/scene.css) */
+  --scene-fg: #f6f4ef;
+  --scene-muted: rgba(246, 244, 239, 0.7);
+  --plate: rgba(9, 11, 22, calc(0.34 + 0.30 * var(--daylight)));
+  --plate-border: rgba(255, 255, 255, calc(0.10 + 0.10 * var(--daylight)));
+  --plate-blur: blur(16px) saturate(130%);
+  --plate-blur-sm: blur(9px);
+  --plate-radius: 1.4rem;
+  --plate-shadow: 0 2.4rem 7rem rgba(0, 0, 0, 0.42);
+  --hero-shadow: 0 0.2rem 2.6rem rgba(0, 0, 0, calc(0.4 + 0.35 * var(--daylight)));
+}
+
+body { color: var(--fg); }
+
+/* ══ The sky ══════════════════════════════════════════════════════════════ */
+
+.stage {
+  background-color: var(--sky-zenith);
+  background-image: linear-gradient(
+    to bottom,
+    var(--sky-zenith) 0%,
+    var(--sky-mid) 46%,
+    var(--sky-horizon) 82%,
+    var(--sky-horizon) 100%
+  );
+}
+
+/* The sun. One disc and one very large soft glow, both parked on the position
+   app.js writes. The glow is a separate layer because a single radial
+   gradient cannot be both a hard-edged disc and a hundred-pixel bloom. */
+.stage::before,
+.stage::after {
+  content: "";
+  position: absolute;
+  left: var(--sun-x, 50%);
+  top: var(--sun-y, 30%);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.stage::before {
+  width: min(58vmax, 96rem);
+  height: min(58vmax, 96rem);
+  background: radial-gradient(circle, var(--sun) 0%, transparent 62%);
+  opacity: calc(0.12 + 0.30 * var(--daylight));
+  mix-blend-mode: screen;
+}
+
+.stage::after {
+  width: clamp(4.4rem, 6vmax, 8rem);
+  height: clamp(4.4rem, 6vmax, 8rem);
+  background: radial-gradient(circle, #fff 0%, var(--sun) 46%, transparent 72%);
+  /* Below the horizon the disc is gone; only the glow above lingers, which is
+     what actually makes dusk read as dusk rather than as a dimmer switch. */
+  opacity: calc(0.25 + 0.75 * var(--daylight));
+}
+
+/* ══ Type ═════════════════════════════════════════════════════════════════ */
+
+.brand-mark { color: var(--sun); font-size: 2rem; }
+.brand-name { font-family: var(--font-display); font-size: 2.1rem; font-weight: 600; }
+
+.hero-eyebrow {
+  font-size: 1.3rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(246, 244, 239, 0.82);
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(5.2rem, 12vw, 13rem);
+  line-height: 0.94;
+  letter-spacing: -0.015em;
+}
+
+.hero-tagline { max-width: 52rem; font-size: 1.8rem; color: rgba(246, 244, 239, 0.88); }
+.hero-meta { font-size: 1.25rem; letter-spacing: 0.16em; }
+
+.section-title,
+.project-title,
+.about-title,
+.service h3,
+.contact-direct h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.section-title { font-size: clamp(3rem, 5vw, 5rem); }
+.project-title { font-size: clamp(2.6rem, 4vw, 4rem); }
+
+.slide-kicker,
+.project-index,
+.service-index { color: var(--sun); }
+
+/* ══ Panels ═══════════════════════════════════════════════════════════════ */
+
+.btn { border-radius: 999px; }
+.btn-solid { background-color: var(--sun); border-color: var(--sun); color: var(--accent-contrast); }
+.btn-ghost { border-color: rgba(246, 244, 239, 0.4); }
+
+.project,
+.service,
+.contact-form,
+.contact-direct,
+.about-media {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  border-radius: 1.2rem;
+}
+
+.project-tags li,
+.direct-row {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+
+.direct-row { border-radius: 0.9rem; }
+.direct-row svg { color: var(--sun); }
+
+.field input,
+.field textarea {
+  background-color: rgba(4, 6, 14, 0.5);
+  border-color: rgba(255, 255, 255, 0.16);
+  border-radius: 0.8rem;
+  color: var(--fg);
+}
+
+.field input:focus, .field textarea:focus { border-color: var(--sun); }
+
+/* ══ Chrome ═══════════════════════════════════════════════════════════════ */
+
+.site-header {
+  background-color: rgba(6, 8, 18, calc(0.24 + 0.26 * var(--daylight)));
+  border-bottom-color: transparent;
+}
+
+.deck-rail button,
+.deck-arrow,
+.deck-counter,
+.deck-hint,
+.scene-place { color: var(--fg); }
+
+.scene-place { color: var(--sun); }

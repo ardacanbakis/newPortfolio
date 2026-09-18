@@ -1,0 +1,482 @@
+/* ==========================================================================
+   v36 — Liquid glass.
+
+   Everything on this page is a pane of glass over one live backdrop. Four
+   slow blobs drift behind the document; every surface above them blurs,
+   saturates and refracts what passes underneath, so the page never has a
+   flat colour anywhere — it has whatever the backdrop is doing at that spot.
+
+   Three platform features carry it, and none of them appears anywhere in
+   versions 1 to 35:
+
+   1. **`oklch()`** — the whole palette is one hue token. `--hue` is the only
+      number that changes when you drag the tint control; every surface, rule,
+      text tone and accent is derived from it. In sRGB that trick produces
+      mud, because equal lightness numbers are not equally light. In OKLCH
+      lightness means lightness, so a 62% grey stays a 62% grey at every hue.
+
+   2. **`@property`** — a custom property is a string unless you tell the
+      browser what it holds, and a string cannot be interpolated. Declaring
+      `--sheen` a `<number>` and `--edge-angle` an `<angle>` is what lets the
+      specular highlight fade up and the rim light rotate as a transition
+      rather than a snap.
+
+   3. **Real refraction cues** — a light catch along the top inside edge, a
+      shade along the bottom, a conic rim that brightens on the side the
+      light is coming from, and a specular hotspot that tracks the pointer.
+      Blur alone reads as frosted plastic; it is the edges that read as glass.
+   ========================================================================== */
+
+/* ══ Typed custom properties ══════════════════════════════════════════════
+   Declared, not merely used, so they can animate. */
+
+@property --sheen {
+  syntax: "<number>";
+  /* The specular is painted by ::before, and a pseudo-element only sees a
+     custom property its originating element passes down. Declared
+     `inherits: false` this would read the initial value — zero — and no
+     highlight would ever appear. */
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --edge-angle {
+  syntax: "<angle>";
+  /* Same reason: the rim lives on ::after. */
+  inherits: true;
+  initial-value: 135deg;
+}
+
+@property --lift {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+:root {
+  /* The one number. Everything below is derived from it. */
+  --hue: 255;
+
+  --bg: oklch(15% 0.035 var(--hue));
+  --surface: oklch(24% 0.045 var(--hue));
+  --surface-2: oklch(30% 0.05 var(--hue));
+  --fg: oklch(97% 0.014 var(--hue));
+  --muted: oklch(80% 0.028 var(--hue));
+  --faint: oklch(65% 0.032 var(--hue));
+  --line: oklch(97% 0.014 var(--hue) / 0.16);
+
+  --accent: oklch(80% 0.155 calc(var(--hue) + 28));
+  --accent-contrast: oklch(20% 0.05 var(--hue));
+
+  --font-body: "Instrument Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "Instrument Serif", Georgia, serif;
+
+  --radius: 2rem;
+  --maxw: 116rem;
+  --section-y: 12rem;
+
+  --blur: 20px;
+  --glass-top: oklch(100% 0 0 / 0.28);
+  --glass-bottom: oklch(0% 0 0 / 0.28);
+  --glass-fill: oklch(70% 0.06 var(--hue) / 0.09);
+}
+
+body { background-color: var(--bg); }
+
+/* The document sits above the backdrop. Nothing here is at a negative
+   z-index: an element paints its own background *after* its negative-index
+   children, so a layer parked below an opaque body is a layer nobody sees. */
+/* The floating button is deliberately not in this list: it is
+   `position: fixed` in base.css, and `position: relative` here would drop it
+   into the flow. Its z-index is already 45, well clear of the backdrop. */
+.site-header,
+main,
+.footer { position: relative; z-index: 1; }
+
+.site-header { z-index: 40; }
+
+/* ══ The backdrop ═════════════════════════════════════════════════════════ */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.blob {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(70px);
+  will-change: transform;
+}
+
+.blob-1 {
+  width: 56vmax; height: 56vmax;
+  top: -18vmax; left: -12vmax;
+  background: oklch(62% 0.19 var(--hue));
+  opacity: 0.55;
+  animation: drift-a 34s ease-in-out infinite;
+}
+
+.blob-2 {
+  width: 44vmax; height: 44vmax;
+  top: 22vh; right: -14vmax;
+  background: oklch(66% 0.17 calc(var(--hue) + 70));
+  opacity: 0.42;
+  animation: drift-b 43s ease-in-out infinite;
+}
+
+.blob-3 {
+  width: 50vmax; height: 50vmax;
+  bottom: -18vmax; left: 18vw;
+  background: oklch(58% 0.2 calc(var(--hue) - 60));
+  opacity: 0.45;
+  animation: drift-c 51s ease-in-out infinite;
+}
+
+.blob-4 {
+  width: 30vmax; height: 30vmax;
+  top: 46vh; left: 34vw;
+  background: oklch(84% 0.14 calc(var(--hue) + 140));
+  opacity: 0.3;
+  animation: drift-d 39s ease-in-out infinite;
+}
+
+@keyframes drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(12vw, 8vh, 0) scale(1.14); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.06); }
+  50%      { transform: translate3d(-14vw, -10vh, 0) scale(0.92); }
+}
+@keyframes drift-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.96); }
+  50%      { transform: translate3d(10vw, -12vh, 0) scale(1.18); }
+}
+@keyframes drift-d {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(-18vw, 14vh, 0); }
+}
+
+/* ══ The glass recipe ═════════════════════════════════════════════════════
+   One rule, applied to every surface that should read as a pane. */
+
+.site-header,
+.project,
+.service,
+.contact-form,
+.contact-direct,
+.hue-control,
+.about-media,
+.btn {
+  /* The nav is deliberately absent. Below 1024px it is a fixed drawer, and
+     `position: relative` from this rule would drop it back into the header's
+     flow on top of the button that opens it. It gets its own glass in the
+     media query at the bottom. */
+  position: relative;
+  isolation: isolate;
+  background-color: transparent;
+  background-image: linear-gradient(
+    var(--edge-angle),
+    oklch(100% 0 0 / 0.13),
+    oklch(100% 0 0 / 0.03) 42%,
+    oklch(0% 0 0 / 0.05)
+  ), linear-gradient(var(--glass-fill), var(--glass-fill));
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(185%);
+  backdrop-filter: blur(var(--blur)) saturate(185%);
+  border: 1px solid transparent;
+  box-shadow:
+    inset 0 1px 0 var(--glass-top),
+    inset 0 -1px 0 var(--glass-bottom),
+    0 2.4rem 6rem oklch(0% 0 0 / 0.34);
+  transition: --edge-angle 0.5s ease, --sheen 0.35s linear, --lift 0.3s ease,
+              transform 0.3s ease;
+}
+
+/* The lift is deliberately not on the header. A transform — even a zero one —
+   makes a fixed-position element the containing block for its fixed
+   descendants, and the mobile nav drawer is a fixed child of the header. */
+.project,
+.service,
+.contact-form,
+.contact-direct,
+.about-media,
+.btn {
+  transform: translateY(calc(var(--lift) * -1));
+}
+
+/* The rim. A conic gradient painted into a one-pixel ring, so the bright
+   quarter can rotate with --edge-angle instead of sitting on a fixed side. */
+.site-header::after,
+.project::after,
+.service::after,
+.contact-form::after,
+.contact-direct::after,
+.hue-control::after,
+.about-media::after,
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from calc(var(--edge-angle) - 90deg),
+    oklch(100% 0 0 / 0.6),
+    oklch(100% 0 0 / 0.06) 22%,
+    oklch(100% 0 0 / 0.04) 58%,
+    oklch(100% 0 0 / 0.42)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* The specular hotspot. --mx/--my are written by app.js: the cursor position
+   on a mouse, the pane's own travel through the viewport on a touchscreen. */
+.project::before,
+.service::before,
+.contact-form::before,
+.contact-direct::before,
+.about-media::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: radial-gradient(
+    24rem 24rem at var(--mx, 50%) var(--my, 0%),
+    oklch(100% 0 0 / calc(0.26 * var(--sheen))),
+    transparent 62%
+  );
+  pointer-events: none;
+}
+
+.project:hover,
+.service:hover,
+.contact-form:focus-within,
+.contact-direct:hover,
+.about-media:hover {
+  --sheen: 1;
+  --edge-angle: 315deg;
+  --lift: 6px;
+}
+
+.project, .service, .contact-form, .contact-direct, .about-media { border-radius: var(--radius); }
+
+/* ══ Chrome ═══════════════════════════════════════════════════════════════ */
+
+.site-header {
+  border-radius: 0;
+  box-shadow: inset 0 -1px 0 var(--glass-bottom);
+  --blur: 26px;
+}
+
+.site-header::after { display: none; }
+.site-header.scrolled { box-shadow: inset 0 -1px 0 var(--glass-bottom), 0 1rem 4rem oklch(0% 0 0 / 0.28); }
+
+.nav a { font-weight: 500; }
+
+.brand-mark { font-size: 2rem; }
+.brand-name { font-family: var(--font-display); font-size: 2rem; letter-spacing: 0.01em; }
+
+#language-switcher { background-color: oklch(30% 0.05 var(--hue) / 0.5); }
+
+/* ══ Type ═════════════════════════════════════════════════════════════════ */
+
+.hero-eyebrow {
+  font-size: 1.35rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(5.4rem, 11vw, 11rem);
+  letter-spacing: -0.02em;
+}
+
+.hero-tagline { max-width: 58rem; }
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.project-title, .service h3, .contact-direct h3 { font-family: var(--font-display); font-weight: 400; }
+
+/* ══ Buttons ══════════════════════════════════════════════════════════════ */
+
+.btn {
+  border-radius: 999px;
+  --blur: 12px;
+  font-weight: 500;
+}
+
+.btn-solid {
+  background-image: linear-gradient(var(--edge-angle), oklch(88% 0.13 calc(var(--hue) + 28)), oklch(72% 0.17 calc(var(--hue) + 28)));
+  color: var(--accent-contrast);
+}
+
+.btn:hover { --edge-angle: 315deg; --lift: 3px; --sheen: 1; }
+
+/* ══ The tint control ═════════════════════════════════════════════════════ */
+
+.hue-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.4rem;
+  margin-top: 3.5rem;
+  padding: 1rem 1.8rem;
+  border-radius: 999px;
+  --blur: 14px;
+}
+
+.hue-control label {
+  font-size: 1.25rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hue-control output {
+  min-width: 4.2rem;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.4rem;
+  color: var(--fg);
+}
+
+.hue-control input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: clamp(12rem, 26vw, 20rem);
+  height: 44px;
+  background: none;
+  cursor: pointer;
+}
+
+/* The track is the hue wheel itself, so the control shows what it does. */
+.hue-control input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg,
+    oklch(70% 0.16 0), oklch(70% 0.16 60), oklch(70% 0.16 120),
+    oklch(70% 0.16 180), oklch(70% 0.16 240), oklch(70% 0.16 300), oklch(70% 0.16 360));
+}
+
+.hue-control input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg,
+    oklch(70% 0.16 0), oklch(70% 0.16 60), oklch(70% 0.16 120),
+    oklch(70% 0.16 180), oklch(70% 0.16 240), oklch(70% 0.16 300), oklch(70% 0.16 360));
+}
+
+.hue-control input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: oklch(98% 0.02 var(--hue));
+  border: 2px solid oklch(30% 0.05 var(--hue));
+  box-shadow: 0 0.4rem 1.2rem oklch(0% 0 0 / 0.45);
+}
+
+.hue-control input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: oklch(98% 0.02 var(--hue));
+  border: 2px solid oklch(30% 0.05 var(--hue));
+}
+
+/* ══ Cards ════════════════════════════════════════════════════════════════ */
+
+.project-body, .project-media { position: relative; z-index: 2; }
+.project-media { border-radius: var(--radius) var(--radius) 0 0; background-color: oklch(30% 0.05 var(--hue) / 0.4); }
+.project:hover { border-color: transparent; }
+
+.project-index { color: var(--accent); font-variant-numeric: tabular-nums; }
+
+.project-tags li {
+  background-color: oklch(100% 0 0 / 0.07);
+  border: 1px solid oklch(100% 0 0 / 0.1);
+  border-radius: 999px;
+}
+
+.service { position: relative; }
+.service > * { position: relative; z-index: 2; }
+.service:hover { border-color: transparent; }
+.service-index { color: var(--accent); }
+
+.about-media { border-radius: var(--radius); overflow: hidden; padding: 1rem; }
+.about-media img { border-radius: calc(var(--radius) - 1rem); }
+
+/* ══ Form ═════════════════════════════════════════════════════════════════ */
+
+.contact-form > *, .contact-direct > * { position: relative; z-index: 2; }
+
+.field input,
+.field textarea {
+  background-color: oklch(12% 0.03 var(--hue) / 0.45);
+  border: 1px solid var(--line);
+  border-radius: 1.2rem;
+  color: var(--fg);
+}
+
+.field input:focus, .field textarea:focus { border-color: var(--accent); }
+
+.direct-row { border-radius: 1.2rem; background-color: oklch(100% 0 0 / 0.05); }
+.direct-row svg { color: var(--accent); }
+
+/* ══ Footer ═══════════════════════════════════════════════════════════════ */
+
+.footer { border-top: 1px solid var(--line); background: none; }
+.footer-socials a { background-color: oklch(100% 0 0 / 0.06); border: 1px solid var(--line); }
+.footer-socials a:hover { background-color: var(--accent); color: var(--accent-contrast); }
+
+/* ══ Responsive ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 1023px) {
+  /* The drawer is a pane in its own right once it leaves the header. */
+  .nav {
+    background-image: linear-gradient(160deg, oklch(100% 0 0 / 0.1), oklch(0% 0 0 / 0.06)),
+                      linear-gradient(var(--glass-fill), var(--glass-fill));
+    background-color: oklch(15% 0.035 var(--hue) / 0.72);
+    -webkit-backdrop-filter: blur(26px) saturate(180%);
+    backdrop-filter: blur(26px) saturate(180%);
+    border-left: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 767px) {
+  :root { --blur: 16px; }
+  .hue-control { width: 100%; justify-content: space-between; }
+}
+
+@media (max-width: 599px) {
+  /* Four blurred blobs at 70px is the single most expensive thing here.
+     Phones get three, blurred less. */
+  .blob-4 { display: none; }
+  .blob { filter: blur(52px); }
+}
+
+/* ══ Reduced motion ═══════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  /* The blobs stop where they are; the glass keeps its edges, which is the
+     part of the effect that was never motion in the first place. */
+  .blob { animation: none; }
+}

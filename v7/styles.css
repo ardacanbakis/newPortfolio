@@ -1,0 +1,122 @@
+/* ==========================================================================
+   v7 — Interactive 3D
+
+   The hero holds a canvas: project names orbit as a rotating wireframe,
+   drawn by hand in app.js rather than pulling in a 3D library. It is
+   decorative and aria-hidden — the page reads identically without it, and it
+   never starts when reduced motion is requested.
+   ========================================================================== */
+
+:root {
+  --bg: #05070c;
+  --surface: rgba(255, 255, 255, 0.035);
+  --surface-2: rgba(255, 255, 255, 0.06);
+  --fg: #e6eefc;
+  --muted: #97a6c0;
+  --faint: #63718c;
+  --line: rgba(125, 211, 252, 0.18);
+
+  --accent: #7dd3fc;
+  --accent-contrast: #04121c;
+
+  --font-body: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+
+  --radius: 1.2rem;
+  --maxw: 122rem;
+  --section-y: 9rem;
+}
+
+/* A faint starfield so the dark never reads as flat black. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.5) 50%, transparent 50%),
+    radial-gradient(1px 1px at 70% 60%, rgba(255, 255, 255, 0.4) 50%, transparent 50%),
+    radial-gradient(1px 1px at 45% 80%, rgba(255, 255, 255, 0.35) 50%, transparent 50%),
+    radial-gradient(1px 1px at 85% 20%, rgba(255, 255, 255, 0.45) 50%, transparent 50%),
+    radial-gradient(circle at 60% 10%, rgba(125, 211, 252, 0.09), transparent 55%);
+  background-size: 340px 340px, 420px 420px, 520px 520px, 380px 380px, 100% 100%;
+}
+
+.site-header,
+main,
+.footer { position: relative; z-index: 2; }
+
+.site-header.scrolled { background-color: rgba(5, 7, 12, 0.9); }
+
+h1, h2, h3 { font-weight: 700; letter-spacing: -0.02em; }
+
+/* ── Hero with the canvas behind it ─────────────────────────────────────── */
+
+.hero { position: relative; overflow: hidden; }
+
+.hero-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  opacity: 0.9;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  /* The wireframe runs behind the text, so the copy gets its own soft plate
+     rather than relying on the canvas staying quiet where the words are. */
+  padding: clamp(2rem, 4vw, 4rem);
+  background: radial-gradient(120% 120% at 0% 0%, rgba(5, 7, 12, 0.92) 40%, rgba(5, 7, 12, 0.55) 100%);
+  border-radius: var(--radius);
+}
+
+.hero-name {
+  text-shadow: 0 0 4rem rgba(125, 211, 252, 0.35);
+}
+
+/* ── Glassy panels ──────────────────────────────────────────────────────── */
+
+.project,
+.service,
+.contact-form,
+.contact-direct {
+  background-color: var(--surface);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.project:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.25), 0 1.6rem 3.4rem rgba(0, 0, 0, 0.5);
+}
+
+.project-tags li { color: #a5cdf0; }
+
+.service:hover { box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.25); }
+
+.service-index { letter-spacing: 0.14em; }
+
+.field input,
+.field textarea { background-color: rgba(0, 0, 0, 0.35); }
+
+.btn-solid { box-shadow: 0 0 2.4rem rgba(125, 211, 252, 0.35); }
+
+.about-media img { box-shadow: 0 1.6rem 4rem rgba(0, 0, 0, 0.55); }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+  /* The wireframe is the point of this version, so it stays — but it drops
+     back so the text over it never gets busy on a small screen. */
+  .hero-canvas { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* app.js never starts the loop; hide the empty canvas rather than leaving a
+     blank rectangle in the layout. */
+  .hero-canvas { display: none; }
+}

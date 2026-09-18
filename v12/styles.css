@@ -1,0 +1,134 @@
+/* ==========================================================================
+   v12 — Liquid mesh gradient
+
+   Deep violet ground with colour drifting behind frosted panels. Rounder and
+   softer than any other version: large radii, no hard rules anywhere.
+   ========================================================================== */
+
+:root {
+  --bg: #1a0b2e;
+  --surface: rgba(255, 255, 255, 0.075);
+  --surface-2: rgba(255, 255, 255, 0.13);
+  --fg: #f6f0ff;
+  --muted: #c3b3dd;
+  --faint: #8f7fae;
+  --line: rgba(255, 255, 255, 0.16);
+
+  --accent: #f0abfc;
+  --accent-contrast: #2a0f45;
+
+  --font-body: "DM Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "DM Sans", system-ui, sans-serif;
+
+  --radius: 2.6rem;
+  --maxw: 118rem;
+  --section-y: 9rem;
+
+  --fx-cursor: #f0abfc;
+}
+
+h1, h2, h3 { font-weight: 700; letter-spacing: -0.03em; }
+
+.site-header,
+main,
+.footer { position: relative; z-index: 2; }
+
+.site-header {
+  background-color: rgba(26, 11, 46, 0.5);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+}
+
+.site-header.scrolled { background-color: rgba(26, 11, 46, 0.78); }
+
+.hero-inner {
+  padding: clamp(2.6rem, 5vw, 5.5rem);
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 1.2);
+  backdrop-filter: blur(26px) saturate(1.6);
+  -webkit-backdrop-filter: blur(26px) saturate(1.6);
+  max-width: none;
+}
+
+.hero-name {
+  background: linear-gradient(100deg, #ffffff 0%, #f0abfc 45%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ── Soft frosted everything ────────────────────────────────────────────── */
+
+.project,
+.service,
+.contact-form,
+.contact-direct {
+  background-color: var(--surface);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.project { border-radius: var(--radius); }
+.project-media { background-color: rgba(0, 0, 0, 0.18); }
+
+.project:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 1.8rem 4.4rem rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.26);
+}
+
+.project-tags li {
+  background-color: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #e2d6f5;
+}
+
+.service-index {
+  display: grid;
+  place-items: center;
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  background-color: rgba(240, 171, 252, 0.18);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.btn {
+  border-radius: 100px;
+  font-weight: 500;
+}
+
+.btn-solid {
+  background: linear-gradient(110deg, #f0abfc 0%, #a78bfa 60%, #7dd3fc 100%);
+  border-color: transparent;
+  color: var(--accent-contrast);
+  font-weight: 700;
+}
+
+.field input,
+.field textarea {
+  background-color: rgba(255, 255, 255, 0.07);
+  border-radius: 1.4rem;
+}
+
+.direct-row { background-color: rgba(255, 255, 255, 0.06); border-radius: 1.6rem; }
+
+.about-media img { border-radius: calc(var(--radius) * 0.9); }
+
+.qr { border-radius: 1.4rem; }
+
+.nav { background-color: rgba(26, 11, 46, 0.94); backdrop-filter: blur(24px); }
+
+/* ── Motion accent: the cards stretch slightly with scroll speed ───────── */
+
+.project { transform: scaleY(calc(1 + var(--fx-vel, 0) * 0.03)); }
+
+@media (pointer: coarse) {
+  /* Without a cursor the panels need a little more body of their own. */
+  .project,
+  .service,
+  .contact-form,
+  .contact-direct { background-color: rgba(255, 255, 255, 0.1); }
+}

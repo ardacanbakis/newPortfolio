@@ -1,0 +1,259 @@
+/* ==========================================================================
+   v24 — Studio.
+
+   The hero is a working parametric bin generator. Everything else on the page
+   is deliberately restrained, because the tool has to be the loudest thing on
+   it — this is the version that proves the "3D & Parametric Tools" claim
+   instead of making it.
+
+   The stage keeps a fixed aspect so the model never gets a letterbox, and the
+   panel sits beside it on a laptop and under it on a phone. On the narrowest
+   screens the stage shrinks rather than the controls: a slider you cannot hit
+   is worse than a small preview.
+   ========================================================================== */
+
+:root {
+  --bg: #0d1014;
+  --surface: #141a21;
+  --surface-2: #1c242e;
+  --fg: #e9eef5;
+  --muted: #9aa7b6;
+  --faint: #66717e;
+  --line: rgba(233, 238, 245, 0.11);
+
+  --accent: #78d6ff;
+  --accent-contrast: #04141c;
+
+  --font-body: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --font-display: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --radius: 1.2rem;
+  --maxw: 122rem;
+  --section-y: 11rem;
+}
+
+body {
+  background:
+    radial-gradient(90rem 60rem at 76% -12%, rgba(120, 214, 255, 0.09), transparent 62%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+h1, h2, h3 { letter-spacing: -0.025em; font-weight: 600; }
+
+.site-header { background-color: color-mix(in srgb, var(--bg) 86%, transparent); }
+.brand-mark { color: var(--accent); }
+.hero-eyebrow { font-family: var(--font-mono); font-size: 1.2rem; letter-spacing: 0.2em; }
+.hero-meta { font-family: var(--font-mono); font-size: 1.2rem; }
+
+/* ══ The studio ═══════════════════════════════════════════════════════════ */
+
+.hero { padding-top: 13rem; }
+
+.hero-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(2.4rem, 4vw, 5.4rem);
+  align-items: center;
+  max-width: none;
+}
+
+.hero-name { font-size: clamp(3.4rem, 5.4vw, 6rem); }
+.hero-tagline { font-size: clamp(1.6rem, 1.9vw, 2rem); max-width: 46rem; }
+
+.studio {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 3rem 8rem rgba(0, 0, 0, 0.45);
+}
+
+.studio-stage {
+  position: relative;
+  /* A fixed ratio rather than a height: the model is framed to the shorter
+     side, so a stage that changes shape changes how big the model looks. */
+  aspect-ratio: 1 / 1;
+  background:
+    radial-gradient(60% 60% at 50% 34%, #1b2530, #0b1015 76%);
+  border-right: 1px solid var(--line);
+}
+
+.studio-canvas { position: absolute; inset: 0; cursor: grab; touch-action: none; }
+.studio-canvas.dragging { cursor: grabbing; }
+.studio-canvas canvas { display: block; width: 100%; height: 100%; }
+
+.studio-badge {
+  position: absolute;
+  top: 1.2rem;
+  left: 1.2rem;
+  padding: 0.4rem 1rem;
+  background-color: rgba(9, 14, 19, 0.7);
+  border: 1px solid var(--line);
+  border-radius: 2rem;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.studio-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.2rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  color: var(--faint);
+  pointer-events: none;
+  transition: opacity 0.4s linear;
+}
+
+/* ── Panel ──────────────────────────────────────────────────────────────── */
+
+.studio-panel { padding: clamp(1.8rem, 2.4vw, 2.8rem); display: flex; flex-direction: column; }
+
+.studio-title {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 1.8rem;
+}
+
+.ctrl { margin-bottom: 1.4rem; }
+
+.ctrl label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+  font-size: 1.35rem;
+  color: var(--muted);
+}
+
+.ctrl output { font-family: var(--font-mono); font-size: 1.3rem; color: var(--accent); }
+
+/* A slider styled from scratch, because the native one is a different shape
+   in every browser and this panel has to read as one instrument. */
+.ctrl input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 44px;               /* the tap target, not the track */
+  background: none;
+  cursor: pointer;
+}
+
+.ctrl input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background-color: var(--surface-2);
+}
+
+.ctrl input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background-color: var(--surface-2);
+}
+
+.ctrl input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background-color: var(--accent);
+  border: 3px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.ctrl input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--accent);
+  border: 3px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.ctrl input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+.studio-stats {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.8rem 0 1.8rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--line);
+}
+
+.studio-stats > div { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.studio-stats dt { font-size: 1.25rem; color: var(--faint); }
+.studio-stats dd { font-family: var(--font-mono); font-size: 1.3rem; color: var(--fg); font-variant-numeric: tabular-nums; }
+
+.studio-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: auto; }
+.studio-actions .btn { flex: 1 1 14rem; padding-inline: 1.6rem; font-size: 1.35rem; }
+
+.studio-note {
+  margin-top: 1rem;
+  min-height: 1.8rem;
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  color: var(--accent);
+}
+
+/* ── The rest of the page ───────────────────────────────────────────────── */
+
+.btn { border-radius: 0.7rem; font-weight: 500; }
+.btn-solid { background-color: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+.project,
+.service,
+.contact-form,
+.contact-direct { background-color: var(--surface); border-color: var(--line); }
+
+.project-index { font-family: var(--font-mono); color: var(--accent); }
+.project-tags li { font-family: var(--font-mono); font-size: 1.15rem; border-radius: 2rem; }
+.field input, .field textarea { background-color: var(--bg); border-radius: 0.6rem; }
+.direct-row { border-radius: 0.6rem; }
+.direct-row svg { color: var(--accent); }
+.form-status { font-family: var(--font-mono); }
+.footer-text { font-family: var(--font-mono); font-size: 1.2rem; }
+
+/* ══ Responsive ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 1279px) {
+  .hero-inner { grid-template-columns: 1fr; }
+  .hero-copy { max-width: 62rem; }
+  .studio { grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); }
+}
+
+@media (max-width: 899px) {
+  /* Stage over panel. The stage loses height first — the controls must stay
+     full size, because they are the thing you actually operate. */
+  .studio { grid-template-columns: 1fr; }
+  .studio-stage { aspect-ratio: 4 / 3; border-right: none; border-bottom: 1px solid var(--line); }
+}
+
+@media (max-width: 599px) {
+  .studio-stage { aspect-ratio: 1 / 1; }
+  .studio-actions .btn { flex: 1 1 100%; }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .studio-stage { aspect-ratio: 16 / 9; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .studio-hint { transition: none; }
+}

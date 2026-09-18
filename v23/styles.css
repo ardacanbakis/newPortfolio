@@ -1,0 +1,162 @@
+/* ==========================================================================
+   v23 — Fly-through.
+
+   The panels are stacked in depth rather than side by side. Advancing flies
+   the current one past your head while the next comes forward out of the
+   dark, so the deck feels like travel rather than paging.
+
+   Inside a panel the pieces sit at different depths too: the kicker is
+   furthest back, the picture nearest, and they separate as the panel arrives.
+   That is the whole reason for the 3D — a flat panel flying forward reads as
+   a zoom, and a zoom is not a journey.
+   ========================================================================== */
+
+:root {
+  --bg: #05060a;
+  --surface: #0d1018;
+  --surface-2: #141926;
+  --fg: #eef0f6;
+  --muted: #a2a8bb;
+  --faint: #6f7689;
+  --line: rgba(238, 240, 246, 0.12);
+
+  --accent: #7c5cff;
+  --accent-contrast: #ffffff;
+
+  --font-body: "Archivo", system-ui, -apple-system, sans-serif;
+  --font-display: "Archivo", system-ui, -apple-system, sans-serif;
+
+  --radius: 1rem;
+  --maxw: 106rem;
+}
+
+body {
+  background:
+    radial-gradient(80rem 60rem at 50% 120%, rgba(124, 92, 255, 0.16), transparent 62%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* fx.js prepends its canvas at z-index 0. */
+main,
+.site-header,
+.footer { position: relative; z-index: 1; }
+.site-header { z-index: 40; background-color: color-mix(in srgb, var(--bg) 82%, transparent); }
+
+.brand { font-weight: 700; letter-spacing: -0.02em; }
+h1, h2, h3 { font-weight: 800; letter-spacing: -0.035em; }
+.hero-eyebrow { letter-spacing: 0.26em; }
+.btn { border-radius: 0.7rem; font-weight: 600; }
+
+.fx-cursor-dot,
+.fx-cursor-ring { --fx-cursor: var(--accent); }
+
+/* ══ The travel ═══════════════════════════════════════════════════════════ */
+
+.deck-ready .deck {
+  perspective: 900px;
+  perspective-origin: 50% 45%;
+  transform-style: preserve-3d;
+}
+
+.deck-ready .slide {
+  transform-style: preserve-3d;
+  transition:
+    transform 0.8s cubic-bezier(0.5, 0, 0.24, 1),
+    opacity 0.55s linear,
+    filter 0.6s linear;
+}
+
+/* Gone past you: large, blurred and out of focus behind your head. */
+.deck-ready .slide[data-state="past"] {
+  transform: translate3d(0, 0, 42rem);
+  opacity: 0;
+  filter: blur(10px);
+}
+
+/* Still coming: small, far off and soft. */
+.deck-ready .slide[data-state="future"] {
+  transform: translate3d(0, 0, calc(var(--offset) * -26rem));
+  opacity: 0;
+  filter: blur(6px);
+}
+
+.deck-ready .slide[data-state="current"] {
+  transform: none;
+  opacity: 1;
+  filter: none;
+  z-index: 3;
+}
+
+.deck-instant .slide { transition: none; filter: none; }
+.deck-instant .slide[data-state="past"],
+.deck-instant .slide[data-state="future"] { filter: none; }
+
+/* ── Depth inside the panel ─────────────────────────────────────────────
+   Each piece is pushed to its own plane. It costs nothing while the panel is
+   still and gives the arrival its parallax. */
+
+.deck-ready .slide-inner { transform-style: preserve-3d; }
+
+.deck-ready .slide-kicker,
+.deck-ready .section-head { transform: translateZ(-4rem); }
+.deck-ready .project-body,
+.deck-ready .about-body { transform: translateZ(1.5rem); }
+.deck-ready .project-media,
+.deck-ready .about-media { transform: translateZ(4.5rem); }
+.deck-ready .hero-cta { transform: translateZ(6rem); }
+
+.deck-ready .slide-inner > *,
+.deck-ready .project-body,
+.deck-ready .project-media,
+.deck-ready .about-body,
+.deck-ready .about-media,
+.deck-ready .hero-cta { transition: transform 0.8s cubic-bezier(0.5, 0, 0.24, 1); }
+
+/* Flat while it is being read; the depth only exists during the journey. */
+.deck-ready .slide[data-state="current"] .slide-kicker,
+.deck-ready .slide[data-state="current"] .section-head,
+.deck-ready .slide[data-state="current"] .project-body,
+.deck-ready .slide[data-state="current"] .project-media,
+.deck-ready .slide[data-state="current"] .about-body,
+.deck-ready .slide[data-state="current"] .about-media,
+.deck-ready .slide[data-state="current"] .hero-cta { transform: translateZ(0); }
+
+.deck-instant .slide * { transform: none !important; transition: none; }
+
+/* ── Chrome ─────────────────────────────────────────────────────────────── */
+
+.deck-dot.active .deck-dot-mark { background-color: var(--accent); border-color: var(--accent); }
+.deck-dot.active .deck-dot-label { color: var(--accent); }
+.deck-arrow { border-color: var(--line); }
+.deck-arrow:hover { background-color: var(--surface-2); }
+.deck-progress { color: var(--accent); }
+
+/* ── Content ────────────────────────────────────────────────────────────── */
+
+.slide-kicker b { color: var(--accent); }
+
+.deck-ready .slide-work .project-media {
+  border: 1px solid var(--line);
+  box-shadow: 0 3rem 8rem rgba(0, 0, 0, 0.6);
+}
+
+.deck-ready .about-media img { border-color: var(--line); }
+
+.deck-ready .slide-services .service,
+.deck-ready .slide-contact .contact-form,
+.deck-ready .slide-contact .contact-direct {
+  background-color: color-mix(in srgb, var(--surface) 78%, transparent);
+  border-color: var(--line);
+}
+
+.field input,
+.field textarea { background-color: rgba(2, 4, 10, 0.7); }
+
+@media (max-width: 767px) {
+  /* Blur across a full-screen layer is the most expensive thing on this page
+     and the least visible on a small one. */
+  .deck-ready .slide[data-state="past"],
+  .deck-ready .slide[data-state="future"] { filter: none; }
+  .deck-ready .deck { perspective: 700px; }
+}

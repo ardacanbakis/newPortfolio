@@ -1,0 +1,212 @@
+/* ==========================================================================
+   v30 — Torch.
+
+   The page arrives unlit. A soft beam follows the pointer and you read by
+   moving it — the cursor becomes an instrument rather than a clicker.
+
+   The mechanism is one element: a fixed black sheet with a hole punched in it
+   by a radial mask. Everything under the hole is the ordinary page, fully
+   styled and fully interactive; nothing is duplicated, dimmed or re-rendered.
+   That also means the beam reveals the marginalia — a handful of notes set
+   into the layout that are simply too dark to read until the light finds
+   them.
+
+   The switch matters more than the effect. Reading a whole portfolio through
+   a torch is a game, not a way to hire someone, so:
+
+     · a lights-on control sits in the header from the first frame
+     · the choice is remembered
+     · reduced motion, high contrast, or no pointer at all default to lit
+     · the beam widens on touch, where aiming is coarse
+
+   An effect that cannot be turned off is not an effect, it is an obstacle.
+   ========================================================================== */
+
+:root {
+  --bg: #07070a;
+  --surface: #101016;
+  --surface-2: #17171f;
+  --fg: #f2efe9;
+  --muted: #a8a49c;
+  --faint: #6f6b64;
+  --line: rgba(242, 239, 233, 0.12);
+
+  --accent: #ffb454;
+  --accent-contrast: #1a1102;
+
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Instrument Serif", Georgia, serif;
+
+  --radius: 0.6rem;
+  --maxw: 108rem;
+  --section-y: 12rem;
+
+  /* Beam geometry, written by app.js. */
+  --mx: 50vw;
+  --my: 40vh;
+  --r: 190px;
+  --feather: 130px;
+}
+
+body { background-color: var(--bg); }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.005em; }
+
+.hero-name { font-size: clamp(5rem, 13vw, 13rem); line-height: 0.95; }
+.hero-eyebrow { letter-spacing: 0.26em; }
+.hero-tagline { font-size: clamp(1.8rem, 2.3vw, 2.4rem); }
+.section-title { font-size: clamp(3.4rem, 6vw, 6rem); }
+
+.btn { border-radius: 3rem; }
+.btn-solid { background-color: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+.project,
+.service,
+.contact-form,
+.contact-direct { background-color: var(--surface); border-color: var(--line); }
+
+.project-index { color: var(--accent); }
+.project-tags li { border-radius: 2rem; }
+.field input, .field textarea { background-color: var(--bg); }
+.direct-row svg { color: var(--accent); }
+.site-header { background-color: color-mix(in srgb, var(--bg) 84%, transparent); }
+.brand { font-family: var(--font-display); font-size: 2.1rem; }
+.brand-mark { color: var(--accent); }
+
+/* ══ The sheet ════════════════════════════════════════════════════════════
+   Above everything, taking no clicks. The mask is the whole trick: opaque
+   where there is no light, transparent where the beam is. */
+
+.dark {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  background-color: #040406;
+  -webkit-mask-image: radial-gradient(
+    circle var(--r) at var(--mx) var(--my),
+    transparent 0,
+    transparent 62%,
+    #000 100%
+  );
+  mask-image: radial-gradient(
+    circle calc(var(--r) + var(--feather)) at var(--mx) var(--my),
+    transparent 0,
+    rgba(0, 0, 0, 0.35) 46%,
+    #000 100%
+  );
+  transition: opacity 0.5s linear;
+}
+
+/* A warm cast inside the beam, so the light has a colour rather than simply
+   being an absence of black. */
+.glow {
+  position: fixed;
+  inset: 0;
+  z-index: 69;
+  pointer-events: none;
+  background: radial-gradient(
+    circle calc(var(--r) * 0.9) at var(--mx) var(--my),
+    rgba(255, 180, 84, 0.1),
+    transparent 70%
+  );
+  transition: opacity 0.5s linear;
+}
+
+/* Lights on: both layers fade out and the page is an ordinary dark site. */
+.lit .dark,
+.lit .glow { opacity: 0; }
+
+/* ── The switch ─────────────────────────────────────────────────────────── */
+
+.lights {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 44px;
+  padding: 0 1.4rem;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 3rem;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: border-color 0.2s linear, color 0.2s linear;
+}
+
+.lights:hover { border-color: var(--accent); color: var(--fg); }
+.lights svg { width: 1.7rem; height: 1.7rem; }
+.lights .on-label { display: none; }
+.lit .lights .on-label { display: inline; }
+.lit .lights .off-label { display: none; }
+
+/* ── Marginalia ─────────────────────────────────────────────────────────
+   Notes set into the margin at a brightness that is legible under the beam
+   and invisible outside it. They are real text in the document, so they are
+   read out by a screen reader and found by search regardless of the light. */
+
+.note {
+  display: block;
+  margin-top: 1.4rem;
+  padding-left: 1.6rem;
+  border-left: 1px solid rgba(255, 180, 84, 0.4);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.6rem;
+  line-height: 1.5;
+  color: #6a6259;
+}
+
+.lit .note { color: var(--muted); }
+
+/* ── The hint ───────────────────────────────────────────────────────────── */
+
+.torch-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 3.4rem;
+  z-index: 71;
+  transform: translateX(-50%);
+  font-size: 1.3rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: var(--hint, 1);
+  transition: opacity 0.6s linear;
+}
+
+.lit .torch-hint { opacity: 0; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+  /* A finger is a much coarser aim than a mouse, and it also covers the
+     thing it is pointing at. */
+  :root { --r: 150px; --feather: 110px; }
+  .lights span:not(.on-label):not(.off-label) { display: none; }
+}
+
+/* ══ Lit by default ═══════════════════════════════════════════════════════
+   Three conditions where the torch is the wrong answer before anyone has
+   asked. app.js reads the same queries so its own state agrees with these. */
+
+@media (prefers-reduced-motion: reduce) {
+  .dark, .glow { display: none; }
+  .torch-hint { display: none; }
+  .note { color: var(--muted); }
+}
+
+@media (prefers-contrast: more) {
+  .dark, .glow { display: none; }
+  .note { color: var(--fg); border-left-color: var(--accent); }
+}
+
+/* No pointing device at all — a keyboard, a remote, a screen reader — has no
+   way to aim a beam. */
+@media (any-pointer: none) {
+  .dark, .glow { display: none; }
+}

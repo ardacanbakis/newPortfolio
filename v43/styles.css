@@ -1,0 +1,143 @@
+/* ==========================================================================
+   v43 — Weather.
+
+   Seen from inside, which is the whole reason this one is quiet. The page is
+   the room: warm, dry, paper-coloured, lit from within. The weather is the
+   thing happening on the other side of the glass, and the glass is a real
+   layer — app.js fogs it and you can wipe it.
+
+   Because the room is warm and the outside is cold, the palette does not
+   follow `--u` the way the other scene versions do. It holds still. The only
+   thing that changes indoors is how much light gets in, which is what `--fog`
+   is used for.
+   ========================================================================== */
+
+:root {
+  --fog: 0;
+
+  --bg: #1b2026;
+  --surface: #232a31;
+  --surface-2: #2d353d;
+  --fg: #f2efe9;
+  --muted: rgba(242, 239, 233, 0.72);
+  --faint: rgba(242, 239, 233, 0.46);
+  --line: rgba(242, 239, 233, 0.14);
+
+  --lamp: #f0b76a;
+  --accent: var(--lamp);
+  --accent-contrast: #20160a;
+
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Newsreader", Georgia, serif;
+
+  --radius: 0.8rem;
+  --maxw: 102rem;
+
+  --scene-fg: #f2efe9;
+  --scene-muted: rgba(240, 183, 106, 0.9);
+
+  /* The plate is the lit interior: warm, solid, and not blurred. A blur here
+     would be wrong twice over — the glass in front is already doing the
+     softening, and blurring an area of a canvas that is itself being
+     repainted every frame is the most expensive thing on the page. */
+  --plate: rgba(27, 32, 38, 0.9);
+  --plate-border: rgba(240, 183, 106, 0.2);
+  --plate-blur: none;
+  --plate-blur-sm: none;
+  --plate-radius: 1rem;
+  --plate-shadow: 0 2.4rem 7rem rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --plate-hero: rgba(27, 32, 38, 0.72);
+  --hero-shadow: 0 0.2rem 2rem rgba(0, 0, 0, 0.6);
+}
+
+body { color: var(--fg); }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.015em; }
+
+/* ══ The window ═══════════════════════════════════════════════════════════
+   A frame drawn over the stage: a heavy sill, glazing bars, and the shadow
+   the room casts onto the glass. Without it the weather is a wallpaper; with
+   it, you are somewhere looking out. */
+
+.scene-glass { z-index: 2; }
+
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    /* glazing bars */
+    linear-gradient(90deg, transparent calc(50% - 5px), rgba(18, 22, 26, 0.85) calc(50% - 5px), rgba(18, 22, 26, 0.85) calc(50% + 5px), transparent calc(50% + 5px)),
+    linear-gradient(180deg, transparent calc(46% - 5px), rgba(18, 22, 26, 0.85) calc(46% - 5px), rgba(18, 22, 26, 0.85) calc(46% + 5px), transparent calc(46% + 5px)),
+    /* the room's own shadow falling on the pane */
+    radial-gradient(130vmax 100vmax at 50% 50%, transparent 30%, rgba(10, 13, 16, 0.6) 100%);
+  border: clamp(1.4rem, 2.4vw, 2.8rem) solid #171b20;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.05);
+}
+
+/* Phones get one bar, not four panes: at 390px a cross through the middle of
+   the window lands straight across the text. */
+@media (max-width: 767px) {
+  .stage::after {
+    background:
+      linear-gradient(180deg, transparent calc(46% - 4px), rgba(18, 22, 26, 0.85) calc(46% - 4px), rgba(18, 22, 26, 0.85) calc(46% + 4px), transparent calc(46% + 4px)),
+      radial-gradient(130vmax 100vmax at 50% 50%, transparent 26%, rgba(10, 13, 16, 0.62) 100%);
+  }
+}
+
+/* ══ Type ═════════════════════════════════════════════════════════════════ */
+
+.brand-mark { color: var(--lamp); font-size: 1.9rem; }
+.brand-name { font-family: var(--font-display); font-size: 2rem; font-weight: 600; }
+
+.hero-eyebrow { letter-spacing: 0.26em; text-transform: uppercase; font-size: 1.25rem; color: var(--lamp); }
+.hero-name { font-family: var(--font-display); font-weight: 500; font-size: clamp(4.8rem, 11vw, 11rem); line-height: 0.96; }
+.hero-tagline { max-width: 50rem; font-size: 1.75rem; }
+.hero-meta { font-size: 1.2rem; letter-spacing: 0.16em; }
+
+.section-title { font-size: clamp(3rem, 5vw, 4.8rem); }
+.project-title { font-size: clamp(2.4rem, 3.6vw, 3.6rem); }
+.slide-kicker, .project-index, .service-index { color: var(--lamp); }
+
+/* ══ Panels ═══════════════════════════════════════════════════════════════ */
+
+.btn { border-radius: 0.7rem; font-weight: 500; }
+.btn-solid { background-color: var(--lamp); border-color: var(--lamp); color: var(--accent-contrast); }
+
+.project,
+.service,
+.contact-form,
+.contact-direct,
+.about-media {
+  background-color: var(--surface);
+  border-color: var(--line);
+  border-radius: 0.9rem;
+}
+
+.project-tags li { background-color: var(--surface-2); border-radius: 999px; }
+.direct-row { border-radius: 0.7rem; background-color: var(--surface-2); }
+.direct-row svg { color: var(--lamp); }
+
+.field input, .field textarea {
+  background-color: #1a1f25;
+  border-color: var(--line);
+  border-radius: 0.6rem;
+  color: var(--fg);
+}
+
+.field input:focus, .field textarea:focus { border-color: var(--lamp); }
+
+/* ══ Chrome ═══════════════════════════════════════════════════════════════ */
+
+.site-header { background-color: rgba(23, 27, 32, 0.9); }
+.scene-place { color: var(--lamp); }
+
+/* The wipe is only discoverable if you are told, once. */
+.deck-hint::after {
+  content: " · wipe the glass";
+  opacity: 0.6;
+}
+
+@media (max-width: 599px) { .deck-hint::after { content: ""; } }

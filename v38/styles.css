@@ -1,0 +1,310 @@
+/* ==========================================================================
+   v38 — Morph.
+
+   Two view transitions, doing two different jobs.
+
+   **Project → detail.** Clicking a card does not navigate and does not fade
+   anything. The card's thumbnail and its title are given matching
+   `view-transition-name`s on the card and on the detail panel, and the
+   browser tweens the one into the other: the thumbnail grows into the hero
+   image, the title travels to its new position and size. Everything else
+   cross-fades around them. This is the effect that used to take a layout
+   library and a lot of getBoundingClientRect.
+
+   **Light ↔ dark.** The theme swap rides a transition too, with the new
+   theme's snapshot revealed through an expanding circle centred on the
+   button that was pressed. Nothing in the DOM changes except one attribute
+   on <html>; the circle is a clip-path on ::view-transition-new(root).
+
+   The whole thing is progressive. `document.startViewTransition` missing
+   means the same state changes happen instantly, which is a page that works.
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  --bg: #111114;
+  --surface: #1a1a1f;
+  --surface-2: #23232a;
+  --fg: #f6f6f8;
+  --muted: #a5a5b0;
+  --faint: #71717e;
+  --line: rgba(246, 246, 248, 0.12);
+
+  --accent: #ff6a3d;
+  --accent-contrast: #14100e;
+
+  --font-body: "Sora", system-ui, -apple-system, sans-serif;
+  --font-display: "Sora", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+
+  --radius: 1.4rem;
+  --maxw: 116rem;
+  --section-y: 11rem;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f7f6f4;
+  --surface: #ffffff;
+  --surface-2: #ecebe7;
+  --fg: #16161a;
+  --muted: #55555f;
+  --faint: #86868f;
+  --line: rgba(22, 22, 26, 0.12);
+
+  --accent: #d63b12;
+  --accent-contrast: #ffffff;
+}
+
+body { letter-spacing: -0.012em; }
+h1, h2, h3 { letter-spacing: -0.04em; }
+
+.brand-mark { color: var(--accent); }
+.hero-eyebrow { font-family: var(--font-mono); letter-spacing: 0.16em; text-transform: uppercase; font-size: 1.3rem; }
+.hero-name { font-size: clamp(5rem, 11vw, 12rem); font-weight: 700; }
+.hero-meta { font-family: var(--font-mono); font-size: 1.25rem; }
+
+.btn { border-radius: 999px; font-weight: 500; }
+.btn-solid { background-color: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+
+.project, .service, .contact-form, .contact-direct {
+  background-color: var(--surface);
+  border-color: var(--line);
+}
+
+.project-index, .service-index { font-family: var(--font-mono); color: var(--accent); }
+.project-tags li, .detail-tags li { font-family: var(--font-mono); font-size: 1.15rem; border-radius: 999px; }
+.field input, .field textarea { background-color: var(--bg); border-radius: 0.8rem; }
+.direct-row { border-radius: 0.8rem; }
+.direct-row svg { color: var(--accent); }
+.form-status, .footer-text { font-family: var(--font-mono); }
+
+/* ══ Theme toggle ═════════════════════════════════════════════════════════ */
+
+#theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background-color: var(--surface);
+  color: var(--fg);
+  cursor: pointer;
+  transition: border-color 0.2s linear, color 0.2s linear;
+}
+
+#theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+#theme-toggle svg { width: 2rem; height: 2rem; grid-area: 1 / 1; }
+
+.icon-moon { display: none; }
+:root[data-theme="light"] .icon-sun { display: none; }
+:root[data-theme="light"] .icon-moon { display: block; }
+
+/* ══ Cards, as the index of the morph ═════════════════════════════════════ */
+
+.project { cursor: pointer; }
+
+.project-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  margin-top: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  cursor: pointer;
+}
+
+.project-open svg { width: 1.5rem; height: 1.5rem; transition: transform 0.2s ease; }
+.project:hover .project-open svg { transform: translateX(4px); }
+
+/* ══ Detail ═══════════════════════════════════════════════════════════════ */
+
+.details { display: contents; }
+
+.detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(3rem, 5vw, 6rem);
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding: 13rem max(3vw, calc((100vw - var(--maxw)) / 2)) var(--section-y);
+}
+
+.detail[hidden] { display: none; }
+
+.detail-back {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  justify-self: start;
+  min-height: 44px;
+  padding: 0 1.6rem 0 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background-color: var(--surface);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  cursor: pointer;
+  transition: border-color 0.2s linear, color 0.2s linear;
+}
+
+.detail-back:hover { border-color: var(--accent); color: var(--accent); }
+.detail-back svg { width: 1.7rem; height: 1.7rem; }
+
+.detail-media {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background-color: var(--surface-2);
+}
+
+.detail-media img { width: 100%; }
+
+.detail-index {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  color: var(--accent);
+}
+
+.detail-index span { color: var(--faint); }
+
+.detail-title {
+  margin: 0.8rem 0 2rem;
+  font-size: clamp(3.6rem, 7vw, 6.4rem);
+  font-weight: 700;
+}
+
+.detail-desc {
+  font-size: 1.75rem;
+  line-height: 1.75;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin: 2.6rem 0;
+}
+
+.detail-tags li {
+  padding: 0.45rem 1.1rem;
+  background-color: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.detail-links { display: flex; flex-wrap: wrap; gap: 1rem; }
+
+.detail-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 2rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-weight: 500;
+  transition: background-color 0.2s linear, color 0.2s linear;
+}
+
+.detail-links a:first-child { background-color: var(--accent); color: var(--accent-contrast); }
+.detail-links a:hover { background-color: var(--accent); color: var(--accent-contrast); }
+
+/* When a detail is open the index is out of the way entirely — it is a
+   different view of the same page, not an overlay on top of one. */
+.detail-open main > .section { display: none; }
+.detail-open .footer { display: none; }
+
+/* And no nav link is current, because none of those sections is on screen.
+   Without this the scroll tracker in shared/site.js finds every section at
+   zero height and settles on the last one, so a project detail page claims
+   you are reading the contact form. */
+.detail-open .nav a { color: var(--muted); }
+.detail-open .nav a::after { width: 0; }
+
+/* ══ The transitions ══════════════════════════════════════════════════════ */
+
+/* The header and the floating button hold still through the project morph
+   instead of cross-fading with everything else. The names are only applied
+   while `.morphing` is set, because during the *theme* swap they must be part
+   of the root snapshot — otherwise the expanding circle would sweep past a
+   header that is quietly cross-fading on its own. */
+:root.morphing .site-header { view-transition-name: vt-header; }
+:root.morphing .whatsapp-float { view-transition-name: vt-wa; }
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-group(*) {
+    animation-duration: 0.42s;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* The two halves of the page that are not the morphing pair should get out
+     of the way quickly rather than linger under the moving image. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.28s;
+  }
+
+  /* The morphing pair must not be cross-faded — the whole point is that it is
+     one object moving, so both snapshots stay fully opaque and only the group
+     transform and the size interpolate. */
+  ::view-transition-old(vt-media),
+  ::view-transition-new(vt-media),
+  ::view-transition-old(vt-title),
+  ::view-transition-new(vt-title) {
+    animation: none;
+    mix-blend-mode: normal;
+    height: 100%;
+    overflow: clip;
+  }
+
+  ::view-transition-image-pair(vt-media) { isolation: none; }
+
+  /* The theme swap. The circle grows from wherever the toggle is, so the new
+     theme arrives *from* the control that asked for it. --cx/--cy are written
+     by app.js at the moment of the press. */
+  :root.theme-swap::view-transition-old(root) { animation: none; }
+
+  :root.theme-swap::view-transition-new(root) {
+    animation: theme-wipe 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Painted over the old snapshot rather than under it. */
+    z-index: 1;
+  }
+
+  :root.theme-swap::view-transition-old(root) { z-index: 0; }
+
+  @keyframes theme-wipe {
+    from { clip-path: circle(0 at var(--cx, 50%) var(--cy, 0%)); }
+    to   { clip-path: circle(140% at var(--cx, 50%) var(--cy, 0%)); }
+  }
+}
+
+/* ══ Responsive ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+  .detail { grid-template-columns: 1fr; padding-top: 11rem; }
+  .detail-links a { flex: 1 1 auto; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* A view transition with no animation is an instant swap, which is the
+     right behaviour rather than something to be sorry about. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

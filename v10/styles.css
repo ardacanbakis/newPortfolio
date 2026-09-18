@@ -1,0 +1,213 @@
+/* ==========================================================================
+   v10 — Retro terminal / Y2K
+
+   CRT phosphor: scanlines, chromatic glow, pixel type. Deliberately the most
+   playful of the ten.
+
+   The glow is done with text-shadow rather than a blur filter — a filter on
+   large text areas forces expensive repaints while scrolling, and on a page
+   this long that is felt immediately.
+   ========================================================================== */
+
+:root {
+  --bg: #0d0221;
+  --surface: #180a35;
+  --surface-2: #221046;
+  --fg: #e9d5ff;
+  --muted: #b39ddb;
+  --faint: #8b74b8;
+  --line: rgba(233, 213, 255, 0.24);
+
+  --accent: #00f5d4;
+  --accent-contrast: #0d0221;
+
+  --font-body: "Share Tech Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: "VT323", "Share Tech Mono", ui-monospace, monospace;
+
+  --radius: 0.4rem;
+  --maxw: 118rem;
+  --section-y: 8rem;
+
+  --magenta: #ff2e97;
+}
+
+body { font-size: 1.7rem; letter-spacing: 0.01em; }
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* Scanlines and a vignette over the whole screen. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.24) 0 1px, transparent 1px 3px),
+    radial-gradient(120% 100% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+.site-header,
+main,
+.footer { position: relative; z-index: 2; }
+
+.site-header {
+  background-color: rgba(13, 2, 33, 0.9);
+  border-bottom: 1px solid var(--accent);
+}
+
+.brand { font-family: var(--font-display); font-size: 2.2rem; letter-spacing: 0.06em; }
+.brand-mark { color: var(--magenta); }
+
+.nav a { font-family: var(--font-display); font-size: 1.9rem; text-transform: uppercase; }
+.nav a::before { content: "> "; color: var(--accent); opacity: 0; transition: opacity 0.2s; }
+.nav a:hover::before,
+.nav a.active::before { opacity: 1; }
+.nav a.active::after { display: none; }
+
+#language-switcher { font-family: var(--font-display); font-size: 1.6rem; }
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.crt-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(60% 50% at 50% 40%, rgba(0, 245, 212, 0.12), transparent 70%);
+}
+
+.hero-eyebrow {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--accent);
+  letter-spacing: 0.24em;
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 13vw, 13rem);
+  line-height: 0.9;
+  color: var(--fg);
+  /* Chromatic fringe, the cheap way. */
+  text-shadow:
+    -2px 0 var(--magenta),
+    2px 0 var(--accent),
+    0 0 3rem rgba(0, 245, 212, 0.4);
+}
+
+.hero-tagline { color: var(--muted); }
+
+.hero-meta { font-family: var(--font-display); font-size: 1.6rem; color: var(--accent); }
+
+/* A blinking block cursor after the tagline. */
+.hero-tagline::after {
+  content: "_";
+  color: var(--accent);
+  animation: blink 1.1s step-end infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.btn {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: var(--radius);
+  border-width: 2px;
+}
+
+.btn-solid { box-shadow: 0 0 2rem rgba(0, 245, 212, 0.45); }
+.btn-ghost { border-color: var(--accent); color: var(--accent); }
+.btn-ghost:hover { background-color: var(--accent); color: var(--accent-contrast); }
+
+/* ── Projects ───────────────────────────────────────────────────────────── */
+
+.section-title {
+  color: var(--fg);
+  text-shadow: -1.5px 0 var(--magenta), 1.5px 0 var(--accent);
+}
+
+.section-title::before { content: "// "; color: var(--accent); text-shadow: none; }
+
+.project {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background-color: var(--surface);
+}
+
+.project:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 2.4rem rgba(0, 245, 212, 0.28);
+}
+
+.project-media img { filter: saturate(1.25) contrast(1.05); }
+
+.project-index { font-family: var(--font-display); font-size: 1.8rem; color: var(--magenta); }
+
+.project-title { font-family: var(--font-display); font-size: 2.8rem; color: var(--accent); }
+
+.project-tags li {
+  border-radius: var(--radius);
+  border-color: rgba(255, 46, 151, 0.4);
+  color: #ffa8d5;
+}
+
+.project-links a::before { content: "▸ "; }
+
+/* ── Services ───────────────────────────────────────────────────────────── */
+
+.service { background-color: var(--surface); }
+.service:hover { box-shadow: 0 0 2rem rgba(0, 245, 212, 0.22); }
+.service-index { font-family: var(--font-display); font-size: 2rem; }
+.service h3 { font-size: 2.2rem; color: var(--accent); }
+
+/* ── Contact ────────────────────────────────────────────────────────────── */
+
+.contact-form,
+.contact-direct { background-color: var(--surface); }
+
+.field label { font-family: var(--font-display); font-size: 1.6rem; color: var(--accent); }
+.field label::before { content: "> "; }
+
+.field input,
+.field textarea {
+  background-color: #0d0221;
+  font-family: var(--font-body);
+  color: var(--fg);
+}
+
+.direct-row:hover { box-shadow: 0 0 1.6rem rgba(0, 245, 212, 0.24); }
+
+.contact-direct h3 { font-size: 2.2rem; color: var(--accent); }
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+
+.footer { border-top-color: var(--accent); }
+.footer-socials a:hover { color: var(--accent); background-color: rgba(0, 245, 212, 0.12); }
+.footer-text { font-family: var(--font-display); font-size: 1.5rem; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  .nav { background-color: #0d0221; border-left-color: var(--accent); }
+}
+
+@media (max-width: 599px) {
+  body { font-size: 1.6rem; }
+  .hero-name { text-shadow: -1px 0 var(--magenta), 1px 0 var(--accent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-tagline::after { animation: none; }
+  /* Scanlines over a whole page can be genuinely uncomfortable; drop them. */
+  body::before { display: none; }
+}
